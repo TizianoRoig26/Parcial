@@ -1,13 +1,10 @@
-# app/modules/ingerediente/repository.py
+
 from sqlmodel import Session, select, func
 from app.core.repository import BaseRepository
 from app.modules.ingerediente.models import Ingrediente
 from app.modules.producto.links import ProductoIngrediente
 
 class IngredienteRepository(BaseRepository[Ingrediente]):
-    """
-    Repositorio de Ingredientes.
-    """
     def __init__(self, session: Session) -> None:
         super().__init__(session, Ingrediente)
 
@@ -28,7 +25,6 @@ class IngredienteRepository(BaseRepository[Ingrediente]):
         )
 
     def get_by_producto(self, producto_id: int) -> list[Ingrediente]:
-        """Obtiene ingredientes de un producto via tabla N:N"""
         return list(
             self.session.exec(
                 select(Ingrediente)

@@ -1,4 +1,4 @@
-# app/modules/ingerediente/router.py
+
 from fastapi import APIRouter, Depends, Query, status
 from typing import Annotated
 from sqlmodel import Session
@@ -10,7 +10,6 @@ from app.modules.ingerediente.service import IngredienteService
 router = APIRouter()
 
 def get_ingrediente_service(session: Session = Depends(get_session)) -> IngredienteService:
-    """Factory de dependencia: inyecta el servicio con su Session."""
     return IngredienteService(session)
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────

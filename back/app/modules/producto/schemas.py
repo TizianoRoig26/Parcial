@@ -1,9 +1,3 @@
-# app/modules/producto/schemas.py
-#
-# Schemas Pydantic de entrada y salida para el módulo producto.
-# Separados del modelo de tabla para respetar el principio de
-# responsabilidad única: models.py define la DB, schemas.py define
-# los contratos HTTP.
 from typing import Optional, List
 from sqlmodel import SQLModel, Field
 from app.modules.categoria.schemas import CategoriaPublic
@@ -14,7 +8,6 @@ from app.modules.ingerediente.schemas import IngredientePublic
 # ── Entrada ───────────────────────────────────────────────────────────────────
 
 class ProductoCreate(SQLModel):
-    """Body para POST /productos/"""
     nombre: str = Field(min_length=2, max_length=100)
     descripcion: str = Field(min_length=2, max_length=500)
     precio_base: int = Field(ge=0)
@@ -23,7 +16,6 @@ class ProductoCreate(SQLModel):
 
 
 class ProductoUpdate(SQLModel):
-    """Body para PATCH /productos/{id} - todos los campos opcionales."""
     nombre: Optional[str] = Field(default=None, min_length=2, max_length=100)
     descripcion: Optional[str] = Field(default=None, min_length=2, max_length=500)
     precio_base: Optional[int] = Field(default=None, ge=0)
@@ -34,18 +26,15 @@ class ProductoUpdate(SQLModel):
 
 
 class CategoriaAssign(SQLModel):
-    """Body para POST /productos/{producto_id}/categorias/"""
     categoria_ids: List[int] = Field(default=None, min_length=1)
 
 class IngredienteAssign(SQLModel):
-    """Body para POST /productos/{producto_id}/ingredientes/"""
     ingrediente_ids: List[int] = Field(default=None, min_length=1)
 
 
 # ── Salida ────────────────────────────────────────────────────────────────────
 
 class ProductoPublic(SQLModel):
-    """Response model: campos que se exponen al cliente."""
     id: int
     nombre: str
     descripcion: str
@@ -59,7 +48,6 @@ class ProductoPublic(SQLModel):
 
 
 class ProductoList(SQLModel):
-    """Response model paginado para GET /productos/"""
     data: List[ProductoPublic]
     total: int
 

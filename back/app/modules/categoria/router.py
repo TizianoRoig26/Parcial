@@ -1,4 +1,4 @@
-# app/modules/categoria/router.py
+
 from fastapi import APIRouter, Depends, Query, status
 from typing import Annotated
 from sqlmodel import Session
@@ -11,7 +11,6 @@ router = APIRouter()
 
 
 def get_Categoria_service(session: Session = Depends(get_session)) -> CategoriaService:
-    """Factory de dependencia: inyecta el servicio con su Session."""
     return CategoriaService(session)
 
 

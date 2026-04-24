@@ -1,9 +1,4 @@
-# app/modules/Categoria/schemas.py
-#
-# Schemas Pydantic de entrada y salida para el módulo Categoria.
-# Separados del modelo de tabla para respetar el principio de
-# responsabilidad única: models.py define la DB, schemas.py define
-# los contratos HTTP.
+
 from typing import Optional, List
 from sqlmodel import SQLModel, Field
 

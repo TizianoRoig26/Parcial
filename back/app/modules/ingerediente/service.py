@@ -1,4 +1,4 @@
-# app/modules/ingerediente/service.py
+
 from fastapi import HTTPException, status
 from sqlmodel import Session
 
@@ -7,9 +7,7 @@ from app.modules.ingerediente.models import Ingrediente
 from app.modules.ingerediente.schemas import IngredienteCreate, IngredientePublic, IngredienteUpdate, IngredienteList
 
 class IngredienteService:
-    """
-    Capa de lógica de negocio para Ingredientes.
-    """
+
     def __init__(self, session: Session) -> None:
         self._session = session
 

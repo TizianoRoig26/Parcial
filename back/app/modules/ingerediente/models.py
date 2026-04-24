@@ -1,7 +1,3 @@
-# app/modules/ingerediente/models.py
-#
-# Contiene SOLO el modelo de tabla SQLModel (Hero).
-# Los schemas Pydantic de entrada/salida viven en schemas.py.
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
 

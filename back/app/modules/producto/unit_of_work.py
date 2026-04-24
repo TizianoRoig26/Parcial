@@ -7,15 +7,9 @@ from app.modules.ingerediente.repository import IngredienteRepository
 from app.modules.producto.links import ProductoCategoria, ProductoIngrediente
 
 class ProductoUnitOfWork(UnitOfWork):
-    """
-    UoW específico del módulo producto.
-    Expone los repositorios que el servicio necesita coordinar.
-    """
 
     def __init__(self, session: Session) -> None:
-        """
-        UnitOfWork específico del dominio Producto.
-        """
+
         super().__init__(session)
         self.Producto = ProductoRepository(session)
         self.Categoria = CategoriaRepository(session)

@@ -1,4 +1,4 @@
-# app/modules/producto/service.py
+
 from fastapi import HTTPException, status
 from sqlmodel import Session
 

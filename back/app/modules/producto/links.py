@@ -1,6 +1,4 @@
-# app/modules/producto/links.py
-#
-# Tablas de enlace (many-to-many) del modulo producto.
+
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
 

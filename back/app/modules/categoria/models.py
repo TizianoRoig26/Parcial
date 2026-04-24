@@ -1,7 +1,4 @@
-# app/modules/categoria/models.py
-#
-# Contiene SOLO el modelo de tabla SQLModel.
-# Los schemas Pydantic de entrada/salida viven en schemas.py.
+
 from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
 from app.modules.producto.links import ProductoCategoria

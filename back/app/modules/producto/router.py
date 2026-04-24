@@ -1,4 +1,4 @@
-# app/modules/producto/router.py
+
 from fastapi import APIRouter, Depends, Query, status
 from typing import Annotated
 from sqlmodel import Session
@@ -12,7 +12,6 @@ router = APIRouter()
 
 
 def get_Producto_service(session: Session = Depends(get_session)) -> ProductoService:
-    """Factory de dependencia: inyecta el servicio con su Session."""
     return ProductoService(session)
 
 
@@ -28,7 +27,6 @@ def create_producto(
     data: ProductoCreate,
     svc: ProductoService = Depends(get_Producto_service),
 ) -> ProductoPublic:
-    """Router delega al servicio — sin lógica de negocio aquí."""
     return svc.create(data)
 
 

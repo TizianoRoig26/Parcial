@@ -1,7 +1,4 @@
-# app/modules/producto/models.py
-#
-# Contiene SOLO el modelo de tabla SQLModel (Hero).
-# Los schemas Pydantic de entrada/salida viven en schemas.py.
+
 from typing import Optional, Annotated, List, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -23,7 +20,7 @@ class Producto(SQLModel, table=True):
     imagen_url: str
     is_active: Annotated[bool, Field(default=True)]
 
-    # Relacion N:N con Categoria via tabla intermedia
+
     categorias: List["Categoria"] = Relationship(
         back_populates="productos",
         link_model=ProductoCategoria,
@@ -31,7 +28,6 @@ class Producto(SQLModel, table=True):
     )
 
 
-    # Relacion N:N con Ingrediente via tabla intermedia
     ingredientes: List["Ingrediente"] = Relationship(
         back_populates="productos",
         link_model=ProductoIngrediente,

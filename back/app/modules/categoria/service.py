@@ -1,4 +1,4 @@
-# app/modules/categoria/service.py
+
 from fastapi import HTTPException, status
 from sqlmodel import Session
 
@@ -7,9 +7,6 @@ from app.modules.categoria.models import Categoria
 from app.modules.categoria.schemas import CategoriaCreate, CategoriaPublic, CategoriaUpdate, CategoriaList
 
 class CategoriaService:
-    """
-    Capa de lógica de negocio para Categoria.
-    """
 
     def __init__(self, session: Session) -> None:
         self._session = session
@@ -39,9 +36,7 @@ class CategoriaService:
 
 
     def get_all(self, offset: int = 0, limit: int = 20) -> CategoriaList:
-        """
-        Obtiene Categoria activas con paginación.
-        """
+
         with CategoriaUnitOfWork(self._session) as uow:
             categorias = uow.Categoria.get_active(offset=offset, limit=limit)
             total = uow.Categoria.count()
