@@ -8,7 +8,6 @@ if TYPE_CHECKING:
     from app.modules.categoria.models import Categoria
     from app.modules.ingerediente.models import Ingrediente
 
-
 class Producto(SQLModel, table=True):
     __tablename__ = "productos"
 

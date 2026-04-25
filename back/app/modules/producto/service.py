@@ -10,9 +10,6 @@ from app.modules.producto.schemas import ProductoCreate, ProductoPublic, Product
 from app.modules.categoria.repository import CategoriaRepository
 
 class ProductoService:
-    """
-    Capa de lógica de negocio para Productos.
-    """
 
     def __init__(self, session: Session) -> None:
         self._session = session

@@ -10,14 +10,15 @@ class CategoriaCreate(SQLModel):
     nombre: str = Field(min_length=2, max_length=100)
     parent_id: Optional[int] = None
     descripcion: str = Field(min_length=2, max_length=500)
-    imagen_url: str = Field(max_length=255)
+    imagen_url: str = Field(max_length=1024)
 
 
 class CategoriaUpdate(SQLModel):
     nombre: Optional[str] = Field(default=None, min_length=2, max_length=100)
     parent_id: Optional[int] = None
     descripcion: Optional[str] = Field(default=None, min_length=2, max_length=500)
-    imagen_url: Optional[str] = Field(default=None, max_length=255)
+    imagen_url: Optional[str] = Field(default=None, max_length=1024)
+
 
 
 # ── Salida ────────────────────────────────────────────────────────────────────

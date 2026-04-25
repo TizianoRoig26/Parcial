@@ -19,12 +19,24 @@ async def lifespan(app: FastAPI):
     yield
 
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="API de Gestión de Productos",
     description="Sistema CRUD de productos con arquitectura Service/UoW/Repository",
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Configuración de CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # En producción, usa una lista de dominios específicos
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Root endpoint para verificar que el server corre
 @app.get("/", tags=["health"])
