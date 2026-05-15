@@ -13,7 +13,7 @@ from sqlmodel import Session, select
 from sqlalchemy.orm import selectinload
 
 from app.core.repository import BaseRepository
-from app.modules.usuarios.model import Usuario
+from app.modules.usuario.model import Usuario
 
 
 class UsuarioRepository(BaseRepository[Usuario]):

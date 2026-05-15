@@ -6,15 +6,15 @@ from app.core.database import create_db_and_tables
 from app.modules.producto.router import router as producto_router
 from app.modules.categoria.router import router as categoria_router
 from app.modules.ingerediente.router import router as ingrediente_router
-from app.modules.usuarios.router import router as usuarios_router
+from app.modules.usuario.router import router as usuarios_router
 
 # Importar modelos para registro en SQLModel
 from app.modules.categoria.models import Categoria
 from app.modules.ingerediente.models import Ingrediente
 from app.modules.producto.models import Producto
-from app.modules.usuarios.model import Usuario
-from app.modules.usuarios.rol import Rol
-from app.modules.usuarios.usuario_rol import UsuarioRol
+from app.modules.usuario.model import Usuario
+from app.modules.usuario.rol import Rol
+from app.modules.usuario.usuario_rol import UsuarioRol
 from app.db.seed import seed_roles
 
 @asynccontextmanager

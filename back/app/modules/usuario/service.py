@@ -16,9 +16,9 @@ from fastapi import HTTPException, status
 
 from app.core.config import settings
 from app.core.security import hash_password, verify_password, create_access_token
-from app.modules.usuarios.unit_of_work import UsuariosUnitOfWork
-from app.modules.usuarios.model import Usuario
-from app.modules.usuarios.schemas import UserCreate, Token, UserPublic
+from app.modules.usuario.unit_of_work import UsuariosUnitOfWork
+from app.modules.usuario.model import Usuario
+from app.modules.usuario.schemas import UserCreate, Token, UserPublic
 
 
 class UsuarioService:

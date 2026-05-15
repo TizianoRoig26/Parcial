@@ -4,11 +4,8 @@ from typing import Annotated
 from sqlmodel import Session
 
 from app.core.database import get_session
-from app.core.deps import require_role
-from app.core.deps import require_role
 from app.modules.ingerediente.schemas import IngredienteCreate, IngredientePublic, IngredienteUpdate, IngredienteList
 from app.modules.ingerediente.service import IngredienteService
-from app.modules.usuario.model import Usuario
 
 router = APIRouter()
 
@@ -24,7 +21,6 @@ def get_ingrediente_service(session: Session = Depends(get_session)) -> Ingredie
     summary="Crear un Ingrediente",
 )
 def create_ingrediente(
-    rol: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     data: IngredienteCreate,
     svc: IngredienteService = Depends(get_ingrediente_service),
 ) -> IngredientePublic:
@@ -61,7 +57,6 @@ def get_ingrediente(
 )
 def update_ingrediente(
     id: int,
-    rol: Annotated[Usuario, Depends(require_role(["ADMIN","STOCK"]))],
     data: IngredienteUpdate,
     svc: IngredienteService = Depends(get_ingrediente_service),
 ) -> IngredientePublic:
@@ -74,7 +69,6 @@ def update_ingrediente(
 )
 def delete_ingrediente(
     id: int,
-    rol: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     svc: IngredienteService = Depends(get_ingrediente_service),
 ) -> None:
     svc.soft_delete(id)

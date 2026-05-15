@@ -4,8 +4,10 @@ from typing import Annotated
 from sqlmodel import Session
 
 from app.core.database import get_session
+from app.core.deps import require_role
 from app.modules.categoria.schemas import CategoriaCreate, CategoriaPublic, CategoriaUpdate, CategoriaList
 from app.modules.categoria.service import CategoriaService
+from app.modules.usuario.model import Usuario
 
 router = APIRouter()
 
@@ -23,6 +25,7 @@ def get_Categoria_service(session: Session = Depends(get_session)) -> CategoriaS
     summary="Crear un Categoria",
 )
 def create_categoria(
+    rol: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     data: CategoriaCreate,
     svc: CategoriaService = Depends(get_Categoria_service),
 ) -> CategoriaPublic:
@@ -63,6 +66,7 @@ def get_categoria(
 )
 def update_Categoria(
     id: int,
+    rol: Annotated[Usuario, Depends(require_role(["ADMIN","STOCK"]))],
     data: CategoriaUpdate,
     svc: CategoriaService = Depends(get_Categoria_service),
 ) -> CategoriaPublic:
@@ -76,6 +80,7 @@ def update_Categoria(
 )
 def delete_categoria(
     id: int,
+    rol: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     svc: CategoriaService = Depends(get_Categoria_service),
 ) -> None:
     svc.soft_delete(id)

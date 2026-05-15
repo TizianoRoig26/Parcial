@@ -9,10 +9,10 @@ from typing import List, TYPE_CHECKING
 
 from sqlmodel import SQLModel, Field, Relationship
 
-from app.modules.usuarios.usuario_rol import UsuarioRol
+from app.modules.usuario.usuario_rol import UsuarioRol
 
 if TYPE_CHECKING:
-    from app.modules.usuarios.rol import Rol
+    from app.modules.usuario.rol import Rol
 
 
 class Usuario(SQLModel, table=True):

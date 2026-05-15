@@ -1,8 +1,8 @@
 from sqlmodel import Session, select
 
 from app.core.database import create_db_and_tables, engine
-from app.modules.usuarios.rol import Rol
-from app.modules.usuarios.model import Usuario
+from app.modules.usuario.rol import Rol
+from app.modules.usuario.model import Usuario
 from app.core.security import hash_password
 from sqlmodel import select
 
