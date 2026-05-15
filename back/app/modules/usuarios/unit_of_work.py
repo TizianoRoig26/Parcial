@@ -3,6 +3,7 @@ from sqlmodel import Session
 
 from app.core.database import get_session
 from app.core.unit_of_work import UnitOfWork
+from app.modules.usuarios.rol_repository import RolRepository
 from app.modules.usuarios.repository import UsuarioRepository
 
 class UsuariosUnitOfWork(UnitOfWork):
@@ -11,6 +12,7 @@ class UsuariosUnitOfWork(UnitOfWork):
 
         super().__init__(session)
         self.usuarios = UsuarioRepository(session)
+        self.roles = RolRepository(session)
 
 
 def get_uow(session: Session = Depends(get_session)) -> UsuariosUnitOfWork:

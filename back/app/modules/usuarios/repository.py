@@ -10,6 +10,7 @@ NO conoce a: Service, Router
 """
 
 from sqlmodel import Session, select
+from sqlalchemy.orm import selectinload
 
 from app.core.repository import BaseRepository
 from app.modules.usuarios.model import Usuario
@@ -22,10 +23,28 @@ class UsuarioRepository(BaseRepository[Usuario]):
 
     def get_by_username(self, username: str) -> Usuario | None:
         return self.session.exec(
-            select(Usuario).where(Usuario.username == username)
+            select(Usuario)
+            .where(Usuario.username == username)
+            .options(selectinload(Usuario.roles))
         ).first()
 
     def get_by_email(self, email: str) -> Usuario | None:
         return self.session.exec(
-            select(Usuario).where(Usuario.email == email)
+            select(Usuario)
+            .where(Usuario.email == email)
+            .options(selectinload(Usuario.roles))
         ).first()
+
+    def get_by_id(self, entity_id: int) -> Usuario | None:
+        return self.session.exec(
+            select(Usuario)
+            .where(Usuario.id == entity_id)
+            .options(selectinload(Usuario.roles))
+        ).first()
+
+    def get_all(self) -> list[Usuario]:
+        return list(
+            self.session.exec(
+                select(Usuario).options(selectinload(Usuario.roles))
+            ).all()
+        )

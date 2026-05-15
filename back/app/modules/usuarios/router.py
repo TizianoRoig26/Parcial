@@ -88,7 +88,7 @@ def ruta_privada(
 ):
     return {
         "mensaje": f"¡Hola, {current_user.full_name}! Accediste a una ruta privada.",
-        "tu_rol": current_user.role,
+        "tus_roles": current_user.role_codes,
     }
 
 
@@ -96,7 +96,7 @@ def ruta_privada(
 
 @router.get("/admin/usuarios", response_model=list[UserPublic])
 def list_users(
-    _admin: Annotated[Usuario, Depends(require_role(["admin"]))],
+    _admin: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     uow: Annotated[UsuariosUnitOfWork, Depends(get_uow)],
 ):
     with uow:
@@ -107,7 +107,7 @@ def list_users(
 @router.post("/admin/usuarios/{user_id}/desactivar", response_model=UserPublic)
 def deactivate_user(
     user_id: int,
-    _admin: Annotated[Usuario, Depends(require_role(["admin"]))],
+    _admin: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     uow: Annotated[UsuariosUnitOfWork, Depends(get_uow)],
 ):
     with uow:
@@ -118,7 +118,7 @@ def deactivate_user(
 @router.post("/admin/usuarios/{user_id}/activar", response_model=UserPublic)
 def activate_user(
     user_id: int,
-    _admin: Annotated[Usuario, Depends(require_role(["admin"]))],
+    _admin: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     uow: Annotated[UsuariosUnitOfWork, Depends(get_uow)],
 ):
     with uow:

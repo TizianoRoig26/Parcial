@@ -4,6 +4,12 @@ from sqlmodel import SQLModel, Field
 from pydantic import EmailStr
 
 
+class RolPublic(SQLModel):
+    codigo: str
+    nombre: str
+    descripcion: str | None = None
+
+
 class UserCreate(SQLModel):
     """Datos requeridos para registrar un usuario."""
     username:  str
@@ -18,8 +24,8 @@ class UserPublic(SQLModel):
     username:  str
     full_name: str
     email:     str
-    role:      str
     disabled:  bool
+    roles:     list[RolPublic] = Field(default_factory=list)
 
 
 class Token(SQLModel):

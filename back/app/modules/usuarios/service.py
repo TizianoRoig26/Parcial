@@ -28,7 +28,7 @@ class UsuarioService:
         self.uow = uow
 
     def register(self, user_in: UserCreate):
-        """Registra un nuevo usuario. El rol siempre es 'user'."""
+        """Registra un nuevo usuario con el rol CLIENT por defecto."""
         if self.uow.usuarios.get_by_username(user_in.username):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -41,13 +41,20 @@ class UsuarioService:
                 detail="El email ya está registrado",
             )
 
+        client_role = self.uow.roles.get_by_codigo("CLIENT")
+        if client_role is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="No existe el rol CLIENT en el catálogo",
+            )
+
         usuario = Usuario(
             username=user_in.username,
             full_name=user_in.full_name,
             email=user_in.email,
             hashed_password=hash_password(user_in.password),
-            role="user",
         )
+        usuario.roles = [client_role]
 
         rta = UserPublic.model_validate(self.uow.usuarios.add(usuario))
         return rta
@@ -70,7 +77,7 @@ class UsuarioService:
             )
 
         access_token = create_access_token(
-            data={"sub": user.username, "role": user.role}
+            data={"sub": user.username, "roles": user.role_codes}
         )
         return Token(
             access_token=access_token,

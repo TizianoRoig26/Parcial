@@ -13,11 +13,15 @@ from app.modules.categoria.models import Categoria
 from app.modules.ingerediente.models import Ingrediente
 from app.modules.producto.models import Producto
 from app.modules.usuarios.model import Usuario
+from app.modules.usuarios.rol import Rol
+from app.modules.usuarios.usuario_rol import UsuarioRol
+from app.db.seed import seed_roles
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gestión del ciclo de vida de la aplicación."""
     create_db_and_tables()
+    seed_roles()
     yield
 
 
