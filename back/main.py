@@ -6,11 +6,13 @@ from app.core.database import create_db_and_tables
 from app.modules.producto.router import router as producto_router
 from app.modules.categoria.router import router as categoria_router
 from app.modules.ingerediente.router import router as ingrediente_router
+from app.modules.usuarios.router import router as usuarios_router
 
 # Importar modelos para registro en SQLModel
 from app.modules.categoria.models import Categoria
 from app.modules.ingerediente.models import Ingrediente
 from app.modules.producto.models import Producto
+from app.modules.usuarios.model import Usuario
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,6 +46,7 @@ async def root():
     return {"mensaje": "API de Gestión de Productos operativa"}
 
 # Registro de routers
+app.include_router(usuarios_router, tags=["auth"])
 app.include_router(producto_router, prefix="/productos", tags=["productos"])
 app.include_router(categoria_router, prefix="/categorias", tags=["categorias"])
 app.include_router(ingrediente_router, prefix="/ingredientes", tags=["ingredientes"])
