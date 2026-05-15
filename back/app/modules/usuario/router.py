@@ -17,11 +17,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.modules.usuarios.unit_of_work import UsuariosUnitOfWork, get_uow
+from app.modules.usuario.unit_of_work import UsuariosUnitOfWork, get_uow
 from app.core.deps import get_current_active_user, require_role
-from app.modules.usuarios.model import Usuario
-from app.modules.usuarios.schemas import UserCreate, UserPublic, Token
-from app.modules.usuarios.service import UsuarioService
+from app.modules.usuario.model import Usuario
+from app.modules.usuario.schemas import UserCreate, UserPublic, Token
+from app.modules.usuario.service import UsuarioService
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -85,10 +85,11 @@ def read_me(
 @router.get("/privado")
 def ruta_privada(
     current_user: Annotated[Usuario, Depends(get_current_active_user)],
+    admin: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
 ):
     return {
         "mensaje": f"¡Hola, {current_user.full_name}! Accediste a una ruta privada.",
-        "tu_rol": current_user.role,
+        "tus_roles": current_user.role_codes,
     }
 
 
@@ -96,7 +97,7 @@ def ruta_privada(
 
 @router.get("/admin/usuarios", response_model=list[UserPublic])
 def list_users(
-    _admin: Annotated[Usuario, Depends(require_role(["admin"]))],
+    _admin: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     uow: Annotated[UsuariosUnitOfWork, Depends(get_uow)],
 ):
     with uow:
@@ -107,7 +108,7 @@ def list_users(
 @router.post("/admin/usuarios/{user_id}/desactivar", response_model=UserPublic)
 def deactivate_user(
     user_id: int,
-    _admin: Annotated[Usuario, Depends(require_role(["admin"]))],
+    _admin: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     uow: Annotated[UsuariosUnitOfWork, Depends(get_uow)],
 ):
     with uow:
@@ -118,7 +119,7 @@ def deactivate_user(
 @router.post("/admin/usuarios/{user_id}/activar", response_model=UserPublic)
 def activate_user(
     user_id: int,
-    _admin: Annotated[Usuario, Depends(require_role(["admin"]))],
+    _admin: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     uow: Annotated[UsuariosUnitOfWork, Depends(get_uow)],
 ):
     with uow:

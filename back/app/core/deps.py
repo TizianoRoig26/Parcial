@@ -37,9 +37,9 @@ from fastapi import Depends, HTTPException, status  # Inyección y manejo de err
 from fastapi.security import OAuth2PasswordBearer  # Manejo estándar de OAuth2 con Bearer
 
 from app.core.security import decode_access_token  # Función para decodificar JWT
-from app.modules.usuarios.unit_of_work import UsuariosUnitOfWork, get_uow       # Patrón Unit of Work para DB
-from app.modules.usuarios.model import Usuario     # Modelo de dominio Usuario
-from app.modules.usuarios.schemas import UserPublic     # Schema de usuario público
+from app.modules.usuario.unit_of_work import UsuariosUnitOfWork, get_uow       # Patrón Unit of Work para DB
+from app.modules.usuario.model import Usuario     # Modelo de dominio Usuario
+from app.modules.usuario.schemas import UserPublic     # Schema de usuario público
 
 from fastapi import Request
 
@@ -114,7 +114,7 @@ async def get_current_user(
         if user is None:
             raise credentials_exception
 
-        return UserPublic.model_validate(user)  # Usuario autenticado válido
+        return user  # Usuario autenticado válido
 
 
 async def get_current_active_user(
@@ -134,7 +134,7 @@ async def get_current_active_user(
             detail="Cuenta de usuario desactivada",
         )
 
-    return UserPublic.model_validate(current_user) # Usuario válido y activo
+    return current_user # Usuario válido y activo
 
 
 def require_role(allowed_roles: list[str]):
@@ -151,6 +151,8 @@ def require_role(allowed_roles: list[str]):
         @router.get("/admin", dependencies=[Depends(require_role(["admin"]))])
     """
 
+    normalized_roles = [role.upper() for role in allowed_roles]
+
     async def role_checker(
         current_user: Annotated[Usuario, Depends(get_current_active_user)],
     ) -> Usuario:
@@ -159,12 +161,14 @@ def require_role(allowed_roles: list[str]):
         """
 
         # Si el rol del usuario no está permitido → 403 (prohibido)
-        if current_user.role not in allowed_roles:
+        current_roles = [role.upper() for role in current_user.role_codes]
+
+        if not any(role in normalized_roles for role in current_roles):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=(
-                    f"Permisos insuficientes. Tu rol es '{current_user.role}'. "
-                    f"Se requiere uno de: {allowed_roles}"
+                    f"Permisos insuficientes. Tus roles son '{current_roles}'. "
+                    f"Se requiere uno de: {normalized_roles}"
                 ),
             )
 

@@ -4,9 +4,11 @@ from typing import Annotated
 from sqlmodel import Session
 
 from app.core.database import get_session
+from app.core.deps import get_current_active_user, require_role
 from app.modules.producto.schemas import ProductoCreate, ProductoPublic, ProductoUpdate, ProductoList, CategoriaAssign, IngredienteAssign
 from app.modules.ingerediente.schemas import IngredientePublic
 from app.modules.producto.service import ProductoService
+from app.modules.usuario.model import Usuario
 
 router = APIRouter()
 
@@ -24,6 +26,7 @@ def get_Producto_service(session: Session = Depends(get_session)) -> ProductoSer
     summary="Crear un Producto",
 )
 def create_producto(
+    rol: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     data: ProductoCreate,
     svc: ProductoService = Depends(get_Producto_service),
 ) -> ProductoPublic:
@@ -63,6 +66,7 @@ def get_producto(
 )
 def update_producto(
     id: int,
+    rol: Annotated[Usuario, Depends(require_role(["ADMIN","STOCK"]))],
     data: ProductoUpdate,
     svc: ProductoService = Depends(get_Producto_service),
 ) -> ProductoPublic:
@@ -77,6 +81,7 @@ def update_producto(
 )
 def delete_producto(
     id: int,
+    rol: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     svc: ProductoService = Depends(get_Producto_service),
 ) -> None:
     svc.soft_delete(id)
@@ -89,6 +94,7 @@ def delete_producto(
 )
 def list_producto_ingredientes(
     id: int,
+    current_user: Annotated[Usuario, Depends(get_current_active_user)],
     svc: ProductoService = Depends(get_Producto_service),
 ) -> list[IngredientePublic]:
     return svc.get_ingredientes(id)
@@ -98,6 +104,7 @@ def list_producto_ingredientes(
 
 def assign_categorias(
     producto_id: int,
+    rol: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     data: CategoriaAssign,
     svc: ProductoService = Depends(get_Producto_service),
 ):
@@ -107,6 +114,7 @@ def assign_categorias(
 
 def assign_ingredientes(
     producto_id: int,
+    rol: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
     data: IngredienteAssign,
     svc: ProductoService = Depends(get_Producto_service),
 ):
