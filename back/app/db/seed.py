@@ -1,71 +1,137 @@
-"""
-Script de seed — carga usuarios iniciales para pruebas.
-Idempotente: se puede ejecutar múltiples veces sin duplicar datos.
-
-Uso:
-    python -m app.db.seed
-
-Requiere PostgreSQL corriendo con las variables de .env configuradas.
-
-Crea:
-  - admin / Admin1234!  (role=admin)
-  - juan / Juan1234!    (role=user)
-"""
-
 from sqlmodel import Session, select
-from app.core.database import engine, create_all_tables
+
+from app.core.database import create_db_and_tables, engine
+from app.modules.usuario.rol import Rol
+from app.modules.usuario.model import Usuario
 from app.core.security import hash_password
-from app.modules.usuarios.model import Usuario
+from sqlmodel import select
+from app.modules.unidadMedida.models import UnidadMedida
 
 
-USUARIOS_INICIALES = [
-    {
-        "username":  "admin",
-        "full_name": "Administrador del Sistema",
-        "email":     "admin@example.com",
-        "password":  "Admin1234!",
-        "role":      "admin",
-    },
-    {
-        "username":  "juan",
-        "full_name": "Juan Pérez",
-        "email":     "juan@example.com",
-        "password":  "Juan1234!",
-        "role":      "user",
-    },
-]
+def seed_roles() -> None:
+    create_db_and_tables()
 
-
-def run() -> None:
-    print("=== Seed — Seguridad JWT (PostgreSQL) ===")
-    create_all_tables()
+    roles = [
+        Rol(codigo="ADMIN", nombre="Admin", descripcion="Acceso total sin restricciones"),
+        Rol(codigo="STOCK", nombre="Stock", descripcion="Actualiza stock y disponible"),
+        Rol(codigo="PEDIDOS", nombre="Pedidos", descripcion="Avanza estados CONFIRMADO->ENTREGADO"),
+        Rol(codigo="CLIENT", nombre="Client", descripcion="Opera solo sus propios datos"),
+    ]
 
     with Session(engine) as session:
-        for data in USUARIOS_INICIALES:
-            existing = session.exec(
-                select(Usuario).where(Usuario.username == data["username"])
-            ).first()
+        existing = {rol.codigo for rol in session.exec(select(Rol)).all()}
 
-            if existing:
-                print(f"  [=] Ya existe: {data['username']} ({data['role']})")
-            else:
-                usuario = Usuario(
-                    username        = data["username"],
-                    full_name       = data["full_name"],
-                    email           = data["email"],
-                    hashed_password = hash_password(data["password"]),
-                    role            = data["role"],
-                )
-                session.add(usuario)
-                print(f"  [+] Creado:    {data['username']} / {data['password']}  (role={data['role']})")
+        for rol in roles:
+            if rol.codigo not in existing:
+                session.add(rol)
 
         session.commit()
 
-    print("\nUsuarios disponibles para pruebas:")
-    print("  admin / Admin1234!  → role=admin  (acceso total)")
-    print("  juan  / Juan1234!   → role=user   (acceso básico)")
-    print()
+    # Seed usuarios
+    usuarios = [
+        {
+            "username": "admin",
+            "full_name": "Administrador",
+            "email": "admin@example.com",
+            "password": "adminpass",
+            "roles": ["ADMIN"],
+        },
+        {
+            "username": "stock",
+            "full_name": "Usuario Stock",
+            "email": "stock@example.com",
+            "password": "stockpass",
+            "roles": ["STOCK"],
+        },
+        {
+            "username": "pedidos",
+            "full_name": "Usuario Pedidos",
+            "email": "pedidos@example.com",
+            "password": "pedidospass",
+            "roles": ["PEDIDOS"],
+        },
+    ]
+
+    UNIDAD_MEDIDA_INICIALES = [
+        {
+            "simbolo": "kg",
+            "nombre": "kilogramo",
+            "tipo": "masa"
+        },
+        {
+            "simbolo": "g",
+            "nombre": "gramo",
+            "tipo": "masa"
+        },
+        {
+            "simbolo": "mL",
+            "nombre": "mililitro",
+            "tipo": "volumen"
+        },
+        {
+            "simbolo": "L",
+            "nombre": "litro",
+            "tipo": "volumen",
+        },
+        {
+            "simbolo": "doc",
+            "nombre": "docena",
+            "tipo": "unidad"
+        },
+        {
+            "simbolo": "u",
+            "nombre": "pieza",
+            "tipo": "unidad",
+        },
+        {
+            "simbolo": "m2",
+            "nombre": "metro cuadrado",
+            "tipo": "area"
+        }
+    ]
+
+    with Session(engine) as session:
+        for u in usuarios:
+            exists = session.exec(select(Usuario).where(Usuario.username == u["username"]))
+            if exists.first():
+                continue
+
+            # Buscar objetos Rol existentes
+            role_objs = []
+            for code in u["roles"]:
+                r = session.exec(select(Rol).where(Rol.codigo == code)).first()
+                if r:
+                    role_objs.append(r)
+
+            usuario = Usuario(
+                username=u["username"],
+                full_name=u["full_name"],
+                email=u["email"],
+                hashed_password=hash_password(u["password"]),
+            )
+
+            usuario.roles = role_objs
+            session.add(usuario)
+
+        for data in UNIDAD_MEDIDA_INICIALES:
+            existing = session.exec(
+                select(UnidadMedida).where(UnidadMedida.simbolo == data["simbolo"])
+            ).first()
+
+            if existing:
+                print(f"  [=] Ya existe: {data['simbolo']}")
+            else:
+                unidad_medida = UnidadMedida(
+                    nombre  = data["nombre"],
+                    simbolo = data["simbolo"],
+                    tipo    = data["tipo"],
+                )
+                session.add(unidad_medida)
+                print(f"  [+] Creado: {data['simbolo']} / {data['nombre']} ({data['tipo']})")
+
+
+        session.commit()
 
 
 if __name__ == "__main__":
-    run()
+    seed_roles()

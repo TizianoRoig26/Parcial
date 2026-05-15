@@ -2,6 +2,7 @@ from typing import Optional, List
 from sqlmodel import SQLModel, Field
 from app.modules.categoria.schemas import CategoriaPublic
 from app.modules.ingerediente.schemas import IngredientePublic
+from app.modules.unidadMedida.schemas import UnidadMedidaPublic
 
 
 
@@ -13,6 +14,7 @@ class ProductoCreate(SQLModel):
     precio_base: int = Field(ge=0)
     stock_cantidad: int = Field(default=0, ge=0)
     imagen_url: str = Field(max_length=255)
+    unidad_medida_id: Optional[int] = Field(default=None)
 
 
 class ProductoUpdate(SQLModel):
@@ -22,7 +24,7 @@ class ProductoUpdate(SQLModel):
     stock_cantidad: Optional[int] = Field(default=None, ge=0)
     imagen_url: Optional[str] = Field(default=None, max_length=255)
     is_active: Optional[bool] = None
-
+    unidad_medida_id: Optional[int] = Field(default=None)
 
 
 class CategoriaAssign(SQLModel):
@@ -30,6 +32,9 @@ class CategoriaAssign(SQLModel):
 
 class IngredienteAssign(SQLModel):
     ingrediente_ids: List[int] = Field(default=None, min_length=1)
+
+class UnidadMedidaAssign(SQLModel):
+    unidad_medida_id: Optional[int] = Field(default=None)
 
 
 # ── Salida ────────────────────────────────────────────────────────────────────
@@ -42,9 +47,11 @@ class ProductoPublic(SQLModel):
     stock_cantidad: int
     imagen_url: str
     is_active: bool
+    unidad_medida_id: Optional[int] = None
+    unidad_medida: Optional[UnidadMedidaPublic] = None
     categorias: List[CategoriaPublic] = []
     ingredientes: List[IngredientePublic] = []
-
+    
 
 
 class ProductoList(SQLModel):

@@ -1,5 +1,5 @@
 
-from typing import Optional, Annotated, List, TYPE_CHECKING
+from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
 
 from app.modules.producto.links import ProductoCategoria, ProductoIngrediente
@@ -7,17 +7,22 @@ from app.modules.producto.links import ProductoCategoria, ProductoIngrediente
 if TYPE_CHECKING:
     from app.modules.categoria.models import Categoria
     from app.modules.ingerediente.models import Ingrediente
+    from app.modules.unidadMedida.models import UnidadMedida
 
 class Producto(SQLModel, table=True):
     __tablename__ = "productos"
 
-    id: Annotated[Optional[int], Field(default=None, primary_key=True)]
+    id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str
     descripcion: str
     precio_base: int
-    stock_cantidad: Annotated[int, Field(default=0)]
+    stock_cantidad: int = Field(default=0)
     imagen_url: str
-    is_active: Annotated[bool, Field(default=True)]
+    is_active: bool = Field(default=True)
+    unidad_medida_id: Optional[int] = Field(default=None, foreign_key="unidad_medidas.id")
+    
+    unidad_medida: Optional["UnidadMedida"] = Relationship(
+        back_populates="productos")
 
 
     categorias: List["Categoria"] = Relationship(

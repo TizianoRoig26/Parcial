@@ -7,6 +7,7 @@ from app.modules.producto.router import router as producto_router
 from app.modules.categoria.router import router as categoria_router
 from app.modules.ingerediente.router import router as ingrediente_router
 from app.modules.usuario.router import router as usuarios_router
+from app.modules.unidadMedida.router import router as unidad_medida_router
 
 # Importar modelos para registro en SQLModel
 from app.modules.categoria.models import Categoria
@@ -54,3 +55,4 @@ app.include_router(usuarios_router, tags=["auth"])
 app.include_router(producto_router, prefix="/productos", tags=["productos"])
 app.include_router(categoria_router, prefix="/categorias", tags=["categorias"])
 app.include_router(ingrediente_router, prefix="/ingredientes", tags=["ingredientes"])
+app.include_router(unidad_medida_router, prefix="/unidades-medida", tags=["unidades-medida"])
