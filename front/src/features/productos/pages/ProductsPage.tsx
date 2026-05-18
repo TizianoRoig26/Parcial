@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import type { IProducto } from "../types/IProducto";
-import { getProductos, createProducto, updateProducto, deleteProducto, assignCategorias, assignIngredientes } from "../api/producto.services";
-import { getCategorias } from "../api/categoria.services";
-import { getIngredientes } from "../api/ingrediente.services";
-import { ProductoModal } from "../components/Producto/ProductoModal";
+import type { IProducto } from "../IProducto";
+import { getProductos, createProducto, updateProducto, deleteProducto, assignCategorias, assignIngredientes } from "../../../api/producto.services";
+import { getCategorias } from "../../../api/categoria.services";
+import { getIngredientes } from "../../../api/ingrediente.services";
+import { ProductoModal } from "../components/ProductoModal";
 
 type ModalState =
   | { type: "none" }
@@ -149,9 +149,8 @@ export const ProductsPage = () => {
                   <span className="font-semibold text-black">${prod.precio_base}</span>
                 </td>
                 <td className="px-6 py-4 text-center">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                    prod.stock_cantidad > 0 ? "bg-palm/30 text-black" : "bg-red-100 text-red-600"
-                  }`}>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${prod.stock_cantidad > 0 ? "bg-palm/30 text-black" : "bg-red-100 text-red-600"
+                    }`}>
                     {prod.stock_cantidad}
                   </span>
                 </td>
@@ -159,18 +158,17 @@ export const ProductsPage = () => {
                   <div className="flex flex-wrap gap-1">
                     {prod.categorias?.length
                       ? prod.categorias.map(c => (
-                          <span key={c.id} className="px-2 py-0.5 bg-fern/15 text-black text-xs rounded-full font-medium">
-                            {c.nombre}
-                          </span>
-                        ))
+                        <span key={c.id} className="px-2 py-0.5 bg-fern/15 text-black text-xs rounded-full font-medium">
+                          {c.nombre}
+                        </span>
+                      ))
                       : <span className="text-xs text-black">—</span>
                     }
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                    prod.is_active ? "bg-palm/30 text-black" : "bg-gray-100 text-gray-500"
-                  }`}>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${prod.is_active ? "bg-palm/30 text-black" : "bg-gray-100 text-gray-500"
+                    }`}>
                     {prod.is_active ? "Activo" : "Inactivo"}
                   </span>
                 </td>

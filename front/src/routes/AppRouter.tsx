@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { NavBar } from "../components/NavBar/NavBar";
 import { CategoryPage } from "../pages/CategoryPage";
 import { IngredientsPage } from "../pages/IngredientsPage";
-import { ProductsPage } from "../pages/ProductsPage";
+import { ProductsPage } from "../features/productos/pages/ProductsPage";
 
 const AppRouter = () => {
   return (
