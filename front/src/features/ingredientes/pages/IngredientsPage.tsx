@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import type { IIngrediente } from "../types/IIngredientes";
-import { getIngredientes, createIngrediente, updateIngrediente, deleteIngrediente } from "../api/ingrediente.services";
-import { IngredienteModal } from "../components/Ingrediente/IngredienteModal";
+import type { IIngrediente } from "../IIngredientes";
+import { getIngredientes, createIngrediente, updateIngrediente, deleteIngrediente } from "../services/ingrediente.services";
+import { IngredienteModal } from "../components/IngredienteModal";
 
 type ModalState =
   | { type: "none" }
@@ -85,9 +85,8 @@ export const IngredientsPage = () => {
                   }
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                    ing.is_active ? "bg-palm/30 text-black" : "bg-gray-100 text-gray-500"
-                  }`}>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${ing.is_active ? "bg-palm/30 text-black" : "bg-gray-100 text-gray-500"
+                    }`}>
                     {ing.is_active ? "Activo" : "Inactivo"}
                   </span>
                 </td>

@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import type { IProducto } from "../IProducto";
-import { getProductos, createProducto, updateProducto, deleteProducto, assignCategorias, assignIngredientes } from "../../../api/producto.services";
-import { getCategorias } from "../../../api/categoria.services";
-import { getIngredientes } from "../../../api/ingrediente.services";
+import { getProductos, createProducto, updateProducto, deleteProducto, assignCategorias, assignIngredientes } from "../services/producto.services";
+import { getCategorias } from "../../categoria/services/categoria.services";
+import { getIngredientes } from "../../ingredientes/services/ingrediente.services";
 import { ProductoModal } from "../components/ProductoModal";
 
 type ModalState =

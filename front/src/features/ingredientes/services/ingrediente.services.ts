@@ -1,4 +1,4 @@
-import type { IIngrediente } from "../types/IIngredientes";
+import type { IIngrediente } from "../IIngredientes";
 
 const BASE_URL = `${import.meta.env.VITE_API_URL}/ingredientes`;
 

@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import type { ICategoria } from "../types/ICategoria";
-import { createCategory, getCategorias, updateCategory, deleteCategory } from "../api/categoria.services";
-import { CategoriaModal } from "../components/Categoria/CategoriaModal";
+import type { ICategoria } from "../ICategoria";
+import { createCategory, getCategorias, updateCategory, deleteCategory } from "../services/categoria.services";
+import { CategoriaModal } from "../components/CategoriaModal";
 
 type ModalState =
   | { type: "none" }
@@ -91,9 +91,8 @@ export const CategoryPage = () => {
                 </td>
                 <td className="px-6 py-4 text-black text-sm max-w-xs truncate">{cat.descripcion || "—"}</td>
                 <td className="px-6 py-4">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                    cat.is_active ? "bg-palm/30 text-black" : "bg-gray-100 text-gray-500"
-                  }`}>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cat.is_active ? "bg-palm/30 text-black" : "bg-gray-100 text-gray-500"
+                    }`}>
                     {cat.is_active ? "Activo" : "Inactivo"}
                   </span>
                 </td>

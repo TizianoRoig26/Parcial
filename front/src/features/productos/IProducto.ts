@@ -1,5 +1,5 @@
-import type { ICategoria } from "../../types/ICategoria";
-import type { IIngrediente } from "../../types/IIngredientes";
+import type { ICategoria } from "../categoria/ICategoria";
+import type { IIngrediente } from "../ingredientes/IIngredientes";
 
 export interface IProducto {
   id?: number;

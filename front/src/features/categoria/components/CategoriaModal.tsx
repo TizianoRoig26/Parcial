@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { ICategoria } from '../../types/ICategoria';
+import type { ICategoria } from '../ICategoria';
 
 interface Props {
   isOpen: boolean;
@@ -55,6 +55,7 @@ export const CategoriaModal = ({ isOpen, onClose, onSubmit, categoriasDisponible
           <div>
             <label className="block text-brand-cream/60 text-xs uppercase tracking-widest mb-2">Nombre de la categoría</label>
             <input
+              title='nombreCategoria'
               type="text"
               required
               value={nombre}

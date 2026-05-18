@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { NavBar } from "../components/NavBar/NavBar";
-import { CategoryPage } from "../pages/CategoryPage";
-import { IngredientsPage } from "../pages/IngredientsPage";
+import { CategoryPage } from "../features/categoria/pages/CategoryPage";
+import { IngredientsPage } from "../features/ingredientes/pages/IngredientsPage";
 import { ProductsPage } from "../features/productos/pages/ProductsPage";
 
 const AppRouter = () => {

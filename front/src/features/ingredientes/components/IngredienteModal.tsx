@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import type { IIngrediente } from "../../types/IIngredientes";
+import type { IIngrediente } from "../IIngredientes";
 
 interface Props {
   isOpen: boolean;
