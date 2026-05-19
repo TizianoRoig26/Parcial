@@ -28,7 +28,7 @@ class Categoria(SQLModel, table=True):
         back_populates="parent"
     )
 
-    # Relacion N:N con Producto via tabla intermedia
+    
     productos: List["Producto"] = Relationship(
         back_populates="categorias",
         link_model=ProductoCategoria,

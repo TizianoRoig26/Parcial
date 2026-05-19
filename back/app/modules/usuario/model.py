@@ -33,3 +33,7 @@ class Usuario(SQLModel, table=True):
     @property
     def role_codes(self) -> list[str]:
         return [rol.codigo for rol in self.roles]
+    
+    direcciones: List["DireccionEntrega"] = Relationship(
+        back_populates="usuario",
+        sa_relationship_kwargs={"overlaps": "usuario,direccion"})

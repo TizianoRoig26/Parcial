@@ -1,137 +1,148 @@
+from sqlalchemy import inspect
 from sqlmodel import Session, select
 
 from app.core.database import create_db_and_tables, engine
-from app.modules.usuario.rol import Rol
-from app.modules.usuario.model import Usuario
 from app.core.security import hash_password
-from sqlmodel import select
+from app.modules.categoria.models import Categoria
+from app.modules.direccion.model import DireccionEntrega
+from app.modules.ingerediente.models import Ingrediente
+from app.modules.producto.links import ProductoCategoria, ProductoIngrediente
+from app.modules.producto.models import Producto
 from app.modules.unidadMedida.models import UnidadMedida
+from app.modules.usuario.model import Usuario
+from app.modules.usuario.rol import Rol
+from app.modules.usuario.usuario_rol import UsuarioRol
 
 
 def seed_roles() -> None:
-    create_db_and_tables()
+	create_db_and_tables()
 
-    roles = [
-        Rol(codigo="ADMIN", nombre="Admin", descripcion="Acceso total sin restricciones"),
-        Rol(codigo="STOCK", nombre="Stock", descripcion="Actualiza stock y disponible"),
-        Rol(codigo="PEDIDOS", nombre="Pedidos", descripcion="Avanza estados CONFIRMADO->ENTREGADO"),
-        Rol(codigo="CLIENT", nombre="Client", descripcion="Opera solo sus propios datos"),
-    ]
+	roles = [
+		Rol(codigo="ADMIN", nombre="Admin", descripcion="Acceso total sin restricciones"),
+		Rol(codigo="STOCK", nombre="Stock", descripcion="Actualiza stock y disponible"),
+		Rol(codigo="PEDIDOS", nombre="Pedidos", descripcion="Avanza estados CONFIRMADO->ENTREGADO"),
+		Rol(codigo="CLIENT", nombre="Client", descripcion="Opera solo sus propios datos"),
+	]
 
-    with Session(engine) as session:
-        existing = {rol.codigo for rol in session.exec(select(Rol)).all()}
+	with Session(engine) as session:
+		existing = {rol.codigo for rol in session.exec(select(Rol)).all()}
 
-        for rol in roles:
-            if rol.codigo not in existing:
-                session.add(rol)
+		for rol in roles:
+			if rol.codigo not in existing:
+				session.add(rol)
 
-        session.commit()
+		session.commit()
 
-    # Seed usuarios
-    usuarios = [
-        {
-            "username": "admin",
-            "full_name": "Administrador",
-            "email": "admin@example.com",
-            "password": "adminpass",
-            "roles": ["ADMIN"],
-        },
-        {
-            "username": "stock",
-            "full_name": "Usuario Stock",
-            "email": "stock@example.com",
-            "password": "stockpass",
-            "roles": ["STOCK"],
-        },
-        {
-            "username": "pedidos",
-            "full_name": "Usuario Pedidos",
-            "email": "pedidos@example.com",
-            "password": "pedidospass",
-            "roles": ["PEDIDOS"],
-        },
-    ]
+	usuarios = [
+		{
+			"username": "admin",
+			"full_name": "Administrador",
+			"email": "admin@example.com",
+			"password": "adminpass",
+			"roles": ["ADMIN"],
+		},
+		{
+			"username": "stock",
+			"full_name": "Usuario Stock",
+			"email": "stock@example.com",
+			"password": "stockpass",
+			"roles": ["STOCK"],
+		},
+		{
+			"username": "pedidos",
+			"full_name": "Usuario Pedidos",
+			"email": "pedidos@example.com",
+			"password": "pedidospass",
+			"roles": ["PEDIDOS"],
+		},
+		{
+			"username": "cliente",
+			"full_name": "Usuario Cliente",
+			"email": "cliente@example.com",
+			"password": "clientepass",
+			"roles": ["CLIENT"],
+			"direccion": {
+				"alias": "Casa",
+				"linea1": "Av. Siempre Viva 742",
+				"ciudad": "Springfield",
+				"provincia": "Buenos Aires",
+				"codigo_postal": "1234",
+				"es_principal": True,
+			},
+		},
+	]
 
-    UNIDAD_MEDIDA_INICIALES = [
-        {
-            "simbolo": "kg",
-            "nombre": "kilogramo",
-            "tipo": "masa"
-        },
-        {
-            "simbolo": "g",
-            "nombre": "gramo",
-            "tipo": "masa"
-        },
-        {
-            "simbolo": "mL",
-            "nombre": "mililitro",
-            "tipo": "volumen"
-        },
-        {
-            "simbolo": "L",
-            "nombre": "litro",
-            "tipo": "volumen",
-        },
-        {
-            "simbolo": "doc",
-            "nombre": "docena",
-            "tipo": "unidad"
-        },
-        {
-            "simbolo": "u",
-            "nombre": "pieza",
-            "tipo": "unidad",
-        },
-        {
-            "simbolo": "m2",
-            "nombre": "metro cuadrado",
-            "tipo": "area"
-        }
-    ]
+	UNIDAD_MEDIDA_INICIALES = [
+		{"simbolo": "kg", "nombre": "kilogramo", "tipo": "masa"},
+		{"simbolo": "g", "nombre": "gramo", "tipo": "masa"},
+		{"simbolo": "mL", "nombre": "mililitro", "tipo": "volumen"},
+		{"simbolo": "L", "nombre": "litro", "tipo": "volumen"},
+		{"simbolo": "doc", "nombre": "docena", "tipo": "unidad"},
+		{"simbolo": "u", "nombre": "pieza", "tipo": "unidad"},
+		{"simbolo": "m2", "nombre": "metro cuadrado", "tipo": "area"},
+	]
 
-    with Session(engine) as session:
-        for u in usuarios:
-            exists = session.exec(select(Usuario).where(Usuario.username == u["username"]))
-            if exists.first():
-                continue
+	with Session(engine) as session:
+		direccion_columns = {
+			column["name"] for column in inspect(engine).get_columns("direcciones_entrega")
+		}
 
-            # Buscar objetos Rol existentes
-            role_objs = []
-            for code in u["roles"]:
-                r = session.exec(select(Rol).where(Rol.codigo == code)).first()
-                if r:
-                    role_objs.append(r)
+		for u in usuarios:
+			exists = session.exec(select(Usuario).where(Usuario.username == u["username"]))
+			if exists.first():
+				continue
 
-            usuario = Usuario(
-                username=u["username"],
-                full_name=u["full_name"],
-                email=u["email"],
-                hashed_password=hash_password(u["password"]),
-            )
+			role_objs = []
+			for code in u["roles"]:
+				r = session.exec(select(Rol).where(Rol.codigo == code)).first()
+				if r:
+					role_objs.append(r)
 
-            usuario.roles = role_objs
-            session.add(usuario)
+			usuario = Usuario(
+				username=u["username"],
+				full_name=u["full_name"],
+				email=u["email"],
+				hashed_password=hash_password(u["password"]),
+			)
 
-        for data in UNIDAD_MEDIDA_INICIALES:
-            existing = session.exec(
-                select(UnidadMedida).where(UnidadMedida.simbolo == data["simbolo"])
-            ).first()
+			usuario.roles = role_objs
+			session.add(usuario)
+			session.flush()
 
-            if existing:
-                print(f"  [=] Ya existe: {data['simbolo']}")
-            else:
-                unidad_medida = UnidadMedida(
-                    nombre  = data["nombre"],
-                    simbolo = data["simbolo"],
-                    tipo    = data["tipo"],
-                )
-                session.add(unidad_medida)
-                print(f"  [+] Creado: {data['simbolo']} / {data['nombre']} ({data['tipo']})")
+			direccion = u.get("direccion")
+			if direccion and "usuario_id" in direccion_columns:
+				session.add(
+					DireccionEntrega(
+						usuario_id=usuario.id,
+						alias=direccion.get("alias"),
+						linea1=direccion["linea1"],
+						ciudad=direccion["ciudad"],
+						provincia=direccion.get("provincia"),
+						codigo_postal=direccion.get("codigo_postal"),
+						es_principal=direccion.get("es_principal", False),
+					)
+				)
+			elif direccion:
+				print("  [!] Se omitió la dirección porque la tabla direcciones_entrega no tiene usuario_id")
 
+		for data in UNIDAD_MEDIDA_INICIALES:
+			existing = session.exec(
+				select(UnidadMedida).where(UnidadMedida.simbolo == data["simbolo"])
+			).first()
 
-        session.commit()
+			if existing:
+				print(f"  [=] Ya existe: {data['simbolo']}")
+			else:
+				unidad_medida = UnidadMedida(
+					nombre=data["nombre"],
+					simbolo=data["simbolo"],
+					tipo=data["tipo"],
+				)
+				session.add(unidad_medida)
+				print(f"  [+] Creado: {data['simbolo']} / {data['nombre']} ({data['tipo']})")
+
+		session.commit()
 
 
 if __name__ == "__main__":
-    seed_roles()
+	seed_roles()
