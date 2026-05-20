@@ -1,29 +1,48 @@
+from datetime import datetime
+from decimal import Decimal
+from typing import Optional
 
-# from typing import Optional, List
-# from sqlmodel import SQLModel, Field
+from sqlmodel import Field, SQLModel
 
-# # ── Entrada ───────────────────────────────────────────────────────────────────
 
-# class IngredienteCreate(SQLModel):
-#     nombre: str = Field(min_length=2, max_length=100)
-#     descripcion: str = Field(min_length=2, max_length=500)
-#     es_alergeno: bool = Field(default=False)
+class ItemPedidoRequest(SQLModel):
+	personalizacion: Optional[list[int]] = Field(default=None)
 
-# class IngredienteUpdate(SQLModel):
-#     nombre: Optional[str] = Field(default=None, min_length=2, max_length=100)
-#     descripcion: Optional[str] = Field(default=None, min_length=2, max_length=500)
-#     es_alergeno: Optional[bool] = None
-#     is_active: Optional[bool] = None
 
-# # ── Salida ────────────────────────────────────────────────────────────────────
+class ItemPedidoCreate(SQLModel):
+	producto_id: int = Field(ge=1)
+	cantidad: int = Field(ge=1)
+	personalizacion: Optional[list[int]] = Field(default=None)
 
-# class IngredientePublic(SQLModel):
-#     id: int
-#     nombre: str
-#     descripcion: str
-#     es_alergeno: bool
-#     is_active: bool
 
-# class IngredienteList(SQLModel):
-#     data: List[IngredientePublic]
-#     total: int
+class PedidoCreate(SQLModel):
+	direccion_id: Optional[int] = Field(default=None, ge=1)
+	forma_pago_codigo: str = Field(max_length=20)
+	notas: Optional[str] = None
+	items: list[ItemPedidoCreate]
+
+
+class PedidoEstadoUpdate(SQLModel):
+	estado_hacia: str = Field(max_length=20)
+	motivo: Optional[str] = None
+
+
+class PedidoPublic(SQLModel):
+	id: int
+	usuario_id: int
+	direccion_id: Optional[int] = None
+	estado_codigo: str
+	forma_pago_codigo: str
+	subtotal: Decimal
+	descuento: Decimal
+	costo_envio: Decimal
+	total: Decimal
+	notas: Optional[str] = None
+	created_at: datetime
+	updated_at: datetime
+	deleted_at: Optional[datetime] = None
+
+
+class PedidoList(SQLModel):
+	data: list[PedidoPublic]
+	total: int

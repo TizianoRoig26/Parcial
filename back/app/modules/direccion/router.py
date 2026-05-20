@@ -50,6 +50,19 @@ def list_direcciones(
 
 
 @router.get(
+    "/alias",
+    response_model=DireccionList,
+    summary="Obtener direcciones por alias",
+)
+def get_direccion_by_alias(
+    alias: str,
+    current_user: Annotated[Usuario, Depends(get_current_active_user)],
+    svc: DireccionService = Depends(get_direccion_service),
+) -> DireccionList:
+    return svc.get_by_alias_and_usuario(alias=alias, usuario_id=current_user.id)
+
+
+@router.get(
     "/{id}",
     response_model=DireccionPublic,
     summary="Obtener Direccion por ID",

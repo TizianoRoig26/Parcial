@@ -1,74 +1,76 @@
+from typing import Annotated
 
-# from fastapi import APIRouter, Depends, Query, status
-# from typing import Annotated
-# from sqlmodel import Session
+from fastapi import APIRouter, Depends, Query, status
+from app.core.deps import get_current_active_user, require_role
+from app.modules.pedido.schemas import PedidoCreate, PedidoEstadoUpdate, PedidoList, PedidoPublic
+from app.modules.pedido.service import PedidoService
+from app.modules.pedido.unit_of_work import PedidosUnitOfWork, get_uow
+from app.modules.usuario.model import Usuario
 
-# from app.core.database import get_session
-# from app.modules.ingerediente.schemas import IngredienteCreate, IngredientePublic, IngredienteUpdate, IngredienteList
-# from app.modules.ingerediente.service import IngredienteService
-
-# router = APIRouter()
-
-# def get_ingrediente_service(session: Session = Depends(get_session)) -> IngredienteService:
-#     return IngredienteService(session)
-
-# # ── Endpoints ─────────────────────────────────────────────────────────────────
-
-# @router.post(
-#     "/",
-#     response_model=IngredientePublic,
-#     status_code=status.HTTP_201_CREATED,
-#     summary="Crear un Ingrediente",
-# )
-# def create_ingrediente(
-#     data: IngredienteCreate,
-#     svc: IngredienteService = Depends(get_ingrediente_service),
-# ) -> IngredientePublic:
-#     return svc.create(data)
-
-# @router.get(
-#     "/",
-#     response_model=IngredienteList,
-#     summary="Listar ingredientes activos (paginado)",
-# )
-# def list_ingredientes(
-#     offset: Annotated[int, Query(ge=0)] = 0,
-#     limit: Annotated[int, Query(ge=1, le=100)] = 20,
-#     svc: IngredienteService = Depends(get_ingrediente_service),
-# ) -> IngredienteList:
-#     return svc.get_all(offset=offset, limit=limit)
+router = APIRouter()
 
 
-# @router.get(
-#     "/{id}",
-#     response_model=IngredientePublic,
-#     summary="Obtener Ingrediente por ID",
-# )
-# def get_ingrediente(
-#     id: int,
-#     svc: IngredienteService = Depends(get_ingrediente_service),
-# ) -> IngredientePublic:
-#     return svc.get_by_id(id)
+def get_pedido_service(uow: PedidosUnitOfWork = Depends(get_uow)) -> PedidoService:
+	return PedidoService(uow)
 
-# @router.patch(
-#     "/{id}",
-#     response_model=IngredientePublic,
-#     summary="Actualizacion parcial de Ingrediente",
-# )
-# def update_ingrediente(
-#     id: int,
-#     data: IngredienteUpdate,
-#     svc: IngredienteService = Depends(get_ingrediente_service),
-# ) -> IngredientePublic:
-#     return svc.update(id, data)
 
-# @router.delete(
-#     "/{id}",
-#     status_code=status.HTTP_204_NO_CONTENT,
-#     summary="Soft delete de Ingrediente",
-# )
-# def delete_ingrediente(
-#     id: int,
-#     svc: IngredienteService = Depends(get_ingrediente_service),
-# ) -> None:
-#     svc.soft_delete(id)
+@router.post(
+	"/",
+	response_model=PedidoPublic,
+	status_code=status.HTTP_201_CREATED,
+	summary="Crear pedido",
+)
+def create_pedido(
+	data: PedidoCreate,
+	current_user: Annotated[Usuario, Depends(get_current_active_user)],
+	svc: PedidoService = Depends(get_pedido_service),
+) -> PedidoPublic:
+	return svc.create(data, usuario_id=current_user.id)
+
+
+@router.get(
+	"/",
+	response_model=PedidoList,
+	summary="Listar pedidos para el panel de administracion",
+	dependencies=[Depends(require_role(["ADMIN", "PEDIDOS"]))],
+)
+def list_pedidos(
+	offset: Annotated[int, Query(ge=0)] = 0,
+	limit: Annotated[int, Query(ge=1, le=100)] = 20,
+	svc: PedidoService = Depends(get_pedido_service),
+) -> PedidoList:
+	return svc.get_all(offset=offset, limit=limit)
+
+
+@router.get(
+	"/{id}",
+	response_model=PedidoPublic,
+	summary="Obtener pedido por ID",
+	dependencies=[Depends(require_role(["ADMIN", "PEDIDOS"]))],
+)
+def get_pedido(
+	id: int,
+	svc: PedidoService = Depends(get_pedido_service),
+) -> PedidoPublic:
+	return svc.get_by_id(id)
+
+
+@router.patch(
+	"/{id}/estado",
+	response_model=PedidoPublic,
+	summary="Avanzar estado del pedido",
+)
+def avanzar_estado_pedido(
+	id: int,
+	data: PedidoEstadoUpdate,
+	current_user: Annotated[Usuario, Depends(require_role(["ADMIN", "PEDIDOS"]))],
+	svc: PedidoService = Depends(get_pedido_service),
+) -> PedidoPublic:
+	return PedidoPublic.model_validate(
+		svc.avanzar_estado(
+			pedido_id=id,
+			data=data,
+			usuario_id=current_user.id,
+			roles_usuario=current_user.role_codes,
+		)
+	)

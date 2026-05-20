@@ -75,6 +75,17 @@ class DireccionService:
 
         return result
 
+    def get_by_alias_and_usuario(self, alias: str, usuario_id: int) -> DireccionList:
+        with DireccionUnitOfWork(self._session) as uow:
+            direcciones = uow.Direccion.get_by_alias_and_usuario(alias, usuario_id)
+
+            result = DireccionList(
+                data=[DireccionPublic.model_validate(d) for d in direcciones],
+                total=len(direcciones),
+            )
+
+        return result
+
     def update(self, direccion_id: int, usuario_id: int, data: DireccionUpdate) -> DireccionPublic:
         with DireccionUnitOfWork(self._session) as uow:
             direccion = self._get_or_404(uow, direccion_id, usuario_id)

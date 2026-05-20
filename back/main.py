@@ -7,6 +7,7 @@ from app.modules.producto.router import router as producto_router
 from app.modules.categoria.router import router as categoria_router
 from app.modules.ingerediente.router import router as ingrediente_router
 from app.modules.direccion.router import router as direccion_router
+from app.modules.pedido.router import router as pedido_router
 from app.modules.usuario.router import router as usuarios_router
 from app.modules.unidadMedida.router import router as unidad_medida_router
 
@@ -18,13 +19,15 @@ from app.modules.producto.models import Producto
 from app.modules.usuario.model import Usuario
 from app.modules.usuario.rol import Rol
 from app.modules.usuario.usuario_rol import UsuarioRol
-from app.db.seed import seed_roles
+from app.modules.pedido.models import DetallePedido, EstadoPedido, FormaPago, HistorialEstadoPedido, Pedido
+from app.db.seed import seed_pedido_catalogos, seed_roles
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gestión del ciclo de vida de la aplicación."""
     create_db_and_tables()
     seed_roles()
+    seed_pedido_catalogos()
     yield
 
 
@@ -58,4 +61,5 @@ app.include_router(producto_router, prefix="/productos", tags=["productos"])
 app.include_router(categoria_router, prefix="/categorias", tags=["categorias"])
 app.include_router(ingrediente_router, prefix="/ingredientes", tags=["ingredientes"])
 app.include_router(direccion_router, prefix="/direcciones", tags=["direcciones"])
+app.include_router(pedido_router, prefix="/pedidos", tags=["pedidos"])
 app.include_router(unidad_medida_router, prefix="/unidades-medida", tags=["unidades-medida"])

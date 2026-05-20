@@ -27,11 +27,20 @@ class DireccionRepository(BaseRepository[DireccionEntrega]):
             ).all()
         )
 
-    def get_by_id_and_usuario(
+    def get_by_alias_and_usuario(
         self,
-        direccion_id: int,
+        alias: str,
         usuario_id: int,
-    ) -> DireccionEntrega | None:
+    ) -> list[DireccionEntrega]:
+        return self.session.exec(
+            select(DireccionEntrega).where(
+                DireccionEntrega.alias.ilike(f"%{alias}%"),
+                DireccionEntrega.usuario_id == usuario_id,
+                DireccionEntrega.deleted_at.is_(None),
+            )
+        ).all()
+
+    def get_by_id_and_usuario(self, direccion_id: int, usuario_id: int) -> DireccionEntrega | None:
         return self.session.exec(
             select(DireccionEntrega).where(
                 DireccionEntrega.id == direccion_id,

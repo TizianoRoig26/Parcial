@@ -6,6 +6,7 @@ from app.core.security import hash_password
 from app.modules.categoria.models import Categoria
 from app.modules.direccion.model import DireccionEntrega
 from app.modules.ingerediente.models import Ingrediente
+from app.modules.pedido.models import EstadoPedido, FormaPago
 from app.modules.producto.links import ProductoCategoria, ProductoIngrediente
 from app.modules.producto.models import Producto
 from app.modules.unidadMedida.models import UnidadMedida
@@ -144,5 +145,52 @@ def seed_roles() -> None:
 		session.commit()
 
 
+def seed_formas_pago() -> None:
+	create_db_and_tables()
+
+	formas_pago = [
+		FormaPago(codigo="MERCADOPAGO", descripcion="Checkout API · CardPayment SDK", habilitado=True),
+		FormaPago(codigo="EFECTIVO", descripcion="retiro en local", habilitado=True),
+		FormaPago(codigo="TRANSFERENCIA", descripcion="bancaria", habilitado=True),
+	]
+
+	with Session(engine) as session:
+		existing = {forma.codigo for forma in session.exec(select(FormaPago)).all()}
+
+		for forma in formas_pago:
+			if forma.codigo not in existing:
+				session.add(forma)
+
+		session.commit()
+
+
+def seed_estados_pedido() -> None:
+	create_db_and_tables()
+
+	estados_pedido = [
+		EstadoPedido(codigo="PENDIENTE", descripcion="Pendiente de confirmación", orden=1, es_terminal=False),
+		EstadoPedido(codigo="CONFIRMADO", descripcion="Pedido confirmado", orden=2, es_terminal=False),
+		EstadoPedido(codigo="EN_PREP", descripcion="En preparación", orden=3, es_terminal=False),
+		EstadoPedido(codigo="EN_CAMINO", descripcion="En camino", orden=4, es_terminal=False),
+		EstadoPedido(codigo="ENTREGADO", descripcion="Entregado", orden=5, es_terminal=True),
+		EstadoPedido(codigo="CANCELADO", descripcion="Cancelado", orden=6, es_terminal=True),
+	]
+
+	with Session(engine) as session:
+		existing = {estado.codigo for estado in session.exec(select(EstadoPedido)).all()}
+
+		for estado in estados_pedido:
+			if estado.codigo not in existing:
+				session.add(estado)
+
+		session.commit()
+
+
+def seed_pedido_catalogos() -> None:
+	seed_formas_pago()
+	seed_estados_pedido()
+
+
 if __name__ == "__main__":
 	seed_roles()
+	seed_pedido_catalogos()

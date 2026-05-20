@@ -1,7 +1,7 @@
 from sqlmodel import Session, select, func
 from app.core.repository import BaseRepository
 from app.modules.producto.models import Producto
-from app.modules.producto.links import ProductoCategoria
+from app.modules.producto.links import ProductoCategoria, ProductoIngrediente
 
 
 class ProductoRepository(BaseRepository[Producto]):
@@ -38,3 +38,18 @@ class ProductoRepository(BaseRepository[Producto]):
         return self.session.exec(
             select(func.count(Producto.id)).where(Producto.is_active == True)
         ).one()
+
+    def get_active_by_id(self, producto_id: int) -> Producto | None:
+        return self.session.exec(
+            select(Producto).where(
+                Producto.id == producto_id,
+                Producto.is_active == True,  # noqa: E712
+            )
+        ).first()
+
+    def get_ingrediente_relaciones(self, producto_id: int) -> list[ProductoIngrediente]:
+        return list(
+            self.session.exec(
+                select(ProductoIngrediente).where(ProductoIngrediente.producto_id == producto_id)
+            ).all()
+        )
