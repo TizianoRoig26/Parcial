@@ -1,7 +1,7 @@
 import apiClient from "./axiosInstance";
 import type { UserPublic, UserRegisterPayload } from "../types/index";
 
-const AUTH = "/api/v1/auth";
+const AUTH = "/auth";
 
 /**
  * Login con OAuth2 Password Flow.
@@ -24,26 +24,14 @@ export async function requestLogin(
   });
 }
 
-function mapUser(user: any): UserPublic {
-  const mainRole = user.roles?.[0]?.codigo?.toLowerCase() as any;
-  return {
-    id: user.id,
-    username: user.username,
-    full_name: user.full_name,
-    email: user.email,
-    disabled: user.disabled,
-    role: mainRole || "client",
-  };
-}
-
 export async function requestRegister(
   payload: UserRegisterPayload,
 ): Promise<UserPublic> {
-  const response = await apiClient.post<any>(
+  const response = await apiClient.post<UserPublic>(
     `${AUTH}/register`,
     payload,
   );
-  return mapUser(response.data);
+  return response.data;
 }
 
 /**
@@ -53,8 +41,8 @@ export async function requestRegister(
  * httpOnly. Si la cookie es válida → 200 con el usuario. Si no → 401.
  */
 export async function requestMe(): Promise<UserPublic> {
-  const response = await apiClient.get<any>(`${AUTH}/me`);
-  return mapUser(response.data);
+  const response = await apiClient.get<UserPublic>(`${AUTH}/me`);
+  return response.data;
 }
 
 /** Le pide al backend que invalide la cookie httpOnly. */

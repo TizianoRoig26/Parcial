@@ -1,14 +1,17 @@
-export interface IUser {
+export type UserRole = "pedidos" | "admin" | "client" | "stock" ;
+
+export interface UserPublic {
   id: number;
-  user: string;
-  password: string;  
+  username: string;
+  full_name: string;
+  email: string;
+  role: UserRole;
+  disabled: boolean;
 }
 
-export interface AuthState {
-  user: IUser | null;
-  isAuthenticated: boolean;
-  token: string
-  login: (credentials: { user: string; password: string }) => IUser | null;
-  logout: VoidFunction;
-  checkAuth: () => boolean;
+export interface UserRegisterPayload {
+  username: string;
+  full_name: string;
+  email: string;
+  password: string;
 }
