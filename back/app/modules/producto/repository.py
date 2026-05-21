@@ -15,7 +15,10 @@ class ProductoRepository(BaseRepository[Producto]):
             )
         ).first()
 
-    def get_active(self, offset: int = 0, limit: int = 20) -> list[Producto]:
+    def get_active(
+        self, 
+        offset: int = 0, 
+        limit: int = 20) -> list[Producto]:
         return list(
             self.session.exec(
                 select(Producto)
@@ -25,7 +28,10 @@ class ProductoRepository(BaseRepository[Producto]):
             ).all()
         )
 
-    def get_by_categoria(self, categoria_id: int) -> list[Producto]:
+    def get_by_categoria(
+        self,
+        categoria_id: int
+        ) -> list[Producto]:
         return list(
             self.session.exec(
                 select(Producto)
@@ -33,6 +39,15 @@ class ProductoRepository(BaseRepository[Producto]):
                 .where(ProductoCategoria.categoria_id == categoria_id)
             ).all()
         )
+    def get_by_nombre(
+        self,
+        alias: str,
+    ) -> list[Producto]:
+        return self.session.exec(
+            select(Producto).where(
+                Producto.nombre.ilike(f"%{alias}%")
+            )
+        ).all()
 
     def count(self) -> int:
         return self.session.exec(

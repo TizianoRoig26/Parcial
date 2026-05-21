@@ -225,8 +225,8 @@ class PedidoService:
 								),
 							)
 
-				precio_snapshot = self._money(producto.precio_base)
-				subtotal_snap = self._money(precio_snapshot * cantidad)
+				precio_snapshot = self._moneda(producto.precio_base)
+				subtotal_snap = self._moneda(precio_snapshot * cantidad)
 				subtotal += subtotal_snap
 
 				detalle_rows.append(
@@ -241,9 +241,9 @@ class PedidoService:
 					)
 				)
 
-			descuento = self._money(Decimal("0.00"))
+			descuento = self._moneda(Decimal("0.00"))
 			costo_envio = self.COSTO_ENVIO_RETIRO if data.direccion_id is None else self.COSTO_ENVIO_DOMICILIO
-			total = self._money(subtotal - descuento + costo_envio)
+			total = self._moneda(subtotal - descuento + costo_envio)
 			if total < Decimal("0.00"):
 				raise HTTPException(
 					status_code=status.HTTP_400_BAD_REQUEST,

@@ -130,3 +130,9 @@ class ProductoService:
             self._session.commit()
             self._session.refresh(producto)
             return ProductoPublic.model_validate(producto)
+    
+    def search_by_nombre(self, alias: str) -> list[ProductoPublic]:
+        with ProductoUnitOfWork(self._session) as uow:
+            productos = uow.Producto.get_by_nombre(alias)
+            return [ProductoPublic.model_validate(p) for p in productos]
+        

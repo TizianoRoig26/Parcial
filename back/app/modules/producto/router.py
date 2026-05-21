@@ -119,3 +119,10 @@ def assign_ingredientes(
     svc: ProductoService = Depends(get_Producto_service),
 ):
     return svc.assign_ingrediente(producto_id, data.ingrediente_ids)
+
+@router.get("/search/", response_model=list[ProductoPublic])
+def search_productos(
+    alias: str = Query(..., min_length=1),
+    svc: ProductoService = Depends(get_Producto_service),
+) -> list[ProductoPublic]:
+    return svc.search_by_nombre(alias)
