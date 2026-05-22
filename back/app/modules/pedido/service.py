@@ -198,11 +198,6 @@ class PedidoService:
 				if personalizacion:
 					for ingrediente_id in personalizacion:
 						ingrediente = self.uow.ingredientes.get_by_id(ingrediente_id)
-						if not ingrediente:
-							raise HTTPException(
-								status_code=status.HTTP_404_NOT_FOUND,
-								detail=f"Ingrediente con id={ingrediente_id} no encontrado",
-							)
 						if ingrediente_id not in removibles:
 							raise HTTPException(
 								status_code=status.HTTP_400_BAD_REQUEST,
