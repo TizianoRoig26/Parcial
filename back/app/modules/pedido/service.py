@@ -127,14 +127,9 @@ class PedidoService:
 					status_code=status.HTTP_400_BAD_REQUEST,
 					detail="El pedido debe incluir al menos un item",
 				)
-
+    
 			estado_pendiente = self.uow.estados_pedido.get_by_codigo("PENDIENTE")
-			if not estado_pendiente:
-				raise HTTPException(
-					status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-					detail="No está configurado el estado inicial PENDIENTE",
-				)
-
+   
 			forma_pago = self.uow.formas_pago.get_by_codigo(data.forma_pago_codigo)
 			if not forma_pago or not forma_pago.habilitado:
 				raise HTTPException(
@@ -168,14 +163,6 @@ class PedidoService:
 					}
 					continue
 
-				if existente["personalizacion"] != personalizacion:
-					raise HTTPException(
-						status_code=status.HTTP_400_BAD_REQUEST,
-						detail=(
-							"Un mismo producto no puede enviarse con distintas personalizaciones "
-							"en un mismo pedido"
-						),
-					)
 				existente["cantidad"] = int(existente["cantidad"]) + item.cantidad
 
 			subtotal = Decimal("0.00")

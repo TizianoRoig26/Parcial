@@ -32,16 +32,8 @@ class DireccionService:
             )
         return direccion
 
-    def _validate_coordinates(self, latitud: float | None, longitud: float | None) -> None:
-        if (latitud is None) != (longitud is None):
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Latitud y longitud deben enviarse juntas o ambas en null",
-            )
-
     def create(self, usuario_id: int, data: DireccionCreate) -> DireccionPublic:
         with DireccionUnitOfWork(self._session) as uow:
-            self._validate_coordinates(data.latitud, data.longitud)
 
             direccion = DireccionEntrega(
                 **data.model_dump(),
