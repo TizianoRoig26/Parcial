@@ -34,9 +34,10 @@ const AppRouter = () => {
           path="*"
           element={
             <>
-              <NavBar />
-              <main className="max-w-6xl mx-auto px-6 py-8">
-                <Routes>
+              <div className="flex min-h-screen bg-[#F1F0CC]">
+                <NavBar />
+                <main className="flex-1 max-w-6xl mx-auto px-6 py-8">
+                  <Routes>
                   <Route element={<ProtectedRoute allowedRoles={["admin", "stock"]} />}>
                     <Route path="/" element={<ProductsPage />} />
                   </Route>
@@ -48,8 +49,9 @@ const AppRouter = () => {
                     
                   </Route>
                   <Route path="*" element={<div className="p-8 text-center text-gray-500 text-2xl">404 — Página no encontrada</div>} />
-                </Routes>
-              </main>
+                  </Routes>
+                </main>
+              </div>
             </>
           }
         />
