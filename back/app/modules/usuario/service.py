@@ -19,6 +19,7 @@ from app.core.security import hash_password, verify_password, create_access_toke
 from app.modules.usuario.unit_of_work import UsuariosUnitOfWork
 from app.modules.usuario.model import Usuario
 from app.modules.usuario.schemas import UserCreate, Token, UserPublic
+from app.modules.usuario.usuario_rol import UsuarioRol
 
 
 class UsuarioService:
@@ -99,3 +100,50 @@ class UsuarioService:
             )
         user.disabled = disabled
         return self.uow.usuarios.update(user)
+
+    def asignar_rol(self, user_id: int, rol_codigo: str, admin_id: int) -> Usuario:
+        
+        user = self.uow.usuarios.get_by_id(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado",
+            )
+
+        rol_codigo = rol_codigo.upper()
+        role = self.uow.roles.get_by_codigo(rol_codigo)
+        if role is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"No existe el rol '{rol_codigo}'",
+            )
+
+        existing_link = self.uow.usuarios_roles.get(user_id, rol_codigo)
+        if existing_link:
+            if existing_link.asignado_por is None:
+                existing_link.asignado_por = admin_id
+                self.uow.usuarios_roles.update(existing_link)
+
+            updated_user = self.uow.usuarios.get_by_id(user_id)
+            if updated_user is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Usuario no encontrado",
+                )
+            return updated_user
+
+        self.uow.usuarios_roles.add(
+            UsuarioRol(
+                usuario_id=user_id,
+                rol_codigo=rol_codigo,
+                asignado_por=admin_id,
+            )
+        )
+
+        updated_user = self.uow.usuarios.get_by_id(user_id)
+        if updated_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado",
+            )
+        return updated_user
