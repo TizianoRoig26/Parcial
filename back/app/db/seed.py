@@ -145,6 +145,103 @@ def seed_roles() -> None:
 
 		session.commit()
 
+	seed_productos()
+
+
+def seed_productos() -> None:
+	create_db_and_tables()
+
+	with Session(engine) as session:
+		categorias_data = [
+			{"nombre": "Pizzas", "descripcion": "Pizzas al horno de barro", "imagen_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591"},
+			{"nombre": "Bebidas", "descripcion": "Gaseosas y cervezas bien frías", "imagen_url": "https://images.unsplash.com/photo-1497534446932-c925b458314e"},
+			{"nombre": "Hamburguesas", "descripcion": "Hamburguesas caseras con papas fritas", "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd"},
+			{"nombre": "Postres", "descripcion": "Cosas dulces para cerrar el día", "imagen_url": "https://images.unsplash.com/photo-1551024601-bec78aea704b"},
+			{"nombre": "Empanadas", "descripcion": "Empanadas al horno y fritas", "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947"},
+		]
+
+		for cat in categorias_data:
+			existing = session.exec(select(Categoria).where(Categoria.nombre == cat["nombre"])).first()
+			if not existing:
+				session.add(Categoria(nombre=cat["nombre"], descripcion=cat["descripcion"], imagen_url=cat["imagen_url"]))
+		session.commit()
+
+		# Mapear categorías y unidades de medida para fácil asignación
+		categorias_map = {cat.nombre: cat for cat in session.exec(select(Categoria)).all()}
+		ums_map = {um.simbolo: um.id for um in session.exec(select(UnidadMedida)).all()}
+
+		productos_data = [
+			{"nombre": "Pizza Muzzarella", "descripcion": "Salsa de tomate, muzzarella de primera calidad, aceitunas y orégano", "precio_base": 8500, "stock_cantidad": 15, "imagen_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591", "categoria": "Pizzas", "um": "u"},
+			{"nombre": "Pizza Fugazzeta", "descripcion": "Masa de pizza cubierta con abundante cebolla y muzzarella", "precio_base": 9200, "stock_cantidad": 12, "imagen_url": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002", "categoria": "Pizzas", "um": "u"},
+			{"nombre": "Pizza Especial", "descripcion": "Muzzarella, jamón cocido, morrones asados y aceitunas verdes", "precio_base": 9800, "stock_cantidad": 18, "imagen_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591", "categoria": "Pizzas", "um": "u"},
+			{"nombre": "Pizza Napolitana", "descripcion": "Salsa, muzzarella, rodajas de tomate natural, ajo y albahaca fresca", "precio_base": 9400, "stock_cantidad": 20, "imagen_url": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002", "categoria": "Pizzas", "um": "u"},
+			{"nombre": "Pizza Calabresa", "descripcion": "Salsa, muzzarella, rodajas de salame calabrés picante y aceitunas", "precio_base": 9900, "stock_cantidad": 14, "imagen_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591", "categoria": "Pizzas", "um": "u"},
+			{"nombre": "Pizza Cuatro Quesos", "descripcion": "Muzzarella, queso azul, provolone y queso parmesano rallado", "precio_base": 10500, "stock_cantidad": 10, "imagen_url": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002", "categoria": "Pizzas", "um": "u"},
+			{"nombre": "Pizza Rúcula y Crudo", "descripcion": "Muzzarella, hojas de rúcula fresca, jamón crudo y lluvia de parmesano", "precio_base": 11500, "stock_cantidad": 8, "imagen_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591", "categoria": "Pizzas", "um": "u"},
+			{"nombre": "Pizza Champiñones", "descripcion": "Salsa, muzzarella, champiñones fileteados salteados al ajillo y perejil", "precio_base": 10200, "stock_cantidad": 11, "imagen_url": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002", "categoria": "Pizzas", "um": "u"},
+			{"nombre": "Pizza Vegana", "descripcion": "Salsa de tomate, queso de almendras, vegetales asados de estación", "precio_base": 9600, "stock_cantidad": 7, "imagen_url": "https://images.unsplash.com/photo-1513104890138-7c749659a591", "categoria": "Pizzas", "um": "u"},
+			{"nombre": "Pizza Pollo Catupiry", "descripcion": "Salsa de tomate, muzzarella, pollo desmenuzado y queso catupiry", "precio_base": 10800, "stock_cantidad": 9, "imagen_url": "https://images.unsplash.com/photo-1574071318508-1cdbab80d002", "categoria": "Pizzas", "um": "u"},
+			{"nombre": "Hamburguesa Clásica", "descripcion": "Medallón de carne de 180g, queso cheddar y aderezo de la casa", "precio_base": 6500, "stock_cantidad": 30, "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd", "categoria": "Hamburguesas", "um": "u"},
+			{"nombre": "Hamburguesa Completa", "descripcion": "Carne 180g, cheddar, lechuga, tomate, jamón, huevo frito y mayonesa", "precio_base": 7800, "stock_cantidad": 25, "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd", "categoria": "Hamburguesas", "um": "u"},
+			{"nombre": "Hamburguesa Cheddar Bacon", "descripcion": "Medallón de carne 180g, triple cheddar, panceta crocante y barbacoa", "precio_base": 8200, "stock_cantidad": 40, "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd", "categoria": "Hamburguesas", "um": "u"},
+			{"nombre": "Hamburguesa Doble Bacon", "descripcion": "Doble carne 180g, cuádruple cheddar, doble panceta y salsa stack", "precio_base": 9500, "stock_cantidad": 35, "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd", "categoria": "Hamburguesas", "um": "u"},
+			{"nombre": "Hamburguesa Veggie Lentejas", "descripcion": "Medallón de lentejas y avena, queso, lechuga, tomate y palta", "precio_base": 6900, "stock_cantidad": 15, "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd", "categoria": "Hamburguesas", "um": "u"},
+			{"nombre": "Hamburguesa Pollo Crispy", "descripcion": "Pechuga de pollo rebozada super crujiente, lechuga, cebolla morada", "precio_base": 7100, "stock_cantidad": 22, "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd", "categoria": "Hamburguesas", "um": "u"},
+			{"nombre": "Hamburguesa Triple Cheddar", "descripcion": "Triple carne de 120g cada una, séxtuple cheddar y salsa de cebolla", "precio_base": 10500, "stock_cantidad": 18, "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd", "categoria": "Hamburguesas", "um": "u"},
+			{"nombre": "Hamburguesa Blue Cheese", "descripcion": "Medallón de carne 180g, queso azul fundido, cebollas caramelizadas", "precio_base": 8400, "stock_cantidad": 12, "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd", "categoria": "Hamburguesas", "um": "u"},
+			{"nombre": "Hamburguesa BBQ Pork", "descripcion": "Carne de cerdo ahumada desmenuzada, salsa barbacoa y ensalada coleslaw", "precio_base": 8900, "stock_cantidad": 20, "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd", "categoria": "Hamburguesas", "um": "u"},
+			{"nombre": "Hamburguesa Huevo Frito", "descripcion": "Carne 180g, queso dambo, panceta, huevo frito y salsa criolla", "precio_base": 8000, "stock_cantidad": 14, "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd", "categoria": "Hamburguesas", "um": "u"},
+			{"nombre": "Cerveza IPA 1L", "descripcion": "Cerveza artesanal IPA, amarga y aromática en botella de un litro", "precio_base": 3200, "stock_cantidad": 50, "imagen_url": "https://images.unsplash.com/photo-1567696911980-2eed69a46042", "categoria": "Bebidas", "um": "L"},
+			{"nombre": "Cerveza Golden 1L", "descripcion": "Cerveza artesanal rubia, ligera y refrescante de un litro", "precio_base": 3000, "stock_cantidad": 60, "imagen_url": "https://images.unsplash.com/photo-1567696911980-2eed69a46042", "categoria": "Bebidas", "um": "L"},
+			{"nombre": "Cerveza Honey 1L", "descripcion": "Cerveza artesanal con un toque dulce de miel natural de un litro", "precio_base": 3300, "stock_cantidad": 45, "imagen_url": "https://images.unsplash.com/photo-1567696911980-2eed69a46042", "categoria": "Bebidas", "um": "L"},
+			{"nombre": "Cerveza Stout 1L", "descripcion": "Cerveza artesanal negra con notas de café y chocolate de un litro", "precio_base": 3400, "stock_cantidad": 30, "imagen_url": "https://images.unsplash.com/photo-1567696911980-2eed69a46042", "categoria": "Bebidas", "um": "L"},
+			{"nombre": "Gaseosa Cola 500ml", "descripcion": "Refresco sabor cola de quinientos mililitros en envase descartable", "precio_base": 1500, "stock_cantidad": 100, "imagen_url": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97", "categoria": "Bebidas", "um": "mL"},
+			{"nombre": "Gaseosa Lima 500ml", "descripcion": "Refresco sabor lima limón de quinientos mililitros descartable", "precio_base": 1500, "stock_cantidad": 80, "imagen_url": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97", "categoria": "Bebidas", "um": "mL"},
+			{"nombre": "Gaseosa Pomelo 500ml", "descripcion": "Refresco sabor pomelo de quinientos mililitros descartable", "precio_base": 1500, "stock_cantidad": 75, "imagen_url": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97", "categoria": "Bebidas", "um": "mL"},
+			{"nombre": "Agua Con Gas 500ml", "descripcion": "Agua mineralizada gasificada de quinientos mililitros", "precio_base": 1200, "stock_cantidad": 90, "imagen_url": "https://images.unsplash.com/photo-1608885898957-a599fb18ec3f", "categoria": "Bebidas", "um": "mL"},
+			{"nombre": "Agua Sin Gas 500ml", "descripcion": "Agua mineral natural sin gas de quinientos mililitros", "precio_base": 1200, "stock_cantidad": 110, "imagen_url": "https://images.unsplash.com/photo-1608885898957-a599fb18ec3f", "categoria": "Bebidas", "um": "mL"},
+			{"nombre": "Limonada Menta 1L", "descripcion": "Jugo de limón natural, menta fresca y jengibre en jarra de un litro", "precio_base": 2500, "stock_cantidad": 20, "imagen_url": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd", "categoria": "Bebidas", "um": "L"},
+			{"nombre": "Volcán Chocolate", "descripcion": "Postre tibio con corazón fundido acompañado de helado de vainilla", "precio_base": 2800, "stock_cantidad": 12, "imagen_url": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c", "categoria": "Postres", "um": "u"},
+			{"nombre": "Flan Casero", "descripcion": "Flan tradicional de vainilla horneado a baño maría con dulce de leche", "precio_base": 2200, "stock_cantidad": 18, "imagen_url": "https://images.unsplash.com/photo-1551024601-bec78aea704b", "categoria": "Postres", "um": "u"},
+			{"nombre": "Chocotorta", "descripcion": "Postre clásico argentino con galletitas de chocolate y crema de dulce de leche", "precio_base": 2600, "stock_cantidad": 15, "imagen_url": "https://images.unsplash.com/photo-1551024601-bec78aea704b", "categoria": "Postres", "um": "u"},
+			{"nombre": "Tiramisú", "descripcion": "Postre italiano con bizcochos humedecidos en café, mascarpone y cacao", "precio_base": 2900, "stock_cantidad": 10, "imagen_url": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9", "categoria": "Postres", "um": "u"},
+			{"nombre": "Ensalada Frutas", "descripcion": "Ensalada fresca de frutas de estación cortadas al momento", "precio_base": 1800, "stock_cantidad": 20, "imagen_url": "https://images.unsplash.com/photo-1551024601-bec78aea704b", "categoria": "Postres", "um": "u"},
+			{"nombre": "Helado Americana 250g", "descripcion": "Cuarto de kilo de helado artesanal sabor crema americana", "precio_base": 2400, "stock_cantidad": 30, "imagen_url": "https://images.unsplash.com/photo-1563805042-7684c019e1cb", "categoria": "Postres", "um": "kg"},
+			{"nombre": "Helado Chocolate 250g", "descripcion": "Cuarto de kilo de helado artesanal sabor chocolate amargo", "precio_base": 2400, "stock_cantidad": 30, "imagen_url": "https://images.unsplash.com/photo-1563805042-7684c019e1cb", "categoria": "Postres", "um": "kg"},
+			{"nombre": "Cheesecake Frutos Rojos", "descripcion": "Tarta de queso crema suave con cobertura y salsa de frutos rojos", "precio_base": 3100, "stock_cantidad": 10, "imagen_url": "https://images.unsplash.com/photo-1551024601-bec78aea704b", "categoria": "Postres", "um": "u"},
+			{"nombre": "Lemon Pie", "descripcion": "Tarta con base de masa quebrada, crema de limón y merengue italiano", "precio_base": 2700, "stock_cantidad": 12, "imagen_url": "https://images.unsplash.com/photo-1551024601-bec78aea704b", "categoria": "Postres", "um": "u"},
+			{"nombre": "Brownie Helado", "descripcion": "Brownie tibio de chocolate y nueces con helado de crema americana", "precio_base": 2500, "stock_cantidad": 14, "imagen_url": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c", "categoria": "Postres", "um": "u"},
+			{"nombre": "Empanada Carne Cuchillo", "descripcion": "Empanada clásica de carne vacuna cortada a cuchillo, cebolla y papa", "precio_base": 900, "stock_cantidad": 150, "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947", "categoria": "Empanadas", "um": "u"},
+			{"nombre": "Empanada Carne Suave", "descripcion": "Empanada al horno rellena de carne molida, condimentos suaves y huevo", "precio_base": 850, "stock_cantidad": 130, "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947", "categoria": "Empanadas", "um": "u"},
+			{"nombre": "Empanada Pollo Verdeo", "descripcion": "Pechuga de pollo desmenuzada salteada con cebolla de verdeo y crema", "precio_base": 850, "stock_cantidad": 120, "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947", "categoria": "Empanadas", "um": "u"},
+			{"nombre": "Empanada Jamon Queso", "descripcion": "Empanada rellena de jamón cocido picado y queso muzzarella fundido", "precio_base": 800, "stock_cantidad": 140, "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947", "categoria": "Empanadas", "um": "u"},
+			{"nombre": "Empanada Humita", "descripcion": "Relleno tradicional de choclo dulce desgranado, calabaza y salsa blanca", "precio_base": 850, "stock_cantidad": 100, "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947", "categoria": "Empanadas", "um": "u"},
+			{"nombre": "Empanada Verdura Salsa", "descripcion": "Espiñacas frescas salteadas unidas con queso y salsa blanca suave", "precio_base": 850, "stock_cantidad": 90, "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947", "categoria": "Empanadas", "um": "u"},
+			{"nombre": "Empanada Caprese", "descripcion": "Relleno de queso muzzarella, tomates secos picados y albahaca fresca", "precio_base": 850, "stock_cantidad": 110, "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947", "categoria": "Empanadas", "um": "u"},
+			{"nombre": "Empanada Queso Cebolla", "descripcion": "Combinación clásica de queso muzzarella, cebolla rehogada y condimentos", "precio_base": 800, "stock_cantidad": 115, "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947", "categoria": "Empanadas", "um": "u"},
+			{"nombre": "Empanada Roquefort", "descripcion": "Queso azul hilado, queso muzzarella, trocitos de nuez y apio", "precio_base": 900, "stock_cantidad": 95, "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947", "categoria": "Empanadas", "um": "u"},
+			{"nombre": "Empanada Bondiola", "descripcion": "Carne de cerdo desmenuzada braseada a la cerveza negra y barbacoa", "precio_base": 950, "stock_cantidad": 105, "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947", "categoria": "Empanadas", "um": "u"}
+		]
+
+		for prod in productos_data:
+			existing = session.exec(select(Producto).where(Producto.nombre == prod["nombre"])).first()
+			if not existing:
+				cat_obj = categorias_map.get(prod["categoria"])
+				um_id = ums_map.get(prod["um"])
+				
+				producto = Producto(
+					nombre=prod["nombre"],
+					descripcion=prod["descripcion"],
+					precio_base=prod["precio_base"],
+					stock_cantidad=prod["stock_cantidad"],
+					imagen_url=prod["imagen_url"],
+					unidad_medida_id=um_id
+				)
+				if cat_obj:
+					producto.categorias = [cat_obj]
+				session.add(producto)
+		session.commit()
+
 
 def seed_formas_pago() -> None:
 	create_db_and_tables()

@@ -34,9 +34,9 @@ const AppRouter = () => {
           path="*"
           element={
             <>
-              <div className="flex min-h-screen bg-[#F1F0CC]">
+              <div className="flex h-screen overflow-hidden bg-[#F1F0CC]">
                 <NavBar />
-                <main className="flex-1 max-w-6xl mx-auto px-6 py-8">
+                <main className="flex-1 flex flex-col min-h-0 max-w-6xl mx-auto px-6 py-8">
                   <Routes>
                   <Route element={<ProtectedRoute allowedRoles={["admin", "stock"]} />}>
                     <Route path="/" element={<ProductsPage />} />

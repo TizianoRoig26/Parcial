@@ -15,10 +15,16 @@ export const ProductsPage = () => {
   const queryClient = useQueryClient();
   const [modal, setModal] = useState<ModalState>({ type: "none" });
   const handleClose = () => setModal({ type: "none" });
+  
+  const [hasta, setHasta] = useState(10);
+  
+  const handleVerMas = () => {
+    setHasta((prev) => prev + 10);
+  };
 
   const { data: productos, isLoading, isError } = useQuery({
-    queryKey: ["productos"],
-    queryFn: getProductos,
+    queryKey: ["productos", hasta],
+    queryFn: () => getProductos(0, hasta),
     staleTime: 1000 * 60 * 2,
   });
 
@@ -104,26 +110,43 @@ export const ProductsPage = () => {
   if (isError) return <div className="p-8 text-center text-red-500">Error al cargar productos</div>;
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-6 py-8 ">
-      <div className="flex items-center justify-between mb-8">
+    <div className="w-full h-full flex flex-col min-h-0 overflow-hidden">
+      <div className="flex items-center justify-between mb-8 flex-shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-black tracking-tight">Productos</h1>
           <p className="text-black mt-1">Gestiona el catálogo de productos</p>
         </div>
+        
+      </div>
+      <div className="flex flex-row justify-between pb-4">
+        <ul>
+          <li>
+            <div className="flex flex-wrap gap-1 pt-2.5">
+              {categorias?.data?.length
+                ? categorias.data.map(c => (
+                  <span key={c.id} className="px-3 py-1.5 bg-fern/15 text-black text-xs rounded-full font-medium">
+                    {c.nombre}
+                  </span>
+                ))
+                : <span className="text-xs text-black">—</span>
+              }
+            </div>
+          </li>
+        </ul>
         <button
           onClick={() => setModal({ type: "create" })}
-          className="bg-[#47AA66] text-black font-semibold shadow-md rounded-full px-3 pb-1 hover:"
+          className=" bg-[#47AA66] text-black font-semibold shadow-md rounded-full px-3 pb-1 hover:bg-[#699D64] transition-colors duration-300"
         >
           <span className="text-lg">+</span>
           Nuevo producto
         </button>
       </div>
 
-      <div className="rounded-3xl border-1 border-[#0D4012] overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="border-b-1 border-[#0D4012] ">
-            <tr className=" font-normal text-[#0D4012] text-xs uppercase tracking-wider">
-              <th className="p-3">Img</th>
+      <div className="flex-1 rounded-3xl border border-[#0D4012] overflow-y-auto min-h-0 shadow-lg custom-scrollbar">
+        <table className="w-full text-left table-fixed shadow-lg">
+          <thead className="border-[#0D4012]">
+            <tr className=" sticky top-0 z-10 bg-[#E5E4C1] font-normal text-[#0D4012] text-xs uppercase tracking-wider">
+              <th className="p-3 ">Img</th>
               <th className="p-3">Producto</th>
               <th className="p-3">Categorías</th>
               <th className="p-3">Precio</th>
@@ -143,7 +166,7 @@ export const ProductsPage = () => {
                     </div>
                 </td>
                 <td className="px-6 py-4">
-                      <p className="font-bold text-lg text-[#0D4012] ">{prod.nombre}</p>
+                      <p className="font-bold text-sm text-[#0D4012] ">{prod.nombre}</p>
                       <p className="text-xs text-black max-w-[200px] truncate">{prod.descripcion}</p>
                 </td>
                 <td className="px-6 py-4">
@@ -190,11 +213,20 @@ export const ProductsPage = () => {
             ))}
           </tbody>
         </table>
+        <div className="py-2 border-t-1 border-[#0D4012] flex items-center justify-between sitcky">
+          <div className="flex flex-row align-center px-3  items-center">
+            <button
+              onClick={handleVerMas}
+              className="mt-2 px-3 py-1 text-sm text-black hover:text-black hover:bg-fern rounded-lg transition-colors font-medium"
+            >
+              Ver más
+            </button>
+          </div>
+        </div>
 
         {(!productos?.data || productos.data.length === 0) && (
           <div className="py-20 text-center">
             <h3 className="text-lg font-semibold text-black">No hay productos</h3>
-            <p className="text-black mt-1">Comienza creando el primer producto.</p>
           </div>
         )}
       </div>
