@@ -36,3 +36,5 @@ dist/
 # ── SO ────────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+back/app/db/__pycache__/seed.cpython-313.pyc
+back/app/db/__pycache__/seed.cpython-313.pyc
