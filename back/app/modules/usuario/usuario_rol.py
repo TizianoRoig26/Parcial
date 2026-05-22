@@ -17,7 +17,9 @@ class UsuarioRol(SQLModel, table=True):
     usuario: "Usuario" = Relationship(
         sa_relationship_kwargs={"foreign_keys": "[UsuarioRol.usuario_id]"}
     )
-    rol: "Rol" = Relationship()
+    rol: "Rol" = Relationship(
+        sa_relationship_kwargs={"foreign_keys": "[UsuarioRol.rol_codigo]"}
+    )
     asignador: "Usuario" = Relationship(
         sa_relationship_kwargs={"foreign_keys": "[UsuarioRol.asignado_por]"}
     )

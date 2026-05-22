@@ -19,5 +19,8 @@ class Rol(SQLModel, table=True):
     usuarios: List["Usuario"] = Relationship(
         back_populates="roles",
         link_model=UsuarioRol,
-        sa_relationship_kwargs={"overlaps": "usuario,rol"},
+        sa_relationship_kwargs={
+            "overlaps": "usuario,rol",
+            "foreign_keys": "[UsuarioRol.usuario_id, UsuarioRol.rol_codigo]",
+        },
     )

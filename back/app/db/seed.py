@@ -89,9 +89,9 @@ def seed_roles() -> None:
 		}
 
 		for u in usuarios:
-			exists = session.exec(select(Usuario).where(Usuario.username == u["username"]))
-			if exists.first():
-				continue
+			usuario = session.exec(
+				select(Usuario).where(Usuario.username == u["username"])
+			).first()
 
 			role_objs = []
 			for code in u["roles"]:
@@ -99,16 +99,17 @@ def seed_roles() -> None:
 				if r:
 					role_objs.append(r)
 
-			usuario = Usuario(
-				username=u["username"],
-				full_name=u["full_name"],
-				email=u["email"],
-				hashed_password=hash_password(u["password"]),
-			)
+			if usuario is None:
+				usuario = Usuario(
+					username=u["username"],
+					full_name=u["full_name"],
+					email=u["email"],
+					hashed_password=hash_password(u["password"]),
+				)
+				session.add(usuario)
+				session.flush()
 
 			usuario.roles = role_objs
-			session.add(usuario)
-			session.flush()
 
 			direccion = u.get("direccion")
 			if direccion and "usuario_id" in direccion_columns:

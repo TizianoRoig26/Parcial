@@ -9,6 +9,7 @@ from typing import List, TYPE_CHECKING
 
 from sqlmodel import SQLModel, Field, Relationship
 
+from app.modules.direccion.model import DireccionEntrega
 from app.modules.usuario.usuario_rol import UsuarioRol
 
 if TYPE_CHECKING:
@@ -27,13 +28,16 @@ class Usuario(SQLModel, table=True):
     roles: List["Rol"] = Relationship(
         back_populates="usuarios",
         link_model=UsuarioRol,
-        sa_relationship_kwargs={"overlaps": "usuario,rol"},
+        sa_relationship_kwargs={
+            "overlaps": "usuario,rol",
+            "foreign_keys": "[UsuarioRol.usuario_id, UsuarioRol.rol_codigo]",
+        },
     )
 
     @property
     def role_codes(self) -> list[str]:
         return [rol.codigo for rol in self.roles]
     
-    direcciones: List["DireccionEntrega"] = Relationship(
+    direcciones: List[DireccionEntrega] = Relationship(
         back_populates="usuario",
         sa_relationship_kwargs={"overlaps": "usuario,direccion"})
