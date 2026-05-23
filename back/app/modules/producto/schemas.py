@@ -28,10 +28,10 @@ class ProductoUpdate(SQLModel):
 
 
 class CategoriaAssign(SQLModel):
-    categoria_ids: List[int] = Field(default=None, min_length=1)
+    categoria_ids: List[int] = Field(default_factory=list)
 
 class IngredienteAssign(SQLModel):
-    ingrediente_ids: List[int] = Field(default=None, min_length=1)
+    ingrediente_ids: List[int] = Field(default_factory=list)
 
 class UnidadMedidaAssign(SQLModel):
     unidad_medida_id: Optional[int] = Field(default=None)

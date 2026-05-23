@@ -70,9 +70,20 @@ def update_producto(
     data: ProductoUpdate,
     svc: ProductoService = Depends(get_Producto_service),
 ) -> ProductoPublic:
-
     return svc.update(id, data)
 
+
+@router.patch(
+    "/estado/{id}",
+    response_model=ProductoPublic,
+    summary="Actualizacion del estado de un Producto",
+)
+def change_state_producto(
+    id: int,
+    rol: Annotated[Usuario, Depends(require_role(["ADMIN","STOCK"]))],
+    svc: ProductoService = Depends(get_Producto_service),
+) -> ProductoPublic:
+    return svc.change_state(id)
 
 @router.delete(
     "/{id}",

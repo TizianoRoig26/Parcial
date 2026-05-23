@@ -6,7 +6,15 @@ const PATH = "/productos";
 type PaginatedResponse = { data: IProducto[]; total: number };
 
 export const getProductos = async (offset: number, limit: number): Promise<PaginatedResponse> => {
-  const response = await apiClient.get<PaginatedResponse>(`${PATH}?offset=${0}&limit=${limit}`);
+  const response = await apiClient.get<PaginatedResponse>(`${PATH}?offset=${offset}&limit=${limit}`);
+  
+  // Ordenamos los productos de la página (Activos primero y alfabéticamente)
+  response.data.data.sort((a, b) => {
+    if (a.is_active && !b.is_active) return -1;
+    if (!a.is_active && b.is_active) return 1;
+    return a.nombre.localeCompare(b.nombre);
+  });
+
   return response.data;
 };
 
@@ -33,10 +41,16 @@ export const updateProducto = async (
   return response.data;
 };
 
+export const changeStateProducto = async (id: number): Promise<IProducto> => {
+  const response = await apiClient.patch<IProducto>(`${PATH}/estado/${id}`);
+  return response.data;
+};
+
 
 export const deleteProducto = async (id: number): Promise<void> => {
   await apiClient.delete(`${PATH}/${id}`);
 };
+
 
 
 export const assignCategorias = async (

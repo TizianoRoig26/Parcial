@@ -27,7 +27,7 @@ export const NavBar = () => {
     <>
       {/* ── SIDEBAR DESKTOP ── */}
       {/* Explicación: flex flex-col justify-between separa el contenido superior del inferior */}
-      <aside className="w-64 h-screen bg-[#F1F0CC] flex flex-col justify-between p-4 text-white border-1 border-[#0D4012]">
+      <aside className="w-64 h-screen bg-[#E5E4C1] flex flex-col justify-between p-4 text-white border-1 border-[#0D4012]">
         
         {/* CONTENEDOR SUPERIOR */}
         <div>

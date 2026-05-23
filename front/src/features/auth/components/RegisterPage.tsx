@@ -41,7 +41,7 @@ export function RegisterPage() {
       await register(formData);
       navigate("/");
     } catch {
-      // El error ya está en el store
+
     } finally {
       setIsLoading(false);
     }

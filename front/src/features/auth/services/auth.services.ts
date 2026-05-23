@@ -10,7 +10,7 @@ const AUTH = "/api/v1/auth";
  * El navegador almacena la cookie y la envía automáticamente en cada request
  * siguiente. El JWT nunca toca el código JavaScript.
  *
- * Los interceptores de axios manejan automáticamente:
+ * Los interceptores de axios manejan automáticamente:   
  * - Inclusión de credentials (cookies)
  * - Errores 401 (sesión expirada)
  */

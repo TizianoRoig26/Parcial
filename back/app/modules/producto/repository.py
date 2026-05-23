@@ -39,7 +39,7 @@ class ProductoRepository(BaseRepository[Producto]):
                 .where(ProductoCategoria.categoria_id == categoria_id)
             ).all()
         )
-    def get_by_nombre(
+    def search_by_nombre(
         self,
         alias: str,
     ) -> list[Producto]:
