@@ -151,7 +151,6 @@ class PedidoService:
 					detail="La dirección es obligatoria para esta forma de pago",
 				)
 
-			# Agrupar items por producto, validando que la personalizacion sea consistente
 			items_normalizados: dict[int, dict[str, object]] = {}
 			for item in data.items:
 				personalizacion = sorted(set(item.personalizacion or [])) or None
@@ -181,7 +180,6 @@ class PedidoService:
 				relaciones = self.uow.productos.get_ingrediente_relaciones(producto_id)
 				removibles = {rel.ingrediente_id for rel in relaciones if rel.es_removible}
 
-				# Validar y decrementar stock
 				if producto.stock_cantidad is None:
 					producto.stock_cantidad = 0
 				if producto.stock_cantidad < cantidad:

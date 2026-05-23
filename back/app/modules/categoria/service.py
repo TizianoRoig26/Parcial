@@ -80,3 +80,9 @@ class CategoriaService:
             categoria = self._get_or_404(uow, id)
             categoria.is_active = False
             uow.Categoria.add(categoria)
+    
+    def search_by_nombre(self, alias: str) -> list[CategoriaPublic]:
+        with CategoriaUnitOfWork(self._session) as uow:
+            categorias = uow.Categoria.get_by_nombre(alias)
+            return [CategoriaPublic.model_validate(c) for c in categorias]
+        
