@@ -1,124 +1,29 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import type { IProducto } from "../IProducto";
-import { changeStateProducto, getProductos, createProducto, updateProducto, deleteProducto, assignCategorias, assignIngredientes } from "../services/producto.services";
-import { getCategorias } from "../../categoria/services/categoria.services";
-import { getIngredientes } from "../../ingredientes/services/ingrediente.services";
 import { ProductoModal } from "../components/ProductoModal";
-import { useStore } from "zustand";
-
-type ModalState =
-  | { type: "none" }
-  | { type: "create" }
-  | { type: "edit"; producto: IProducto };
+import { useProductos } from "../hooks/productosHooks";
 
 export const ProductsPage = () => {
-  const queryClient = useQueryClient();
-  const [modal, setModal] = useState<ModalState>({ type: "none" });
-  const handleClose = () => setModal({ type: "none" });
-  const [currentPage, setCurrentPage] = useState(1);
-  const LIMIT = 10;
-
-  const { data: productos, isLoading, isError } = useQuery({
-    queryKey: ["productos", currentPage],
-    queryFn: () => getProductos((currentPage - 1) * LIMIT, LIMIT),
-    staleTime: 1000 * 60 * 2,
-  });
-
-  const totalPages = productos?.total ? Math.ceil(productos.total / LIMIT) : 1;
-
-  const { data: categorias } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategorias,
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const { data: ingredientes } = useQuery({
-    queryKey: ["ingredientes"],
-    queryFn: getIngredientes,
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const createMutation = useMutation({
-    mutationFn: createProducto,
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["productos"] }); },
-  });
-
-  const editMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<IProducto> }) => updateProducto(id, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["productos"] }); handleClose(); },
-  });
-
-  const changeStateMutation = useMutation({
-    mutationFn: (id: number) => changeStateProducto(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["productos"] }),
-  });
-
-  const assignCategoriasMutation = useMutation({
-    mutationFn: ({ id, ids }: { id: number; ids: number[] }) => assignCategorias(id, ids),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["productos"] }),
-  });
-
-  const assignIngredientesMutation = useMutation({
-    mutationFn: ({ id, ids }: { id: number; ids: number[] }) => assignIngredientes(id, ids),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["productos"] }),
-  });
-
-  const [categoriaFiltrada, setCategoriaFiltrada] = useState<number | null>(null);
-
-  const handleFilterProductos = (categoria: number) => {
-    setCategoriaFiltrada(categoria);
-  }
-
-  
-  const ordenarProductos = (productos: IProducto[]) => {
-    return productos.filter((p) => categoriaFiltrada ? p.categorias.some((c) => c.id === categoriaFiltrada) : true).sort((a, b) => {
-      if (a.is_active && !b.is_active) return -1;
-      if (!a.is_active && b.is_active) return 1;
-      return a.nombre.localeCompare(b.nombre);
-    });
-  }
-
-  const handleSubmit = (
-    data: Omit<IProducto, "id" | "categorias" | "ingredientes">,
-    categoriaIds: number[],
-    ingredienteIds: number[],
-  ) => {
-    if (modal.type === "edit" && modal.producto.id) {
-      const prodId = modal.producto.id;
-      editMutation.mutate({ id: prodId, data }, {
-        onSuccess: () => {
-          assignCategoriasMutation.mutate({ id: prodId, ids: categoriaIds });
-          assignIngredientesMutation.mutate({ id: prodId, ids: ingredienteIds });
-          queryClient.invalidateQueries({ queryKey: ["productos"] });
-          handleClose();
-        },
-      });
-    } else {
-      createMutation.mutate(data, {
-        onSuccess: (newProd) => {
-          if (newProd.id) {
-            assignCategoriasMutation.mutate({ id: newProd.id, ids: categoriaIds });
-            assignIngredientesMutation.mutate({ id: newProd.id, ids: ingredienteIds });
-          }
-          queryClient.invalidateQueries({ queryKey: ["productos"] });
-          handleClose();
-        },
-      });
-    }
-  };
-
-  const handleAssignCategorias = (ids: number[]) => {
-    if (modal.type === "edit" && modal.producto.id) {
-      assignCategoriasMutation.mutate({ id: modal.producto.id, ids });
-    }
-  };
-
-  const handleAssignIngredientes = (ids: number[]) => {
-    if (modal.type === "edit" && modal.producto.id) {
-      assignIngredientesMutation.mutate({ id: modal.producto.id, ids });
-    }
-  };
+  const {
+    modal,
+    setModal,
+    handleClose,
+    currentPage,
+    setCurrentPage,
+    productos,
+    isLoading,
+    isError,
+    totalPages,
+    categorias,
+    ingredientes,
+    categoriaFiltrada,
+    nombreFilter,
+    setNombreFilter,
+    ordenarProductos,
+    handleFilterProductos,
+    handleSubmit,
+    handleAssignCategorias,
+    handleAssignIngredientes,
+    changeStateMutation,
+  } = useProductos();
 
   if (isLoading) return <div className="p-8 text-center text-black animate-pulse">Cargando productos...</div>;
   if (isError) return <div className="p-8 text-center text-red-500">Error al cargar productos</div>;
@@ -143,6 +48,12 @@ export const ProductsPage = () => {
           <ul>
             <li>
               <div className="flex flex-wrap gap-1 pt-2.5">
+                 <button
+                  onClick={() => handleFilterProductos(undefined, "")}
+                  className="px-3 py-1.5 ml-3 bg-[#47AA66] text-black text-xs rounded-full font-semibold shadow-md"
+                >
+                  Todos
+                </button>
                 {categorias?.data?.length
                   ? categorias.data.map(c => (
                     <button key={c.id} onClick={() => handleFilterProductos(c.id)}
@@ -152,49 +63,51 @@ export const ProductsPage = () => {
                   ))
                   : <span className="text-xs text-black">—</span>
                 }
-                <button
-                  onClick={() => handleFilterProductos(null)}
-                  className="px-3 py-1.5 bg-fern/15 text-black text-xs rounded-full font-semibold shadow-md"
-                >
-                  Limpiar filtro
-                </button>
               </div>
             </li>
           </ul>
           <div className="flex items-center gap-2">
-            <button onClick={() => handleFilterProductos}></button>
+            <input
+              type="text"
+              placeholder="Buscar por nombre..."
+              value={nombreFilter}
+              onChange={(e) => setNombreFilter(e.target.value)}
+              className="px-3 py-1.5 border border-[#0D4012] rounded-full text-xs text-[#0D4012] placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[#0D4012] w-48 font-medium"
+            />
+            <button onClick={() => handleFilterProductos(categoriaFiltrada ?? undefined, "")}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-filter-2"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 6h16" /><path d="M6 12h12" /><path d="M9 18h6" /></svg>
+            </button>
           </div>
         </div>
       </div>
       <div className="flex-1 rounded-3xl border border-[#0D4012] overflow-y-auto min-h-0 shadow-lg custom-scrollbar">
         <table className="w-full text-left table-fixed shadow-lg">
           <thead className="border-[#0D4012]">
-            <tr className=" sticky top-0 z-10 bg-[#E5E4C1] font-normal text-[#0D4012] text-xs uppercase tracking-wider">
+            <tr className="sticky top-0 z-10 bg-[#E5E4C1] text-center  font-normal text-[#0D4012] text-xs uppercase ">
               <th className="p-3 ">Img</th>
               <th className="p-3">Producto</th>
               <th className="p-3">Categorías</th>
               <th className="p-3">Precio</th>
-              <th className="text-center p-3">Stock</th>
-              <th className="p-3">Estado</th>
-              <th className="text-center">Acciones</th>
+              <th className="p-3">Stock</th>
+              <th className="">Acciones</th>
             </tr>
           </thead>
           <tbody className="ivide-y divide-palm/20 bg-[#E5E4C1]">
             {ordenarProductos(productos?.data || []).map((prod) => (
-              <tr key={prod.id} className="transition-colors hover:bg-[#C9C8A6] border-t-1 border-[#0D4012]">
+              <tr key={prod.id} className="transition-colors text-center hover:bg-[#C9C8A6] border-t-1 border-[#0D4012]">
                 <td className=" ">
-                  <div className="p-4 ">
+                  <div className="flex align-center justify-center">
                     {prod.imagen_url && (
                       <img src={prod.imagen_url} alt="" className="w-10 h-10 object-cover shadow-sm" />
                     )}
                   </div>
                 </td>
-                <td className="px-6 py-4">
-                  <p className="font-bold text-sm text-[#0D4012] ">{prod.nombre}</p>
-                  <p className="text-xs text-black max-w-[200px] truncate">{prod.descripcion}</p>
+                <td className="px-6 py-4 text-start">
+                  <p className="font-bold text-sm text-[#0D4012]">{prod.nombre}</p>
+                  <p className="text-xs text-black max-w-[200px] truncate ">{prod.descripcion}</p>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1 justify-center">
                     {prod.categorias?.length
                       ? prod.categorias.map(c => (
                         <span key={c.id} className="px-2 py-0.5 bg-fern/15 text-black text-xs rounded-full font-medium">
@@ -216,13 +129,7 @@ export const ProductsPage = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${prod.is_active ? "bg-palm/30 text-black" : "bg-gray-100 text-gray-500"
-                    }`}>
-                    {prod.is_active ? "Activo" : "Inactivo"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-center gap-2">
                     <button
                       onClick={() => setModal({ type: "edit", producto: prod })}
                       className="p-1 text-sm text-[#0D4012] hover:text-[#002204] hover:border-2 rounded-full border-1 border-[#0D4012] hover:bg-[#C9C8A6] transition-colors font-medium"
