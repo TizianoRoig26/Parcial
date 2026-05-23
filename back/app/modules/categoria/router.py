@@ -84,3 +84,10 @@ def delete_categoria(
     svc: CategoriaService = Depends(get_Categoria_service),
 ) -> None:
     svc.soft_delete(id)
+    
+@router.get("/search/", response_model=list[CategoriaPublic], summary="Buscar categorias por nombre")
+def search_categorias(
+    alias: str = Query(..., min_length=1),
+    svc: CategoriaService = Depends(get_Categoria_service),
+) -> list[CategoriaPublic]:
+    return svc.search_by_nombre(alias)
