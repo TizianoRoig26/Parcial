@@ -12,10 +12,12 @@ export const useIngredientes = () => {
   const queryClient = useQueryClient();
   const [modal, setModal] = useState<ModalState>({ type: "none" });
   const handleClose = () => setModal({ type: "none" });
+  const [limit, setLimit] = useState(10);
+  const [offset, setOffset] = useState(0);
 
   const { data: ingredientes, isLoading, isError } = useQuery({
-    queryKey: ["ingredientes"],
-    queryFn: () => getIngredientes(0, 90),
+    queryKey: ["ingredientes", limit],
+    queryFn: () => getIngredientes(offset, limit),
     staleTime: 1000 * 60 * 2,
   });
 
@@ -42,17 +44,22 @@ export const useIngredientes = () => {
     }
   };
   const [esAlergenoFilter, setEsAlergenoFilter] = useState<boolean | null>(null);
-    const ordenarIngredientes = (productosList: IIngrediente[]) => {
-      return productosList
-        .filter((p) => (esAlergenoFilter ? p.es_alergeno === esAlergenoFilter : true))
-        .sort((a, b) => {
-          return a.nombre.localeCompare(b.nombre);
-        });
-    };
-  
-    const handleFilterAlergenos = (esAlergeno?: boolean) => {
-      setEsAlergenoFilter(esAlergeno ?? null);
-    };
+      const ordenarIngredientes = (productosList: IIngrediente[]) => {
+    return productosList
+      .filter((p) => (esAlergenoFilter !== null ? p.es_alergeno === esAlergenoFilter : true))
+      .sort((a, b) => {
+        return a.nombre.localeCompare(b.nombre);
+      });
+  };
+
+  const handleFilterAlergenos = (esAlergeno?: boolean) => {
+    setEsAlergenoFilter(esAlergeno ?? null);
+  };
+
+  const handleVerMas = () => {
+    setLimit(limit + 10);
+    setOffset(offset + 10);
+  };
 
   return {
     modal,
@@ -64,6 +71,7 @@ export const useIngredientes = () => {
     handleSubmit,
     deleteMutation,
     handleFilterAlergenos,
-    ordenarIngredientes
+    ordenarIngredientes,
+    handleVerMas
   };
 };

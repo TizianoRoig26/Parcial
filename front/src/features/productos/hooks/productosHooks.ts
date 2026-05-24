@@ -23,7 +23,7 @@ export const useProductos = () => {
   const [modal, setModal] = useState<ModalState>({ type: "none" });
   const handleClose = () => setModal({ type: "none" });
   const [currentPage, setCurrentPage] = useState(1);
-  const LIMIT = 20;
+  const LIMIT = 30;
 
   const { data: productos, isLoading, isError } = useQuery({
     queryKey: ["productos", currentPage],
@@ -83,14 +83,14 @@ export const useProductos = () => {
 
   const [categoriaFiltrada, setCategoriaFiltrada] = useState<number | null>(null);
   const [nombreFilter, setNombreFilter] = useState<string>("");
+  const [stock, setStock] = useState<boolean>(false);
 
   const ordenarProductos = (productosList: IProducto[]) => {
     return productosList
       .filter((p) => (categoriaFiltrada ? p.categorias.some((c) => c.id === categoriaFiltrada) : true))
       .filter((p) => (nombreFilter ? p.nombre.toLowerCase().includes(nombreFilter.toLowerCase()) : true))
+      .filter((p) => (stock ? p.stock_cantidad < 10 : true))
       .sort((a, b) => {
-        if (a.is_active && !b.is_active) return -1;
-        if (!a.is_active && b.is_active) return 1;
         return a.nombre.localeCompare(b.nombre);
       });
   };
@@ -98,6 +98,15 @@ export const useProductos = () => {
   const handleFilterProductos = (categoria?: number, nombre: string = "") => {
     setCategoriaFiltrada(categoria ?? null);
     setNombreFilter(nombre);
+    setStock(!stock);
+  };
+
+  const handleFilterProductosStock = () => {
+    if (stock === true) {
+      setStock(false)
+    } else {
+      setStock(true)
+    }
   };
 
   const handleSubmit = (
@@ -163,5 +172,6 @@ export const useProductos = () => {
     handleAssignCategorias,
     handleAssignIngredientes,
     changeStateMutation,
+    handleFilterProductosStock
   };
 };

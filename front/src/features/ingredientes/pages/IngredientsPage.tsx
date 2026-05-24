@@ -13,6 +13,7 @@ export const IngredientsPage = () => {
     deleteMutation,
     handleFilterAlergenos,
     ordenarIngredientes,
+    handleVerMas
   } = useIngredientes();
 
   if (isLoading) return <div className="p-8 text-center text-black animate-pulse">Cargando ingredientes...</div>;
@@ -35,15 +36,23 @@ export const IngredientsPage = () => {
           </button>
         </div>
         <div>
-          <button onClick={() => handleFilterAlergenos(undefined)}>
-            Todos
-          </button>
-          <button onClick={() => handleFilterAlergenos(true)}>
-            Alérgenos
-          </button>
-          <button onClick={() => handleFilterAlergenos(false)}>
-            No Alérgenos
-          </button>
+          <ul className="flex flex-row gap-3">
+            <li className="px-3 py-1.5 text-black text-xs rounded-full font-medium shadow-md border-1 border-[#0D4012]">
+                <button onClick={() => handleFilterAlergenos(undefined)} className="cursor-pointer" >
+                  Todos
+                </button> 
+            </li>
+            <li className="px-3 py-1.5 text-black text-xs rounded-full font-medium shadow-md border-1 border-[#0D4012]">
+                <button onClick={() => handleFilterAlergenos(true)} className="cursor-pointer" >
+                  Alérgenos
+                </button>
+            </li>
+            <li className="px-3 py-1.5 text-black text-xs rounded-full font-medium shadow-md border-1 border-[#0D4012]">
+                <button onClick={() => handleFilterAlergenos(false)} className="cursor-pointer" >
+                  No Alérgenos
+                </button>
+            </li>
+          </ul>
         </div>
       </div>
       <div className="flex-1 rounded-xl border border-[#0D4012] overflow-y-auto min-h-0 shadow-lg custom-scrollbar">
@@ -104,6 +113,11 @@ export const IngredientsPage = () => {
             ))}
           </tbody>
         </table>
+        <div className="flex justify-center items-center">
+          <button onClick={() => handleVerMas()} className="cursor-pointer" >
+            Mostrar mas
+          </button>
+        </div>
 
         {(!ingredientes?.data || ingredientes.data.length === 0) && (
           <div className="py-20 text-center">

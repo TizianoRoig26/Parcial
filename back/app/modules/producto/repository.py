@@ -22,7 +22,7 @@ class ProductoRepository(BaseRepository[Producto]):
         return list(
             self.session.exec(
                 select(Producto)
-                .where(Producto.is_active == True)  # noqa: E712
+                .order_by(Producto.nombre.asc())
                 .offset(offset)
                 .limit(limit)
             ).all()
@@ -37,6 +37,7 @@ class ProductoRepository(BaseRepository[Producto]):
                 select(Producto)
                 .join(ProductoCategoria, ProductoCategoria.producto_id == Producto.id)
                 .where(ProductoCategoria.categoria_id == categoria_id)
+                .order_by(Producto.nombre.asc())
             ).all()
         )
     def search_by_nombre(
@@ -47,6 +48,7 @@ class ProductoRepository(BaseRepository[Producto]):
             select(Producto).where(
                 Producto.nombre.ilike(f"%{alias}%")
             )
+            .order_by(Producto.nombre.asc())
         ).all()
 
     def count(self) -> int:

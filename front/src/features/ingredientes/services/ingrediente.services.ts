@@ -5,8 +5,9 @@ const PATH = "/ingredientes";
 
 type PaginatedResponse = { data: IIngrediente[]; total: number };
 
-export const getIngredientes = async (offset: number, limit: number ): Promise<PaginatedResponse> => {
+export const getIngredientes = async (offset: number, limit: number): Promise<PaginatedResponse> => {
   const response = await apiClient.get<PaginatedResponse>(`${PATH}?offset=${offset}&limit=${limit}`);
+  console.log(response.data.data);
   response.data.data.sort((a, b) => {
     return a.nombre.localeCompare(b.nombre);
   });

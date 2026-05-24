@@ -25,6 +25,7 @@ export const ProductsPage = () => {
     handleAssignCategorias,
     handleAssignIngredientes,
     changeStateMutation,
+    handleFilterProductosStock,
   } = useProductos();
 
   if (isLoading) return <div className="p-8 text-center text-black animate-pulse">Cargando productos...</div>;
@@ -82,15 +83,17 @@ export const ProductsPage = () => {
           </div>
         </div>
       </div>
-      <div className="flex-1 rounded-xl border border-[#0D4012] overflow-y-auto min-h-0 shadow-lg custom-scrollbar">
+     <div className="flex-1 rounded-xl border border-[#0D4012] overflow-y-auto min-h-0 shadow-lg custom-scrollbar">
         <table className="w-full text-left table-fixed shadow-lg  ">
-          <thead className="border-[#0D4012]">
+          <thead className="border-[#0D4012] ">
             <tr className="sticky top-0 z-10 bg-[#F4F3CF] text-center  font-normal text-[#0D4012] text-xs uppercase ">
               <th className="p-3 ">Img</th>
               <th className="p-3">Producto</th>
               <th className="p-3">Categorías</th>
               <th className="p-3">Precio</th>
-              <th className="p-3">Stock</th>
+              <th className="p-3" ><button onClick={() => handleFilterProductosStock(true)}>
+                Stock
+                </button></th>
               <th className="">Acciones</th>
             </tr>
           </thead>
@@ -170,7 +173,7 @@ export const ProductsPage = () => {
         </table>
         <div className="py-2 border-t-1 border-[#0D4012] flex items-center justify-between px-4 bg-[#F4F3CF] sticky bottom-0">
           <span className="text-sm text-[#0D4012] font-semibold">
-            Página {currentPage} de {totalPages}
+            Página {currentPage} de {totalPages} | {productos?.data?.length} Productos
           </span>
           <div className="flex gap-2">
             <button

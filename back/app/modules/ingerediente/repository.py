@@ -20,6 +20,7 @@ class IngredienteRepository(BaseRepository[Ingrediente]):
                 select(Ingrediente)
                 .offset(offset)
                 .limit(limit)
+                .order_by(Ingrediente.nombre.asc())
             ).all()
         )
 
