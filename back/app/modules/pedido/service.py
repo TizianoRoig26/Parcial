@@ -276,3 +276,13 @@ class PedidoService:
 				data=[PedidoPublic.model_validate(pedido) for pedido in pedidos],
 				total=total,
 			)
+
+	def get_detalles_por_pedido(self, pedido_id: int) -> list[DetallePedido]:
+		with self.uow:
+			pedido = self.uow.pedidos.get_by_id(pedido_id)
+			if not pedido:
+				raise HTTPException(
+					status_code=status.HTTP_404_NOT_FOUND,
+					detail=f"Pedido con id={pedido_id} no encontrado",
+				)
+			return self.uow.detalles_pedido.get_by_pedido(pedido_id)

@@ -7,6 +7,7 @@ import { AuthLayout } from "../shared/layout/AuthLayout";
 import { LoginPage } from "../features/auth/components/LoginPage";
 import { RegisterPage } from "../features/auth/components/RegisterPage";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { PedidoPage } from "../features/pedidos/pages/PedidosPage";
 
 
 const AppRouter = () => {
@@ -44,6 +45,8 @@ const AppRouter = () => {
                       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
                         <Route path="/categorias" element={<CategoryPage />} />
                         <Route path="/ingredientes" element={<IngredientsPage />} />
+                        <Route path="/pedidos" element={<PedidoPage />} />
+
                       </Route>
                       <Route element={<ProtectedRoute allowedRoles={["admin", "pedidos"]} />}>
 

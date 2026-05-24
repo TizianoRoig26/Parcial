@@ -13,11 +13,10 @@ export const useIngredientes = () => {
   const [modal, setModal] = useState<ModalState>({ type: "none" });
   const handleClose = () => setModal({ type: "none" });
   const [limit, setLimit] = useState(10);
-  const [offset, setOffset] = useState(0);
 
   const { data: ingredientes, isLoading, isError } = useQuery({
     queryKey: ["ingredientes", limit],
-    queryFn: () => getIngredientes(offset, limit),
+    queryFn: () => getIngredientes(0, limit),
     staleTime: 1000 * 60 * 2,
   });
 
@@ -56,10 +55,8 @@ export const useIngredientes = () => {
     setEsAlergenoFilter(esAlergeno ?? null);
   };
 
-  const handleVerMas = () => {
-    const proximoLimite = limit + 10;
-    setOffset(offset + 10); 
-    setLimit(proximoLimite); 
+ const handleVerMas = () => {
+    setLimit(prev => prev + 10);
   };
 
 

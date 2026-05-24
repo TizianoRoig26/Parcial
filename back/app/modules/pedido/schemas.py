@@ -46,3 +46,16 @@ class PedidoPublic(SQLModel):
 class PedidoList(SQLModel):
 	data: list[PedidoPublic]
 	total: int
+
+class DetallePedidoPublic(SQLModel):
+	pedido_id: int
+	producto_id: int
+	cantidad: int
+	nombre_snapshot: str
+	precio_snapshot: Decimal
+	subtotal_snap: Decimal
+	personalizacion: Optional[list[int]] = None
+
+class DetallePedidoList(SQLModel):
+	data: list[DetallePedidoPublic]
+	total: int

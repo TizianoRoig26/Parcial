@@ -27,6 +27,15 @@ const navLinks = [
 	<path d="M4 7a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
   </svg>, href: "/ingredientes" },
 
+  { label: "Pedidos", icono: 
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-list">
+	<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+	<path d="M9 6h14l-4 4l4 4h-14l0 -8z" />
+	<path d="M4 6h4" />
+	<path d="M4 12h4" />
+	<path d="M4 18h4" />
+  </svg>, href: "/pedidos" },
+
 ];
 
 export const NavBar = () => {
@@ -64,12 +73,25 @@ export const NavBar = () => {
             <span className="text-md font-medium tracking-wide block text-[#606044]">
               Gestión de cocina
             </span>
+
+            
             
           </div>
+
+          
 
           {/* Links */}
           <nav>
             <ul className="space-y-1.5">
+              <li className="mb-9">
+                <Link
+                  to={"/"}
+                  className={`flex items-center gap-2 px-4 py-2.5 font-semibold rounded-full transition-colors duration-350 bg-[#47AA66] text-black font-semibold shadow-md`}
+                >
+                  <span className="text-lg">+</span>
+                  Nuevo producto
+                </Link>
+              </li>
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
                 return (

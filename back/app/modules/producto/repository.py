@@ -60,7 +60,8 @@ class ProductoRepository(BaseRepository[Producto]):
         return self.session.exec(
             select(Producto).where(
                 Producto.id == producto_id,
-                Producto.is_active == True,  # noqa: E712
+                Producto.is_active == True, 
+
             )
         ).first()
 

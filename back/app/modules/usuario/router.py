@@ -104,6 +104,14 @@ def list_users(
         service = UsuarioService(uow)
         return service.list_all()
 
+@router.get("/admin/usuarios/{user_id}", response_model=UserPublic)
+def get_by_id(
+    user_id: int,
+    _admin: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
+    uow: Annotated[UsuariosUnitOfWork, Depends(get_uow)],
+):
+    with uow:
+        return UsuarioService(uow).get_user_by_id(user_id)
 
 @router.post("/admin/usuarios/{user_id}/desactivar", response_model=UserPublic)
 def deactivate_user(

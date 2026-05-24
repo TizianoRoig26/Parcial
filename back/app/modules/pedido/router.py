@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 from app.core.deps import get_current_active_user, require_role
-from app.modules.pedido.schemas import PedidoCreate, PedidoEstadoUpdate, PedidoList, PedidoPublic
+from app.modules.pedido.schemas import PedidoCreate, PedidoEstadoUpdate, PedidoList, PedidoPublic, DetallePedidoPublic
 from app.modules.pedido.service import PedidoService
 from app.modules.pedido.unit_of_work import PedidosUnitOfWork, get_uow
 from app.modules.usuario.model import Usuario
@@ -74,3 +74,16 @@ def avanzar_estado_pedido(
 			roles_usuario=current_user.role_codes,
 		)
 	)
+
+
+@router.get(
+	"/{id}/detalles",
+	response_model=list[DetallePedidoPublic],
+	summary="Obtener detalles (items) de un pedido",
+)
+def get_pedido_detalles(
+	id: int,
+	svc: PedidoService = Depends(get_pedido_service),
+) -> list[DetallePedidoPublic]:
+	return svc.get_detalles_por_pedido(id)
+

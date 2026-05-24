@@ -89,6 +89,17 @@ class UsuarioService:
     def list_all(self) -> list[Usuario]:
         """Lista todos los usuarios."""
         return self.uow.usuarios.get_all()
+    
+    def get_user_by_id(self, user_id: int) -> Usuario:
+        user = self.uow.usuarios.get_by_id(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado",
+            )
+        return user
+
+
 
     def set_disabled(self, user_id: int, disabled: bool) -> Usuario:
         """Activa o desactiva la cuenta de un usuario."""

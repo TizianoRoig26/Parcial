@@ -36,6 +36,8 @@ function mapUser(user: any): UserPublic {
   };
 }
 
+
+
 export async function requestRegister(
   payload: UserRegisterPayload,
 ): Promise<UserPublic> {
@@ -61,3 +63,9 @@ export async function requestMe(): Promise<UserPublic> {
 export async function requestLogout(): Promise<void> {
   await apiClient.post(`${AUTH}/logout`);
 }
+
+export async function getUserById(id: number): Promise<UserPublic> {
+  const response = await apiClient.get<any>(`${AUTH}/admin/usuarios/${id}`);
+  return mapUser(response.data);
+}
+

@@ -1,3 +1,4 @@
+from decimal import Decimal
 from sqlalchemy import inspect
 from sqlmodel import Session, select
 
@@ -6,7 +7,7 @@ from app.core.security import hash_password
 from app.modules.categoria.models import Categoria
 from app.modules.direccion.model import DireccionEntrega
 from app.modules.ingerediente.models import Ingrediente
-from app.modules.pedido.models import EstadoPedido, FormaPago
+from app.modules.pedido.models import EstadoPedido, FormaPago, Pedido, DetallePedido, HistorialEstadoPedido
 from app.modules.producto.links import ProductoCategoria, ProductoIngrediente
 from app.modules.producto.models import Producto
 from app.modules.unidadMedida.models import UnidadMedida
@@ -318,6 +319,113 @@ def seed_estados_pedido() -> None:
 
 		session.commit()
 
+def seed_pedidos() -> None:
+	create_db_and_tables()
+
+	with Session(engine) as session:
+		usuario = session.exec(select(Usuario).where(Usuario.username == "cliente")).first()
+		if not usuario:
+			print("  [!] No existe usuario cliente para pedidos")
+			return
+
+		productos = session.exec(select(Producto)).all()
+		if len(productos) < 7:
+			print("  [!] No hay suficientes productos para pedidos")
+			return
+
+		existing_pedidos = session.exec(select(Pedido)).all()
+		if existing_pedidos:
+			print("  [=] Ya existen pedidos")
+			return
+
+		pedidos_data = [
+			{
+				"estado_codigo": "PENDIENTE",
+				"forma_pago_codigo": "EFECTIVO",
+				"costo_envio": Decimal("50.00"),
+				"notas": "Pedido 1: Sin cebolla",
+				"detalles": [
+					{"producto": productos[0], "cantidad": 2},
+					{"producto": productos[1], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "CONFIRMADO",
+				"forma_pago_codigo": "TRANSFERENCIA",
+				"costo_envio": Decimal("0.00"),
+				"notas": "Pedido 2: Para llevar",
+				"detalles": [
+					{"producto": productos[2], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "EN_PREP",
+				"forma_pago_codigo": "MERCADOPAGO",
+				"costo_envio": Decimal("100.00"),
+				"notas": "Pedido 3: Rápido por favor",
+				"detalles": [
+					{"producto": productos[3], "cantidad": 3},
+					{"producto": productos[4], "cantidad": 2},
+				]
+			},
+			{
+				"estado_codigo": "EN_CAMINO",
+				"forma_pago_codigo": "EFECTIVO",
+				"costo_envio": Decimal("50.00"),
+				"notas": "Pedido 4",
+				"detalles": [
+					{"producto": productos[5], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "ENTREGADO",
+				"forma_pago_codigo": "MERCADOPAGO",
+				"costo_envio": Decimal("50.00"),
+				"notas": "Pedido 5",
+				"detalles": [
+					{"producto": productos[6], "cantidad": 2},
+				]
+			}
+		]
+
+		for data in pedidos_data:
+			subtotal = sum([d["producto"].precio_base * d["cantidad"] for d in data["detalles"]])
+			total = subtotal + data["costo_envio"]
+
+			pedido = Pedido(
+				usuario_id=usuario.id,
+				estado_codigo=data["estado_codigo"],
+				forma_pago_codigo=data["forma_pago_codigo"],
+				subtotal=subtotal,
+				costo_envio=data["costo_envio"],
+				total=total,
+				notas=data["notas"],
+			)
+			session.add(pedido)
+			session.flush()
+
+			for d in data["detalles"]:
+				prod = d["producto"]
+				detalle = DetallePedido(
+					pedido_id=pedido.id,
+					producto_id=prod.id,
+					cantidad=d["cantidad"],
+					nombre_snapshot=prod.nombre,
+					precio_snapshot=prod.precio_base,
+					subtotal_snap=prod.precio_base * d["cantidad"],
+				)
+				session.add(detalle)
+
+			historial = HistorialEstadoPedido(
+				pedido_id=pedido.id,
+				estado_hacia=data["estado_codigo"],
+				motivo="Creación inicial en seed"
+			)
+			session.add(historial)
+
+		session.commit()
+		print("  [+] Creados 5 pedidos iniciales")
+
 def seed_pedido_catalogos() -> None:
 	seed_formas_pago()
 	seed_estados_pedido()
@@ -326,3 +434,4 @@ def seed_pedido_catalogos() -> None:
 if __name__ == "__main__":
 	seed_roles()
 	seed_pedido_catalogos()
+	seed_pedidos()
