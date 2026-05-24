@@ -13,7 +13,7 @@ export const IngredientsPage = () => {
     deleteMutation,
     handleFilterAlergenos,
     ordenarIngredientes,
-    handleVerMas
+    handleVerMas,
   } = useIngredientes();
 
   if (isLoading) return <div className="p-8 text-center text-black animate-pulse">Cargando ingredientes...</div>;
@@ -36,18 +36,18 @@ export const IngredientsPage = () => {
           </button>
         </div>
         <div>
-          <ul className="flex flex-row gap-3">
-            <li className="px-3 py-1.5 text-black text-xs rounded-full font-medium shadow-md border-1 border-[#0D4012]">
+          <ul className="flex flex-wrap gap-1 pt-2.5">
+            <li className="px-3 py-1.5 ml-3 bg-[#47AA66] text-black text-xs rounded-full font-semibold shadow-md hover:bg-[#699D64] transition-colors duration-300">
                 <button onClick={() => handleFilterAlergenos(undefined)} className="cursor-pointer" >
                   Todos
                 </button> 
             </li>
-            <li className="px-3 py-1.5 text-black text-xs rounded-full font-medium shadow-md border-1 border-[#0D4012]">
+            <li className="px-3 py-1.5 text-black text-xs rounded-full font-medium shadow-md border-1 border-[#0D4012] hover:bg-[#699D64] transition-colors duration-300">
                 <button onClick={() => handleFilterAlergenos(true)} className="cursor-pointer" >
                   Alérgenos
                 </button>
             </li>
-            <li className="px-3 py-1.5 text-black text-xs rounded-full font-medium shadow-md border-1 border-[#0D4012]">
+            <li className="px-3 py-1.5 text-black text-xs rounded-full font-medium shadow-md border-1 border-[#0D4012] hover:bg-[#699D64] transition-colors duration-300">
                 <button onClick={() => handleFilterAlergenos(false)} className="cursor-pointer" >
                   No Alérgenos
                 </button>
@@ -113,9 +113,9 @@ export const IngredientsPage = () => {
             ))}
           </tbody>
         </table>
-        <div className="flex justify-center items-center">
-          <button onClick={() => handleVerMas()} className="cursor-pointer" >
-            Mostrar mas
+        <div className="flex justify-center items-center bg-[#F4F3CF] border-t-1 py-4 px-2 border-[#0D4012] ">
+          <button onClick={() => handleVerMas()}  className="cursor-pointer px-3 p-1 hover:bg-[#C9C8A6] rounded-lg border border-[#0D4012]" >
+            Mostrar mas...
           </button>
         </div>
 

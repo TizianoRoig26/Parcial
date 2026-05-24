@@ -57,9 +57,11 @@ export const useIngredientes = () => {
   };
 
   const handleVerMas = () => {
-    setLimit(limit + 10);
-    setOffset(offset + 10);
+    const proximoLimite = limit + 10;
+    setOffset(offset + 10); 
+    setLimit(proximoLimite); 
   };
+
 
   return {
     modal,

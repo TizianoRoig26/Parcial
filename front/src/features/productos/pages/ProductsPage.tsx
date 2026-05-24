@@ -53,14 +53,14 @@ export const ProductsPage = () => {
               <div className="flex flex-wrap gap-1 pt-2.5">
                  <button
                   onClick={() => handleFilterProductos(undefined, "")}
-                  className="px-3 py-1.5 ml-3 bg-[#47AA66] text-black text-xs rounded-full font-semibold shadow-md"
+                  className="px-3 py-1.5 ml-3 bg-[#47AA66] text-black text-xs rounded-full font-semibold shadow-md hover:bg-[#699D64] transition-colors duration-300"
                 >
                   Todos
                 </button>
                 {categorias?.data?.length
                   ? categorias.data.map(c => (
                     <button key={c.id} onClick={() => handleFilterProductos(c.id)}
-                      className="px-3 py-1.5 text-black text-xs rounded-full font-medium shadow-md border-1 border-[#0D4012]">
+                      className="px-3 py-1.5 text-black text-xs rounded-full font-medium shadow-md border-1 border-[#0D4012] hover:bg-[#699D64] transition-colors duration-300">
                       {c.nombre}
                     </button>
                   ))
