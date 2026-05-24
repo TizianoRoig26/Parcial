@@ -1,50 +1,48 @@
+import apiClient from "../../auth/services/axiosInstance";
 import type { IIngrediente } from "../IIngredientes";
 
-const BASE_URL = `${import.meta.env.VITE_API_URL}/ingredientes`;
+const PATH = "/ingredientes";
 
 type PaginatedResponse = { data: IIngrediente[]; total: number };
 
-const handleResponse = async <T>(response: Response): Promise<T> => {
-  if (!response.ok) {
-    const errorData = await response.json();
-    const msg = typeof errorData.detail === "string"
-      ? errorData.detail
-      : JSON.stringify(errorData.detail);
-    throw new Error(msg || "Error en la petición");
-  }
-  return response.json();
+export const getIngredientes = async (offset: number, limit: number ): Promise<PaginatedResponse> => {
+  const response = await apiClient.get<PaginatedResponse>(`${PATH}?offset=${offset}&limit=${limit}`);
+  response.data.data.sort((a, b) => {
+    return a.nombre.localeCompare(b.nombre);
+  });
+  return response.data;
 };
 
-export const getIngredientes = async (): Promise<PaginatedResponse> => {
-  const response = await fetch(BASE_URL);
-  return handleResponse<PaginatedResponse>(response);
-};
 
 export const createIngrediente = async (
-  data: Omit<IIngrediente, "id">,
+  data: Omit<IIngrediente, "id" >,
 ): Promise<IIngrediente> => {
-  const response = await fetch(BASE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-  return handleResponse<IIngrediente>(response);
+  const response = await apiClient.post<IIngrediente>(PATH, data);
+  return response.data;
 };
+
 
 export const updateIngrediente = async (
   id: number,
   data: Partial<IIngrediente>,
 ): Promise<IIngrediente> => {
-  const { nombre, descripcion, es_alergeno } = data;
-  const response = await fetch(`${BASE_URL}/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nombre, descripcion, es_alergeno }),
+  const { nombre, descripcion, es_alergeno, is_active } = data;
+  const response = await apiClient.patch<IIngrediente>(`${PATH}/${id}`, {
+    nombre,
+    descripcion,
+    es_alergeno,
+    is_active,
   });
-  return handleResponse<IIngrediente>(response);
+  return response.data;
 };
 
-export const deleteIngrediente = async (id: number): Promise<void> => {
-  const response = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
-  if (!response.ok) throw new Error(`Error al eliminar ingrediente ${id}`);
+export const changeStateIngrediente = async (id: number): Promise<IIngrediente> => {
+  const response = await apiClient.patch<IIngrediente>(`${PATH}/estado/${id}`);
+  return response.data;
 };
+
+
+export const deleteIngrediente = async (id: number): Promise<void> => {
+  await apiClient.delete(`${PATH}/${id}`);
+};
+

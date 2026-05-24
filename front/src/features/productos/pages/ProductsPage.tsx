@@ -1,3 +1,4 @@
+import { getUnidadesMedida, getUnidadesMedidaById } from "../../unidadMedida/services/unidadMedida.services";
 import { ProductoModal } from "../components/ProductoModal";
 import { useProductos } from "../hooks/productosHooks";
 
@@ -14,6 +15,7 @@ export const ProductsPage = () => {
     totalPages,
     categorias,
     ingredientes,
+    unidadesMedida,
     categoriaFiltrada,
     nombreFilter,
     setNombreFilter,
@@ -29,12 +31,12 @@ export const ProductsPage = () => {
   if (isError) return <div className="p-8 text-center text-red-500">Error al cargar productos</div>;
 
   return (
-    <div className="w-full h-full flex flex-col min-h-0 overflow-hidden rounded-b-3xl">
+    <div className="w-full h-full flex flex-col min-h-0 overflow-hidden rounded-b-xl">
       <div className="mb-5">
-        <div className="flex items-center justify-between pb-2 mb-5 flex-shrink-0 border-b-1 border-[#0D4012] " >
+        <div className="flex items-center justify-between pb-2 mb-5 border-b" >
           <div>
-            <h1 className="text-3xl font-bold text-black tracking-tight">Productos</h1>
-            <p className="text-black mt-1">Gestiona el catálogo de productos</p>
+            <h1 className="text-3xl font-bold text-[#006D35] tracking-tight ">Gestión de Productos</h1>
+            <p className="text-gray-600 mt-1">Gestiona el catálogo de productos</p>
           </div>
           <button
             onClick={() => setModal({ type: "create" })}
@@ -57,7 +59,7 @@ export const ProductsPage = () => {
                 {categorias?.data?.length
                   ? categorias.data.map(c => (
                     <button key={c.id} onClick={() => handleFilterProductos(c.id)}
-                      className="px-3 py-1.5 bg-fern/15 text-black text-xs rounded-full font-medium shadow-md">
+                      className="px-3 py-1.5 text-black text-xs rounded-full font-medium shadow-md border-1 border-[#0D4012]">
                       {c.nombre}
                     </button>
                   ))
@@ -69,10 +71,10 @@ export const ProductsPage = () => {
           <div className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Buscar por nombre..."
+              placeholder="Buscar productos..."
               value={nombreFilter}
               onChange={(e) => setNombreFilter(e.target.value)}
-              className="px-3 py-1.5 border border-[#0D4012] rounded-full text-xs text-[#0D4012] placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[#0D4012] w-48 font-medium"
+              className="px-3 py-1.5 border border-[#0D4012] rounded-sm text-xs text-[#0D4012] placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[#0D4012] w-48 font-medium"
             />
             <button onClick={() => handleFilterProductos(categoriaFiltrada ?? undefined, "")}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-filter-2"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 6h16" /><path d="M6 12h12" /><path d="M9 18h6" /></svg>
@@ -80,10 +82,10 @@ export const ProductsPage = () => {
           </div>
         </div>
       </div>
-      <div className="flex-1 rounded-3xl border border-[#0D4012] overflow-y-auto min-h-0 shadow-lg custom-scrollbar">
-        <table className="w-full text-left table-fixed shadow-lg">
+      <div className="flex-1 rounded-xl border border-[#0D4012] overflow-y-auto min-h-0 shadow-lg custom-scrollbar">
+        <table className="w-full text-left table-fixed shadow-lg  ">
           <thead className="border-[#0D4012]">
-            <tr className="sticky top-0 z-10 bg-[#E5E4C1] text-center  font-normal text-[#0D4012] text-xs uppercase ">
+            <tr className="sticky top-0 z-10 bg-[#F4F3CF] text-center  font-normal text-[#0D4012] text-xs uppercase ">
               <th className="p-3 ">Img</th>
               <th className="p-3">Producto</th>
               <th className="p-3">Categorías</th>
@@ -92,7 +94,7 @@ export const ProductsPage = () => {
               <th className="">Acciones</th>
             </tr>
           </thead>
-          <tbody className="ivide-y divide-palm/20 bg-[#E5E4C1]">
+          <tbody className="divide-y divide-palm/20 bg-[#E5E4C1]">
             {ordenarProductos(productos?.data || []).map((prod) => (
               <tr key={prod.id} className="transition-colors text-center hover:bg-[#C9C8A6] border-t-1 border-[#0D4012]">
                 <td className=" ">
@@ -125,7 +127,8 @@ export const ProductsPage = () => {
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${prod.stock_cantidad > 10 ? "bg-palm/30 text-black" : "bg-red-100 text-red-600 border-1 border-red"
                     }`}>
                     {prod.stock_cantidad}
-                    {prod.stock_cantidad <= 10 ? " Stock Bajo" : ""}
+                    {prod.stock_cantidad <= 10 ? " Stock Bajo " : " "}
+                    {prod.unidad_medida?.simbolo}
                   </span>
                 </td>
                 <td className="px-6 py-4">
@@ -165,7 +168,7 @@ export const ProductsPage = () => {
             ))}
           </tbody>
         </table>
-        <div className="py-2 border-t-1 border-[#0D4012] flex items-center justify-between px-4 bg-[#E5E4C1] sticky bottom-0">
+        <div className="py-2 border-t-1 border-[#0D4012] flex items-center justify-between px-4 bg-[#F4F3CF] sticky bottom-0">
           <span className="text-sm text-[#0D4012] font-semibold">
             Página {currentPage} de {totalPages}
           </span>
@@ -201,6 +204,7 @@ export const ProductsPage = () => {
         productoParaEditar={modal.type === "edit" ? modal.producto : null}
         categoriasDisponibles={categorias?.data ?? []}
         ingredientesDisponibles={ingredientes?.data ?? []}
+        unidadesMedidaDisponibles={unidadesMedida?.data ?? []}
         onAssignCategorias={handleAssignCategorias}
         onAssignIngredientes={handleAssignIngredientes}
       />

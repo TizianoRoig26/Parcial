@@ -145,8 +145,45 @@ def seed_roles() -> None:
 
 		session.commit()
 
+	seed_ingredientes()
 	seed_productos()
 
+def seed_ingredientes() -> None:
+	create_db_and_tables()
+	
+	ingredientes_data = [
+		{"nombre": "Harina de trigo", "descripcion": "Harina 0000 para panadería y pizzería", "es_alergeno": True},
+		{"nombre": "Agua", "descripcion": "Agua purificada", "es_alergeno": False},
+		{"nombre": "Sal", "descripcion": "Sal fina de mesa", "es_alergeno": False},
+		{"nombre": "Levadura", "descripcion": "Levadura fresca para masas", "es_alergeno": False},
+		{"nombre": "Aceite de oliva", "descripcion": "Aceite de oliva extra virgen", "es_alergeno": False},
+		{"nombre": "Salsa de tomate", "descripcion": "Salsa de tomate triturado con especias", "es_alergeno": False},
+		{"nombre": "Queso muzzarella", "descripcion": "Queso muzzarella de primera calidad", "es_alergeno": True},
+		{"nombre": "Jamón cocido", "descripcion": "Fiambre de cerdo cocido", "es_alergeno": False},
+		{"nombre": "Morrones asados", "descripcion": "Pimientos rojos asados y pelados", "es_alergeno": False},
+		{"nombre": "Aceitunas verdes", "descripcion": "Aceitunas verdes descarozadas", "es_alergeno": False},
+		{"nombre": "Cebolla", "descripcion": "Cebolla blanca fresca", "es_alergeno": False},
+		{"nombre": "Orégano", "descripcion": "Orégano seco deshidratado", "es_alergeno": False},
+		{"nombre": "Ajo", "descripcion": "Ajo fresco picado", "es_alergeno": False},
+		{"nombre": "Albahaca fresca", "descripcion": "Hojas de albahaca fresca", "es_alergeno": False},
+		{"nombre": "Salame calabrés", "descripcion": "Salame picante tipo calabresa", "es_alergeno": False},
+		{"nombre": "Queso azul", "descripcion": "Queso azul tipo roquefort", "es_alergeno": True},
+		{"nombre": "Queso provolone", "descripcion": "Queso provolone estacionado", "es_alergeno": True},
+		{"nombre": "Queso parmesano", "descripcion": "Queso parmesano rallado", "es_alergeno": True},
+		{"nombre": "Rúcula", "descripcion": "Hojas de rúcula fresca", "es_alergeno": False},
+		{"nombre": "Jamón crudo", "descripcion": "Jamón curado estacionado", "es_alergeno": False},
+		{"nombre": "Champiñones", "descripcion": "Champiñones frescos fileteados", "es_alergeno": False},
+		{"nombre": "Carne picada", "descripcion": "Carne vacuna picada", "es_alergeno": False},
+		{"nombre": "Panceta", "descripcion": "Panceta ahumada en fetas", "es_alergeno": False},
+		{"nombre": "Queso cheddar", "descripcion": "Queso cheddar en fetas", "es_alergeno": True},
+	]
+
+	with Session(engine) as session:
+		for ing in ingredientes_data:
+			existing = session.exec(select(Ingrediente).where(Ingrediente.nombre == ing["nombre"])).first()
+			if not existing:
+				session.add(Ingrediente(nombre=ing["nombre"], descripcion=ing["descripcion"], es_alergeno=ing["es_alergeno"]))
+		session.commit()
 
 def seed_productos() -> None:
 	create_db_and_tables()
@@ -235,13 +272,12 @@ def seed_productos() -> None:
 					precio_base=prod["precio_base"],
 					stock_cantidad=prod["stock_cantidad"],
 					imagen_url=prod["imagen_url"],
-					unidad_medida_id=um_id
+					unidad_venta_id=um_id
 				)
 				if cat_obj:
 					producto.categorias = [cat_obj]
 				session.add(producto)
 		session.commit()
-
 
 def seed_formas_pago() -> None:
 	create_db_and_tables()
@@ -260,7 +296,6 @@ def seed_formas_pago() -> None:
 				session.add(forma)
 
 		session.commit()
-
 
 def seed_estados_pedido() -> None:
 	create_db_and_tables()
@@ -282,7 +317,6 @@ def seed_estados_pedido() -> None:
 				session.add(estado)
 
 		session.commit()
-
 
 def seed_pedido_catalogos() -> None:
 	seed_formas_pago()

@@ -37,12 +37,16 @@ class ProductoService:
         return result
 
 
-    def get_all(self, offset: int = 0, limit: int = 20) -> ProductoList:
+    def get_all(self, offset: int = 0, limit: int = 20, nombre: str | None = None) -> ProductoList:
         """
-        Obtiene todos los productos con paginación.
+        Obtiene todos los productos con paginación, opcionalmente filtrados por nombre.
         """
         with ProductoUnitOfWork(self._session) as uow:
             all_productos = uow.Producto.get_all()
+            
+            if nombre:
+                all_productos = [p for p in all_productos if nombre.lower() in p.nombre.lower()]
+                
             total = len(all_productos)
             productos = all_productos[offset : offset + limit]
 
@@ -97,12 +101,8 @@ class ProductoService:
         with ProductoUnitOfWork(self._session) as uow:
 
             producto = self._get_or_404(uow, producto_id)
-            
-            existentes = {c.id for c in producto.categorias}
             nuevas_categorias = []
             for cid in set(categoria_ids):
-                if cid in existentes:
-                    continue
                 cat = uow.Categoria.get_by_id(cid)
                 if cat:
                     nuevas_categorias.append(cat)

@@ -11,6 +11,7 @@ import {
 } from "../services/producto.services";
 import { getCategorias } from "../../categoria/services/categoria.services";
 import { getIngredientes } from "../../ingredientes/services/ingrediente.services";
+import { getUnidadesMedida } from "../../unidadMedida/services/unidadMedida.services";
 
 export type ModalState =
   | { type: "none" }
@@ -41,6 +42,12 @@ export const useProductos = () => {
   const { data: ingredientes } = useQuery({
     queryKey: ["ingredientes"],
     queryFn: getIngredientes,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const { data: unidadesMedida } = useQuery({
+    queryKey: ["unidadesMedida"],
+    queryFn: getUnidadesMedida,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -146,6 +153,7 @@ export const useProductos = () => {
     totalPages,
     categorias,
     ingredientes,
+    unidadesMedida,
     categoriaFiltrada,
     nombreFilter,
     setNombreFilter,

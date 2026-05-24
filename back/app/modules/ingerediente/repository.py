@@ -18,7 +18,6 @@ class IngredienteRepository(BaseRepository[Ingrediente]):
         return list(
             self.session.exec(
                 select(Ingrediente)
-                .where(Ingrediente.is_active == True)
                 .offset(offset)
                 .limit(limit)
             ).all()

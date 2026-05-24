@@ -19,7 +19,7 @@ class Producto(SQLModel, table=True):
     stock_cantidad: int = Field(default=0)
     imagen_url: str
     is_active: bool = Field(default=True)
-    unidad_medida_id: Optional[int] = Field(default=None, foreign_key="unidad_medidas.id")
+    unidad_venta_id: Optional[int] = Field(default=None, foreign_key="unidad_medidas.id")
     
     unidad_medida: Optional["UnidadMedida"] = Relationship(
         back_populates="productos")
