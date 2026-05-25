@@ -42,6 +42,12 @@ class UsuarioRepository(BaseRepository[Usuario]):
             .options(selectinload(Usuario.roles))
         ).first()
 
+    def get_by_id_name(self, entity_id: int) -> Usuario | None:
+        return self.session.exec(
+            select(Usuario.full_name)
+            .where(Usuario.id == entity_id)
+        ).first()
+
     def get_all(self) -> list[Usuario]:
         return list(
             self.session.exec(

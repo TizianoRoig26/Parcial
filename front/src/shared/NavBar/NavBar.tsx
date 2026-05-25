@@ -5,7 +5,7 @@ import { useAuthStore } from "../../store/authStore";
 const navLinks = [
 
   { label: "Productos", icono: 
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-burger">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"  >
 	<path stroke="none" d="M0 0h24v24H0z" fill="none" />
 	<path d="M4 15h16a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4" />
 	<path d="M12 4c3.783 0 6.953 2.133 7.786 5h-15.572c.833 -2.867 4.003 -5 7.786 -5" />
@@ -13,7 +13,7 @@ const navLinks = [
 </svg>, href: "/" },
 
   { label: "Categorías",icono: 
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-category-2">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"  >
 	<path stroke="none" d="M0 0h24v24H0z" fill="none" />
 	<path d="M14 4h6v6h-6l0 -6" />
 	<path d="M4 14h6v6h-6l0 -6" />
@@ -22,13 +22,13 @@ const navLinks = [
   </svg> , href: "/categorias" },
 
   { label: "Ingredientes", icono: 
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-egg">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" >
 	<path stroke="none" d="M0 0h24v24H0z" fill="none" />
 	<path d="M19 14.083c0 4.154 -2.966 6.74 -7 6.917c-4.2 0 -7 -2.763 -7 -6.917c0 -5.538 3.5 -11.09 7 -11.083c3.5 .007 7 5.545 7 11.083" />
   </svg>, href: "/ingredientes" },
 
   { label: "Pedidos", icono: 
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-list">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" >
 	<path stroke="none" d="M0 0h24v24H0z" fill="none" />
 	<path d="M9 6h14l-4 4l4 4h-14l0 -8z" />
 	<path d="M4 6h4" />
@@ -87,7 +87,7 @@ export const NavBar = () => {
               <li className="mb-9">
                 <Link
                   to={"/"}
-                  className={`flex items-center gap-2 px-4 py-2.5 font-semibold rounded-full transition-colors duration-350 bg-[#47AA66] text-black font-semibold shadow-md`}
+                  className={`flex items-center gap-2 m-2 px-4 py-2 font-semibold rounded-full transition-colors duration-350 bg-[#47AA66] text-black font-semibold shadow-md text-[#544518] hover:bg-[#47AA66] hover:text-[#F1F0CC]`}
                 >
                   <span className="text-lg">+</span>
                   Nuevo producto

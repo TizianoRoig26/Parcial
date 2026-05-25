@@ -69,3 +69,9 @@ export async function getUserById(id: number): Promise<UserPublic> {
   return mapUser(response.data);
 }
 
+export async function getUsernameById(id: number): Promise<string> {
+  const response = await apiClient.get<string>(`${AUTH}/usuarios/nombre/${id}`);
+  return response.data;
+}
+
+

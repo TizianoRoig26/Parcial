@@ -45,11 +45,9 @@ const AppRouter = () => {
                       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
                         <Route path="/categorias" element={<CategoryPage />} />
                         <Route path="/ingredientes" element={<IngredientsPage />} />
-                        <Route path="/pedidos" element={<PedidoPage />} />
-
                       </Route>
                       <Route element={<ProtectedRoute allowedRoles={["admin", "pedidos"]} />}>
-
+                        <Route path="/pedidos" element={<PedidoPage />} />
                       </Route>
                       <Route path="*" element={<div className="p-8 text-center text-gray-500 text-2xl">404 — Página no encontrada</div>} />
                     </Routes>

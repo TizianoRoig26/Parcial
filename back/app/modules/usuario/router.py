@@ -113,6 +113,15 @@ def get_by_id(
     with uow:
         return UsuarioService(uow).get_user_by_id(user_id)
 
+@router.get("/usuarios/nombre/{user_id}", response_model=str)
+def get_by_id_name(
+    user_id: int,
+    _admin: Annotated[Usuario, Depends(require_role(["ADMIN", "PEDIDOS"]))],
+    uow: Annotated[UsuariosUnitOfWork, Depends(get_uow)],
+):
+    with uow:
+        return UsuarioService(uow).get_user_by_id_name(user_id)
+
 @router.post("/admin/usuarios/{user_id}/desactivar", response_model=UserPublic)
 def deactivate_user(
     user_id: int,

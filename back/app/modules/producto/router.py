@@ -5,7 +5,7 @@ from sqlmodel import Session
 
 from app.core.database import get_session
 from app.core.deps import get_current_active_user, require_role
-from app.modules.producto.schemas import ProductoCreate, ProductoPublic, ProductoUpdate, ProductoList, CategoriaAssign, IngredienteAssign
+from app.modules.producto.schemas import ProductoCreate, ProductoPublic, ProductoUpdate, ProductoList, CategoriaAssign, IngredienteAssign, ProductoStockUpdate
 from app.modules.ingerediente.schemas import IngredientePublic
 from app.modules.producto.service import ProductoService
 from app.modules.usuario.model import Usuario
@@ -84,6 +84,21 @@ def change_state_producto(
     svc: ProductoService = Depends(get_Producto_service),
 ) -> ProductoPublic:
     return svc.change_state(id)
+
+
+@router.patch(
+    "/stock/{id}",
+    response_model=ProductoPublic,
+    summary="Actualizacion del stock de un Producto",
+)
+def change_stock_producto(
+    id: int,
+    rol: Annotated[Usuario, Depends(require_role(["ADMIN","STOCK"]))],
+    data: ProductoStockUpdate,
+    svc: ProductoService = Depends(get_Producto_service),
+) -> ProductoPublic:
+    return svc.update_stock(id, data.cantidad)
+
 
 @router.delete(
     "/{id}",
