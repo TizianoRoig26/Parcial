@@ -268,9 +268,9 @@ class PedidoService:
 				)
 			return PedidoPublic.model_validate(pedido)
 
-	def get_all(self, offset: int = 0, limit: int = 20) -> PedidoList:
+	def get_all(self) -> PedidoList:
 		with self.uow:
-			pedidos = self.uow.pedidos.get_all(offset=offset, limit=limit)
+			pedidos = self.uow.pedidos.get_all()
 			total = self.uow.pedidos.count()
 			return PedidoList(
 				data=[PedidoPublic.model_validate(pedido) for pedido in pedidos],
