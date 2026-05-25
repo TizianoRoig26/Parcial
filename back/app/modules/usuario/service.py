@@ -98,6 +98,15 @@ class UsuarioService:
                 detail="Usuario no encontrado",
             )
         return user
+    
+    def get_user_by_id_name(self, user_id: int) -> Usuario:
+        user = self.uow.usuarios.get_by_id_name(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado",
+            )
+        return user
 
 
 

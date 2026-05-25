@@ -73,3 +73,8 @@ export const assignIngredientes = async (
   });
   return response.data;
 };
+
+export const cambiostock = async(id:number, cantidad:number)=>{
+  const response = await apiClient.patch(`${PATH}/stock/${id}`, {cantidad});
+  return response.data;
+}

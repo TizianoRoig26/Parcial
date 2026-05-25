@@ -13,7 +13,7 @@ export const VistaSecundaria = () => {
             <div className="py-5 bg-[#E5E4C1] flex flex-col h-full w-full rounded-2xl border-2 border-[#C9C8A6] custom-scrollbar">
               <div className="px-5 pb-5 flex justify-between items-center gap-2 border-b-2 border-[#C9C8A6] w-full">
                 <div className="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#006D35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-motorbike">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#006D35">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M2 16a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
                     <path d="M16 16a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
@@ -48,9 +48,9 @@ export const VistaSecundaria = () => {
                         </div>
                         <div className="flex justify-around text-[#006D35] font-semibold">
                           <button
-                           className="bg-[#F4F3CF] text-[#929373] border-1 border-[#929373] px-3 py-1 rounded-full"
+                           className="bg-[#F4F3CF] text-[#929373] border-1 border-[#929373] px-3 py-1 rounded-full" title="cambio estado"
                            onClick={() => handleCambiaEstado(pedido.id, true)}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                                 <path d="M18.364 5.636l-12.728 12.728" />
@@ -69,7 +69,7 @@ export const VistaSecundaria = () => {
             <div className="py-5 bg-[#E5E4C1] flex flex-col h-full w-full rounded-2xl border-2 border-[#C9C8A6] custom-scrollbar">
               <div className="px-5 pb-5 flex justify-between items-center gap-2 border-b-2 border-[#C9C8A6] w-full">
                 <div className="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#006D35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-map-pin-check"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M11.87 21.48a1.992 1.992 0 0 1 -1.283 -.58l-4.244 -4.243a8 8 0 1 1 13.355 -3.474" /><path d="M15 19l2 2l4 -4" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#006D35"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M11.87 21.48a1.992 1.992 0 0 1 -1.283 -.58l-4.244 -4.243a8 8 0 1 1 13.355 -3.474" /><path d="M15 19l2 2l4 -4" /></svg>
                     <span className="text-xl text-[#006D35] font-bold">Entregado</span>
                   </div>
                 <span className="bg-[#50834D] text-white px-3 py-1 rounded-full">
@@ -98,9 +98,9 @@ export const VistaSecundaria = () => {
                         </div>
                         <div className="flex justify-around text-[#006D35] font-semibold">
                           <button 
-                          className="bg-[#F4F3CF] text-[#929373] border-1 border-[#929373] px-3 py-1 rounded-full"
+                          className="bg-[#F4F3CF] text-[#929373] border-1 border-[#929373] px-3 py-1 rounded-full " title="cambio estado"
                           onClick={() => handleCambiaEstado(pedido.id, true)}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" >
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                                 <path d="M18.364 5.636l-12.728 12.728" />

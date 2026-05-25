@@ -5,18 +5,19 @@ import {
   getPedidos
 } from "../services/pedidos.services";
 import { useState } from "react";
-import { getUserById } from "../../auth/services/auth.services";
+import { getUsernameById } from "../../auth/services/auth.services";
 
 export const UsuarioNombre = ({ id }: { id: number }) => {
-  const { data: usuario, isLoading } = useQuery({
-    queryKey: ["usuario", id],
-    queryFn: () => getUserById(id),
+  const { data: username, isLoading } = useQuery({
+    queryKey: ["usuario-nombre", id],
+    queryFn: () => getUsernameById(id),
     staleTime: 1000 * 60 * 5,
   });
 
   if (isLoading) return null;
-  return usuario?.full_name || null;
+  return username || null;
 };
+
 
 export const PedidoDetalles = ({ pedidoId }: { pedidoId: number }) => {
   const { data: detalles, isLoading } = useQuery({
@@ -84,6 +85,8 @@ export const usePedidos = () => {
       }
     }
   }
+
+  
 
   return {
     pedidos,

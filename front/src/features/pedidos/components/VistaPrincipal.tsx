@@ -13,7 +13,7 @@ export const VistaPrincipal = () => {
             <div className="py-5 bg-[#E5E4C1] flex flex-col h-full w-full rounded-2xl border-2 border-[#C9C8A6] custom-scrollbar">
               <div className="px-5 pb-5 flex justify-between items-center gap-2 border-b-2 border-[#C9C8A6] w-full">
                 <div className="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#006D35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-clipboard-list">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#006D35">
                     <path stroke="none" d="M0 0h24v24H0z" fill="[#C9C8A6]" />
                     <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
                     <path d="M9 5a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2" />
@@ -52,7 +52,7 @@ export const VistaPrincipal = () => {
                           <button
                            className="bg-[#F4F3CF] text-[#929373] border-1 border-[#929373] px-3 py-1 rounded-full"
                            onClick={() => handleCambiaEstado(pedido.id, true)}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                                 <path d="M18.364 5.636l-12.728 12.728" />
@@ -105,7 +105,7 @@ export const VistaPrincipal = () => {
                           <button 
                           className="bg-[#F4F3CF] text-[#929373] border-1 border-[#929373] px-3 py-1 rounded-full"
                           onClick={() => handleCambiaEstado(pedido.id, true)}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" >
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                                 <path d="M18.364 5.636l-12.728 12.728" />
@@ -124,7 +124,7 @@ export const VistaPrincipal = () => {
             <div className="py-5 bg-[#E5E4C1] flex flex-col h-full w-full rounded-2xl border-2 border-[#C9C8A6] custom-scrollbar">
               <div className="px-5 pb-5 flex justify-between items-center gap-2 border-b-2 border-[#C9C8A6] w-full">
                 <div className="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#006D35" stroke="#006D35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-tools-kitchen-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#006D35" stroke="#006D35" >
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M7 4v17m-3 -17v3a3 3 0 1 0 6 0v-3" />
                     <path d="M14 8a3 4 0 1 0 6 0a3 4 0 1 0 -6 0" />
@@ -157,7 +157,7 @@ export const VistaPrincipal = () => {
                           <PedidoDetalles pedidoId={pedido.id}/>
                         </div>
                         <div className="flex justify-around text-[#006D35] font-semibold">
-                          <button className="bg-[#F4F3CF] text-[#929373] border-1 border-[#929373] px-3 py-1 rounded-full">
+                          <button className="bg-[#F4F3CF] text-[#929373] border-1 border-[#929373] px-3 py-1 rounded-full" title="cambio estado">
                               <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />

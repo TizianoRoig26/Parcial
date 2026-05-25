@@ -103,22 +103,22 @@ export const ProductoModal = ({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Precio base ($)</label>
-                <input type="number" required min={0} value={precioBase}
+                <input type="number" required min={0} value={precioBase} 
                   onChange={e => setPrecioBase(Number(e.target.value))}
-                  className="w-50 border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm" />
+                  className="w-50 border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm" title="precio"/>
               </div>
               <div className="flex flex-row gap-3 items-center justify-center">
                   <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">Stock</label>
                   <input type="number" required min={0} value={stockCantidad}
                     onChange={e => setStockCantidad(Number(e.target.value))}
-                    className="w-25 border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm" />
+                    className="w-25 border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm" title="stock"/>
                   </div>
                   <div>
                     <label className=" block text-sm font-semibold text-gray-700 mb-1.5">Medida</label>
                     <select required value={selectedUnidadMedida}
                       onChange={e => setSelectedUnidadMedida(Number(e.target.value))}
-                      className="w-25 border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm">
+                      className="w-25 border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm" title="unidad de medida">
                       {unidadesMedidaDisponibles.map(unidad => (
                         <option key={unidad.id} value={unidad.id}>
                           {unidad.simbolo}

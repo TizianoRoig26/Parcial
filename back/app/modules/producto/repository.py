@@ -61,7 +61,6 @@ class ProductoRepository(BaseRepository[Producto]):
             select(Producto).where(
                 Producto.id == producto_id,
                 Producto.is_active == True, 
-
             )
         ).first()
 

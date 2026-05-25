@@ -26,6 +26,7 @@ export const ProductsPage = () => {
     handleAssignIngredientes,
     changeStateMutation,
     handleFilterProductosStock,
+    handleCambioStock
   } = useProductos();
 
   if (isLoading) return <div className="p-8 text-center text-black animate-pulse">Cargando productos...</div>;
@@ -77,8 +78,8 @@ export const ProductsPage = () => {
               onChange={(e) => setNombreFilter(e.target.value)}
               className="px-3 py-1.5 border border-[#0D4012] rounded-sm text-xs text-[#0D4012] placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[#0D4012] w-48 font-medium"
             />
-            <button onClick={() => handleFilterProductos(categoriaFiltrada ?? undefined, "")}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-filter-2"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 6h16" /><path d="M6 12h12" /><path d="M9 18h6" /></svg>
+            <button onClick={() => handleFilterProductos(categoriaFiltrada ?? undefined, "")} title="Aplicar Filtros">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 6h16" /><path d="M6 12h12" /><path d="M9 18h6" /></svg>
             </button>
           </div>
         </div>
@@ -91,7 +92,7 @@ export const ProductsPage = () => {
               <th className="p-3">Producto</th>
               <th className="p-3">Categorías</th>
               <th className="p-3">Precio</th>
-              <th className="p-3" ><button onClick={() => handleFilterProductosStock(true)}>
+              <th className="p-3" ><button onClick={() => handleFilterProductosStock()}>
                 Stock
                 </button></th>
               <th className="">Acciones</th>
@@ -126,17 +127,37 @@ export const ProductsPage = () => {
                 <td className="px-6 py-4">
                   <span className="font-semibold text-black">${prod.precio_base}</span>
                 </td>
-                <td className="px-6 py-4 text-center">
+
+                <td className="flex flex-row justify-around px-6 py-4 text-center">
+                  <button title="restar stock"
+                    onClick={() => handleCambioStock(prod.id, -1)} 
+                  className="p-1 text-sm text-[#0D4012] hover:text-[#002204] rounded-full hover:bg-[#C9C8A6] transition-colors font-medium" >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                    <path d="M9 12l6 0" />
+                  </svg>
+                  </button>
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${prod.stock_cantidad > 10 ? "bg-palm/30 text-black" : "bg-red-100 text-red-600 border-1 border-red"
                     }`}>
                     {prod.stock_cantidad}
-                    {prod.stock_cantidad <= 10 ? " Stock Bajo " : " "}
                     {prod.unidad_medida?.simbolo}
                   </span>
+                  <button title="sumar stock"
+                    onClick={() => handleCambioStock(prod.id, 1)} 
+                  className="p-1 text-sm text-[#0D4012] hover:text-[#002204] rounded-full hover:bg-[#C9C8A6] transition-colors font-medium" >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"  >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                    <path d="M9 12h6" />
+                    <path d="M12 9v6" />
+                  </svg>
+                  </button> 
                 </td>
+
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-center gap-2">
-                    <button
+                    <button title="editar producto"
                       onClick={() => setModal({ type: "edit", producto: prod })}
                       className="p-1 text-sm text-[#0D4012] hover:text-[#002204] hover:border-2 rounded-full border-1 border-[#0D4012] hover:bg-[#C9C8A6] transition-colors font-medium"
                     >
@@ -146,7 +167,7 @@ export const ProductsPage = () => {
                         <path d="M13.5 6.5l4 4" />
                       </svg>
                     </button>
-                    <button
+                    <button title="cambiar estado"
                       onClick={() => prod.id && changeStateMutation.mutate(prod.id)}
                       className={`p-1 text-sm text-[#0D4012] hover:text-[#002204] hover:border-3 rounded-full border-1 border-[#0D4012] hover:bg-[#C9C8A6] transition-colors font-medium ${prod.is_active ? "border-2" : "border-[#647D37]"}`}
                     >

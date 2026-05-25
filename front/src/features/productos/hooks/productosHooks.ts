@@ -8,6 +8,7 @@ import {
   updateProducto,
   assignCategorias,
   assignIngredientes,
+  cambiostock,
 } from "../services/producto.services";
 import { getCategorias } from "../../categoria/services/categoria.services";
 import { getIngredientes } from "../../ingredientes/services/ingrediente.services";
@@ -41,7 +42,7 @@ export const useProductos = () => {
 
   const { data: ingredientes } = useQuery({
     queryKey: ["ingredientes"],
-    queryFn: getIngredientes,
+    queryFn: () => getIngredientes(0, 100),
     staleTime: 1000 * 60 * 5,
   });
 
@@ -56,6 +57,20 @@ export const useProductos = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productos"] });
     },
+  });
+  const stockMutation = useMutation({
+    mutationFn: ({ id, cantidad }: { id: number; cantidad: number }) => cambiostock(id, cantidad),
+    onSuccess: (updatedProd) => {
+      queryClient.setQueryData(["productos", currentPage], (cargados: any) => {
+        if (!cargados) return cargados;
+        return {
+          ...cargados,
+          data: cargados.data.map((p: IProducto) =>
+            p.id === updatedProd.id ? { ...p, stock_cantidad: updatedProd.stock_cantidad } : p
+          ),
+        };
+      });
+    }
   });
 
   const editMutation = useMutation({
@@ -150,6 +165,11 @@ export const useProductos = () => {
     }
   };
 
+  const handleCambioStock = async (id: number, cantidad: number) => {
+    stockMutation.mutate({ id, cantidad });
+  };
+
+
   return {
     modal,
     setModal,
@@ -172,6 +192,7 @@ export const useProductos = () => {
     handleAssignCategorias,
     handleAssignIngredientes,
     changeStateMutation,
-    handleFilterProductosStock
+    handleFilterProductosStock,
+    handleCambioStock
   };
 };

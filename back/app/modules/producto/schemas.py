@@ -36,6 +36,9 @@ class IngredienteAssign(SQLModel):
 class UnidadMedidaAssign(SQLModel):
     unidad_venta_id: Optional[int] = Field(default=None)
 
+class ProductoStockUpdate(SQLModel):
+    cantidad: int
+
 
 # ── Salida ────────────────────────────────────────────────────────────────────
 

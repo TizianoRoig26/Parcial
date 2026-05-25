@@ -12,8 +12,8 @@ export const getPedidos = async (id?: number): Promise<PaginatedResponse> => {
     const dateA = new Date(a.created_at);
     const dateB = new Date(b.created_at);
 
-    if (dateA > dateB) return -1;
-    if (dateA < dateB) return 1;
+    if (dateA > dateB) return 1;
+    if (dateA < dateB) return -1;
 
     return 0;
   });
@@ -22,7 +22,7 @@ export const getPedidos = async (id?: number): Promise<PaginatedResponse> => {
 };
 
 export const getUserById = async (id: number): Promise<any> => {
-  const response = await apiClient.get(`${AUTH}/admin/usuarios/${id}`);
+  const response = await apiClient.get(`${AUTH}/usuarios/nombre/${id}`);
   console.log(response.data);
   return response.data;
 }
@@ -44,4 +44,3 @@ export const cambioEstado = async (id: number, estado: string, motivo?: string):
   console.log(response.data);
   return response.data;
 }
-
