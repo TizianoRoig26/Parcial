@@ -12,6 +12,8 @@ Regla de imports:
     Router → Service → UoW → Repository → Model
 """
 
+from datetime import datetime, timezone
+
 from fastapi import HTTPException, status
 
 from app.core.config import settings
@@ -119,6 +121,7 @@ class UsuarioService:
                 detail="Usuario no encontrado",
             )
         user.disabled = disabled
+        user.deleted_at = datetime.now(timezone.utc) if disabled else None
         return self.uow.usuarios.update(user)
 
     def asignar_rol(self, user_id: int, rol_codigo: str, admin_id: int) -> Usuario:
