@@ -1,6 +1,6 @@
 from decimal import Decimal
 from sqlalchemy import inspect
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 
 from app.core.database import create_db_and_tables, engine
 from app.core.security import hash_password
@@ -335,55 +335,215 @@ def seed_pedidos() -> None:
 
 		existing_pedidos = session.exec(select(Pedido)).all()
 		if existing_pedidos:
-			print("  [=] Ya existen pedidos")
-			return
+			print("  [~] Limpiando pedidos existentes para re-seed...")
+			session.exec(delete(HistorialEstadoPedido))
+			session.exec(delete(DetallePedido))
+			session.exec(delete(Pedido))
+			session.commit()
 
 		pedidos_data = [
 			{
 				"estado_codigo": "PENDIENTE",
 				"forma_pago_codigo": "EFECTIVO",
-				"costo_envio": Decimal("50.00"),
-				"notas": "Pedido 1: Sin cebolla",
+				"costo_envio": Decimal("500.00"),
+				"notas": "Pedido 1: Sin cebolla la fugazzeta",
 				"detalles": [
 					{"producto": productos[0], "cantidad": 2},
 					{"producto": productos[1], "cantidad": 1},
+					{"producto": productos[24], "cantidad": 2},
 				]
 			},
 			{
 				"estado_codigo": "CONFIRMADO",
 				"forma_pago_codigo": "TRANSFERENCIA",
 				"costo_envio": Decimal("0.00"),
-				"notas": "Pedido 2: Para llevar",
+				"notas": "Pedido 2: Retira cliente",
 				"detalles": [
-					{"producto": productos[2], "cantidad": 1},
+					{"producto": productos[11], "cantidad": 1},
+					{"producto": productos[21], "cantidad": 1},
 				]
 			},
 			{
 				"estado_codigo": "EN_PREP",
 				"forma_pago_codigo": "MERCADOPAGO",
-				"costo_envio": Decimal("100.00"),
-				"notas": "Pedido 3: Rápido por favor",
+				"costo_envio": Decimal("600.00"),
+				"notas": "Pedido 3: Enviar cubiertos",
 				"detalles": [
-					{"producto": productos[3], "cantidad": 3},
-					{"producto": productos[4], "cantidad": 2},
+					{"producto": productos[2], "cantidad": 1},
+					{"producto": productos[32], "cantidad": 2},
 				]
 			},
 			{
 				"estado_codigo": "EN_CAMINO",
 				"forma_pago_codigo": "EFECTIVO",
-				"costo_envio": Decimal("50.00"),
-				"notas": "Pedido 4",
+				"costo_envio": Decimal("400.00"),
+				"notas": "Pedido 4: Tocar timbre del portón gris",
 				"detalles": [
-					{"producto": productos[5], "cantidad": 1},
+					{"producto": productos[3], "cantidad": 1},
+					{"producto": productos[27], "cantidad": 2},
 				]
 			},
 			{
 				"estado_codigo": "ENTREGADO",
 				"forma_pago_codigo": "MERCADOPAGO",
-				"costo_envio": Decimal("50.00"),
-				"notas": "Pedido 5",
+				"costo_envio": Decimal("500.00"),
+				"notas": "Pedido 5: Todo excelente",
 				"detalles": [
-					{"producto": productos[6], "cantidad": 2},
+					{"producto": productos[4], "cantidad": 1},
+					{"producto": productos[31], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "CANCELADO",
+				"forma_pago_codigo": "EFECTIVO",
+				"costo_envio": Decimal("500.00"),
+				"notas": "Pedido 6: Cancelado por falta de repartidor",
+				"detalles": [
+					{"producto": productos[5], "cantidad": 1},
+					{"producto": productos[20], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "PENDIENTE",
+				"forma_pago_codigo": "MERCADOPAGO",
+				"costo_envio": Decimal("700.00"),
+				"notas": "Pedido 7: Tocar timbre 3B",
+				"detalles": [
+					{"producto": productos[6], "cantidad": 1},
+					{"producto": productos[33], "cantidad": 1},
+					{"producto": productos[28], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "CONFIRMADO",
+				"forma_pago_codigo": "TRANSFERENCIA",
+				"costo_envio": Decimal("400.00"),
+				"notas": "Pedido 8: Dejar en portería",
+				"detalles": [
+					{"producto": productos[7], "cantidad": 1},
+					{"producto": productos[25], "cantidad": 2},
+				]
+			},
+			{
+				"estado_codigo": "EN_PREP",
+				"forma_pago_codigo": "MERCADOPAGO",
+				"costo_envio": Decimal("0.00"),
+				"notas": "Pedido 9: Take away",
+				"detalles": [
+					{"producto": productos[8], "cantidad": 1},
+					{"producto": productos[29], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "EN_CAMINO",
+				"forma_pago_codigo": "EFECTIVO",
+				"costo_envio": Decimal("500.00"),
+				"notas": "Pedido 10: Llamar al celular al llegar",
+				"detalles": [
+					{"producto": productos[9], "cantidad": 1},
+					{"producto": productos[30], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "ENTREGADO",
+				"forma_pago_codigo": "MERCADOPAGO",
+				"costo_envio": Decimal("400.00"),
+				"notas": "Pedido 11: Entregado a tiempo",
+				"detalles": [
+					{"producto": productos[10], "cantidad": 2},
+					{"producto": productos[24], "cantidad": 2},
+				]
+			},
+			{
+				"estado_codigo": "CANCELADO",
+				"forma_pago_codigo": "TRANSFERENCIA",
+				"costo_envio": Decimal("500.00"),
+				"notas": "Pedido 12: Cancelado por el cliente",
+				"detalles": [
+					{"producto": productos[12], "cantidad": 1},
+					{"producto": productos[23], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "PENDIENTE",
+				"forma_pago_codigo": "EFECTIVO",
+				"costo_envio": Decimal("600.00"),
+				"notas": "Pedido 13: Bacon bien crocante",
+				"detalles": [
+					{"producto": productos[13], "cantidad": 1},
+					{"producto": productos[35], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "CONFIRMADO",
+				"forma_pago_codigo": "TRANSFERENCIA",
+				"costo_envio": Decimal("0.00"),
+				"notas": "Pedido 14: Retira personal autorizado",
+				"detalles": [
+					{"producto": productos[14], "cantidad": 2},
+					{"producto": productos[27], "cantidad": 2},
+				]
+			},
+			{
+				"estado_codigo": "EN_PREP",
+				"forma_pago_codigo": "MERCADOPAGO",
+				"costo_envio": Decimal("500.00"),
+				"notas": "Pedido 15: Sin aderezos",
+				"detalles": [
+					{"producto": productos[15], "cantidad": 1},
+					{"producto": productos[37], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "EN_CAMINO",
+				"forma_pago_codigo": "EFECTIVO",
+				"costo_envio": Decimal("500.00"),
+				"notas": "Pedido 16: Enviar cambio de 10000",
+				"detalles": [
+					{"producto": productos[16], "cantidad": 1},
+					{"producto": productos[22], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "ENTREGADO",
+				"forma_pago_codigo": "MERCADOPAGO",
+				"costo_envio": Decimal("400.00"),
+				"notas": "Pedido 17: Sin observaciones",
+				"detalles": [
+					{"producto": productos[17], "cantidad": 1},
+					{"producto": productos[26], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "PENDIENTE",
+				"forma_pago_codigo": "EFECTIVO",
+				"costo_envio": Decimal("500.00"),
+				"notas": "Pedido 18: Empanadas calientes por favor",
+				"detalles": [
+					{"producto": productos[40], "cantidad": 6},
+					{"producto": productos[44], "cantidad": 6},
+					{"producto": productos[20], "cantidad": 1},
+				]
+			},
+			{
+				"estado_codigo": "CONFIRMADO",
+				"forma_pago_codigo": "TRANSFERENCIA",
+				"costo_envio": Decimal("450.00"),
+				"notas": "Pedido 19: Nota del pedido",
+				"detalles": [
+					{"producto": productos[43], "cantidad": 12},
+					{"producto": productos[31], "cantidad": 2},
+				]
+			},
+			{
+				"estado_codigo": "EN_PREP",
+				"forma_pago_codigo": "MERCADOPAGO",
+				"costo_envio": Decimal("500.00"),
+				"notas": "Pedido 20: Postre frío",
+				"detalles": [
+					{"producto": productos[49], "cantidad": 6},
+					{"producto": productos[38], "cantidad": 1},
+					{"producto": productos[24], "cantidad": 1},
 				]
 			}
 		]
@@ -399,7 +559,7 @@ def seed_pedidos() -> None:
 				subtotal=subtotal,
 				costo_envio=data["costo_envio"],
 				total=total,
-				notas=data["notas"],
+				notas=data.get("notas", ""),
 			)
 			session.add(pedido)
 			session.flush()
@@ -424,7 +584,7 @@ def seed_pedidos() -> None:
 			session.add(historial)
 
 		session.commit()
-		print("  [+] Creados 5 pedidos iniciales")
+		print(f"  [+] Creados {len(pedidos_data)} pedidos iniciales")
 
 def seed_pedido_catalogos() -> None:
 	seed_formas_pago()

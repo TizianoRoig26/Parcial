@@ -35,7 +35,7 @@ const AppRouter = () => {
             path="*"
             element={
               <>
-                <div className="flex h-screen overflow-hidden bg-[#F4F3CF]">
+                <div className="flex h-screen overflow-hidden bg-[#F4F3CF] ">
                   <NavBar />
                   <main className="flex-1 flex flex-col min-h-0 mx-auto max-w-6xl py-8">
                     <Routes>

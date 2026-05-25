@@ -33,6 +33,8 @@ export const PedidoDetalles = ({ pedidoId }: { pedidoId: number }) => {
 };
 
 export const usePedidos = () => {
+  const queryClient = useQueryClient();
+  const [vista, setVista] = useState<string>("principal");
 
   const { data: pedidos, isLoading, isError } = useQuery({
     queryKey: ["pedidos"],
@@ -48,8 +50,39 @@ export const usePedidos = () => {
     return minutos;
   }
 
-  const handleCambiaEstado = (id: number, estado: string) => {
-    cambioEstado(id, estado);
+  const handleCambiarVista = () => {
+    if(vista === "secundaria"){
+      setVista("principal")
+    }
+    else{
+      setVista("secundaria")
+    }
+  }
+
+  const handleCambiaEstado = async (id: number, cancelado?: boolean ) => {
+    const estadoActual = pedidos?.data.find(pedido => pedido.id === id)?.estado_codigo;
+    let nuevoEstado = "";
+
+    if (cancelado) {
+      nuevoEstado = "CANCELADO";
+    } else if (estadoActual === "PENDIENTE") {
+      nuevoEstado = "CONFIRMADO";
+    } else if (estadoActual === "CONFIRMADO") {
+      nuevoEstado = "EN_PREP";
+    } else if (estadoActual === "EN_PREP") {
+      nuevoEstado = "EN_CAMINO";
+    } else if (estadoActual === "EN_CAMINO") {
+      nuevoEstado = "ENTREGADO";
+    }
+
+    if (nuevoEstado) {
+      try {
+        await cambioEstado(id, nuevoEstado);
+        queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+      } catch (error) {
+        console.error("Error al cambiar estado:", error);
+      }
+    }
   }
 
   return {
@@ -57,7 +90,9 @@ export const usePedidos = () => {
     isLoading,
     isError,
     handleObtenerTiempo,
-    handleCambiaEstado
+    handleCambiaEstado,
+    handleCambiarVista,
+    vista
   };
 }
 

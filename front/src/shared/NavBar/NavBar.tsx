@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { requestLogout } from "../../features/auth/services/auth.services";
+import { useAuthStore } from "../../store/authStore";
 
 
 const navLinks = [
@@ -13,18 +13,18 @@ const navLinks = [
 </svg>, href: "/" },
 
   { label: "Categorías",icono: 
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-egg">
-	<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-	<path d="M19 14.083c0 4.154 -2.966 6.74 -7 6.917c-4.2 0 -7 -2.763 -7 -6.917c0 -5.538 3.5 -11.09 7 -11.083c3.5 .007 7 5.545 7 11.083" />
-  </svg> , href: "/categorias" },
-
-  { label: "Ingredientes", icono: 
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-category-2">
 	<path stroke="none" d="M0 0h24v24H0z" fill="none" />
 	<path d="M14 4h6v6h-6l0 -6" />
 	<path d="M4 14h6v6h-6l0 -6" />
 	<path d="M14 17a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
 	<path d="M4 7a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+  </svg> , href: "/categorias" },
+
+  { label: "Ingredientes", icono: 
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-egg">
+	<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+	<path d="M19 14.083c0 4.154 -2.966 6.74 -7 6.917c-4.2 0 -7 -2.763 -7 -6.917c0 -5.538 3.5 -11.09 7 -11.083c3.5 .007 7 5.545 7 11.083" />
   </svg>, href: "/ingredientes" },
 
   { label: "Pedidos", icono: 
@@ -41,10 +41,11 @@ const navLinks = [
 export const NavBar = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate(); 
+  const logout = useAuthStore((s) => s.logout);
 
   const handleLogout = async () => {
     try {
-      await requestLogout();
+      await logout();
       navigate('/login'); 
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
@@ -123,7 +124,10 @@ export const NavBar = () => {
             <span>Cerrar sesión</span>
           </button>
           <button
-            onClick={() => window.open("https://th.bing.com/th/id/OIP.sLmQNMCeYYIEwkj4hTprGAHaIJ?w=170&h=187&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3", "_blank")}
+            onClick={() => {
+              document.body.classList.toggle("soporte-activo");
+              document.body.classList.toggle("animate-spin");
+            }}
             className="w-full text-center px-4 p-1 rounded-full text-[#544518] hover:bg-[#699D64] font-semibold  duration-600 text-sm font-medium"
           >
             <span>Soporte</span>

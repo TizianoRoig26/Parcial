@@ -33,8 +33,14 @@ export const getDetalle = async (id: number): Promise<any> => {
   return response.data;
 }
 
-export const cambioEstado = async (id: number, estado: string): Promise<any> => {
-  const response = await apiClient.patch(`${PATH}/${id}/estado`, { estado });
+export const cambioEstado = async (id: number, estado: string, motivo?: string): Promise<any> => {
+  const body: any = { estado_hacia: estado };
+  if (estado === "CANCELADO") {
+    body.motivo = motivo || "Cancelado por el administrador";
+  } else if (motivo) {
+    body.motivo = motivo;
+  }
+  const response = await apiClient.patch(`${PATH}/${id}/estado`, body);
   console.log(response.data);
   return response.data;
 }

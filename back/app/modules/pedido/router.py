@@ -35,11 +35,9 @@ def create_pedido(
 	dependencies=[Depends(require_role(["ADMIN", "PEDIDOS"]))],
 )
 def list_pedidos(
-	offset: Annotated[int, Query(ge=0)] = 0,
-	limit: Annotated[int, Query(ge=1, le=100)] = 20,
 	svc: PedidoService = Depends(get_pedido_service),
 ) -> PedidoList:
-	return svc.get_all(offset=offset, limit=limit)
+	return svc.get_all()
 
 
 @router.get(
