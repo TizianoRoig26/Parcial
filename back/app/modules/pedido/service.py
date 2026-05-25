@@ -268,6 +268,14 @@ class PedidoService:
 				)
 			return PedidoPublic.model_validate(pedido)
 
+	def get_mis_pedidos(self, usuario_id: int) -> PedidoList:
+		with self.uow:
+			pedidos = self.uow.pedidos.get_by_usuario_id(usuario_id)
+			return PedidoList(
+				data=[PedidoPublic.model_validate(pedido) for pedido in pedidos],
+				total=len(pedidos),
+			)
+
 	def get_all(self, offset: int = 0, limit: int = 20) -> PedidoList:
 		with self.uow:
 			pedidos = self.uow.pedidos.get_all(offset=offset, limit=limit)

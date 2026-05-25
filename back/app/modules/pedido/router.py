@@ -43,6 +43,18 @@ def list_pedidos(
 
 
 @router.get(
+	"/mis-pedidos",
+	response_model=PedidoList,
+	summary="Listar mis pedidos (usuario autenticado)",
+)
+def get_mis_pedidos(
+	current_user: Annotated[Usuario, Depends(get_current_active_user)],
+	svc: PedidoService = Depends(get_pedido_service),
+) -> PedidoList:
+	return svc.get_mis_pedidos(usuario_id=current_user.id)
+
+
+@router.get(
 	"/{id}",
 	response_model=PedidoPublic,
 	summary="Obtener pedido por ID",

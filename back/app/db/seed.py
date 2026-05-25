@@ -195,7 +195,7 @@ def seed_productos() -> None:
 			{"nombre": "Bebidas", "descripcion": "Gaseosas y cervezas bien frías", "imagen_url": "https://images.unsplash.com/photo-1497534446932-c925b458314e"},
 			{"nombre": "Hamburguesas", "descripcion": "Hamburguesas caseras con papas fritas", "imagen_url": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd"},
 			{"nombre": "Postres", "descripcion": "Cosas dulces para cerrar el día", "imagen_url": "https://images.unsplash.com/photo-1551024601-bec78aea704b"},
-			{"nombre": "Empanadas", "descripcion": "Empanadas al horno y fritas", "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947"},
+			{"nombre": "Empanadas","descripcion": "Empanadas al horno y fritas", "imagen_url": "https://images.unsplash.com/photo-1544025162-d76694265947"},
 		]
 
 		for cat in categorias_data:
