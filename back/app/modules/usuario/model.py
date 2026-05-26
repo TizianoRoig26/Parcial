@@ -5,8 +5,10 @@ Un usuario puede tener varios roles mediante la tabla intermedia
 usuarios_roles.
 """
 
-from typing import List, TYPE_CHECKING
+from datetime import datetime
+from typing import List, TYPE_CHECKING, Optional
 
+from sqlalchemy import Column, DateTime, func
 from sqlmodel import SQLModel, Field, Relationship
 
 from app.modules.direccion.model import DireccionEntrega
@@ -24,6 +26,7 @@ class Usuario(SQLModel, table=True):
     email:           str        = Field(index=True, unique=True)  
     hashed_password: str
     disabled:        bool       = Field(default=False)
+    
 
     roles: List["Rol"] = Relationship(
         back_populates="usuarios",
@@ -41,3 +44,21 @@ class Usuario(SQLModel, table=True):
     direcciones: List[DireccionEntrega] = Relationship(
         back_populates="usuario",
         sa_relationship_kwargs={"overlaps": "usuario,direccion"})
+    
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=False, server_default=func.now()),
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default=func.now(),
+            onupdate=func.now(),
+        ),
+    )
+    deleted_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=True),
+    )

@@ -294,3 +294,77 @@ class PedidoService:
 					detail=f"Pedido con id={pedido_id} no encontrado",
 				)
 			return self.uow.detalles_pedido.get_by_pedido(pedido_id)
+
+	def cancelar_por_usuario(self, pedido_id: int, motivo: str | None, *, usuario_id: int) -> Pedido:
+	
+		with self.uow:
+			pedido = self.uow.pedidos.get_by_id(pedido_id)
+			if not pedido:
+				raise HTTPException(
+					status_code=status.HTTP_404_NOT_FOUND,
+					detail=f"Pedido con id={pedido_id} no encontrado",
+				)
+
+			if pedido.usuario_id != usuario_id:
+				raise HTTPException(
+					status_code=status.HTTP_403_FORBIDDEN,
+					detail="No autorizado para cancelar este pedido",
+				)
+
+			if pedido.estado_codigo not in {"PENDIENTE", "CONFIRMADO"}:
+				raise HTTPException(
+					status_code=status.HTTP_400_BAD_REQUEST,
+					detail=(
+						"Solo se puede cancelar un pedido desde los estados PENDIENTE o CONFIRMADO"
+					),
+				)
+
+			if not motivo or not motivo.strip():
+				raise HTTPException(
+					status_code=status.HTTP_400_BAD_REQUEST,
+					detail="El motivo es obligatorio al cancelar un pedido",
+				)
+
+			estado_desde = pedido.estado_codigo
+			pedido.estado_codigo = "CANCELADO"
+			self.uow.pedidos.update(pedido)
+
+			historial = HistorialEstadoPedido(
+				pedido_id=pedido.id,
+				estado_desde=estado_desde,
+				estado_hacia="CANCELADO",
+				usuario_id=usuario_id,
+				motivo=motivo,
+			)
+			self.uow.historial_estados_pedido.add(historial)
+			return pedido
+
+	def cancelar_por_admin(self, pedido_id: int, motivo: str | None, *, usuario_id: int | None = None) -> Pedido:
+
+		with self.uow:
+			pedido = self.uow.pedidos.get_by_id(pedido_id)
+			if not pedido:
+				raise HTTPException(
+					status_code=status.HTTP_404_NOT_FOUND,
+					detail=f"Pedido con id={pedido_id} no encontrado",
+				)
+
+			if not motivo or not motivo.strip():
+				raise HTTPException(
+					status_code=status.HTTP_400_BAD_REQUEST,
+					detail="El motivo es obligatorio al cancelar un pedido",
+				)
+
+			estado_desde = pedido.estado_codigo
+			pedido.estado_codigo = "CANCELADO"
+			self.uow.pedidos.update(pedido)
+
+			historial = HistorialEstadoPedido(
+				pedido_id=pedido.id,
+				estado_desde=estado_desde,
+				estado_hacia="CANCELADO",
+				usuario_id=usuario_id,
+				motivo=motivo,
+			)
+			self.uow.historial_estados_pedido.add(historial)
+			return pedido

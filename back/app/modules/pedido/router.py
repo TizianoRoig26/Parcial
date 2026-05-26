@@ -6,6 +6,8 @@ from app.modules.pedido.schemas import PedidoCreate, PedidoEstadoUpdate, PedidoL
 from app.modules.pedido.service import PedidoService
 from app.modules.pedido.unit_of_work import PedidosUnitOfWork, get_uow
 from app.modules.usuario.model import Usuario
+from fastapi import HTTPException
+from fastapi import status
 
 router = APIRouter()
 
@@ -83,6 +85,43 @@ def avanzar_estado_pedido(
 			usuario_id=current_user.id,
 			roles_usuario=current_user.role_codes,
 		)
+	)
+
+
+@router.post(
+	"/{id}/cancel",
+	response_model=PedidoPublic,
+	summary="Cancelar pedido (usuario)",
+)
+def cancelar_pedido_usuario(
+ 	id: int,
+ 	data: PedidoEstadoUpdate,
+ 	current_user: Annotated[Usuario, Depends(get_current_active_user)],
+ 	svc: PedidoService = Depends(get_pedido_service),
+) -> PedidoPublic:
+	if data.estado_hacia != "CANCELADO":
+		raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El estado objetivo debe ser 'CANCELADO'")
+	return PedidoPublic.model_validate(
+		svc.cancelar_por_usuario(pedido_id=id, motivo=data.motivo, usuario_id=current_user.id)
+	)
+
+
+@router.post(
+	"/{id}/cancel-admin",
+	response_model=PedidoPublic,
+	summary="Cancelar pedido (admin)",
+	dependencies=[Depends(require_role(["ADMIN", "PEDIDOS"]))],
+)
+def cancelar_pedido_admin(
+ 	id: int,
+ 	data: PedidoEstadoUpdate,
+ 	current_user: Annotated[Usuario, Depends(require_role(["ADMIN", "PEDIDOS"]))],
+ 	svc: PedidoService = Depends(get_pedido_service),
+) -> PedidoPublic:
+	if data.estado_hacia != "CANCELADO":
+		raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El estado objetivo debe ser 'CANCELADO'")
+	return PedidoPublic.model_validate(
+		svc.cancelar_por_admin(pedido_id=id, motivo=data.motivo, usuario_id=current_user.id)
 	)
 
 
