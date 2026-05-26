@@ -14,6 +14,8 @@ import { getCategorias } from "../../categoria/services/categoria.services";
 import { getIngredientes } from "../../ingredientes/services/ingrediente.services";
 import { getUnidadesMedida } from "../../unidadMedida/services/unidadMedida.services";
 
+
+
 export type ModalState =
   | { type: "none" }
   | { type: "create" }
@@ -22,7 +24,11 @@ export type ModalState =
 export const useProductos = () => {
   const queryClient = useQueryClient();
   const [modal, setModal] = useState<ModalState>({ type: "none" });
-  const handleClose = () => setModal({ type: "none" });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const handleClose = () => {
+    setModal({ type: "none" });
+    setErrorMessage(null);
+  };
   const [currentPage, setCurrentPage] = useState(1);
   const LIMIT = 30;
 
@@ -102,7 +108,7 @@ export const useProductos = () => {
 
   const ordenarProductos = (productosList: IProducto[]) => {
     return productosList
-      .filter((p) => (categoriaFiltrada ? p.categorias.some((c) => c.id === categoriaFiltrada) : true))
+      .filter((p) => (categoriaFiltrada ? p.categorias?.some((c) => c.id === categoriaFiltrada) : true))
       .filter((p) => (nombreFilter ? p.nombre.toLowerCase().includes(nombreFilter.toLowerCase()) : true))
       .filter((p) => (stock ? p.stock_cantidad < 10 : true))
       .sort((a, b) => {
@@ -113,7 +119,6 @@ export const useProductos = () => {
   const handleFilterProductos = (categoria?: number, nombre: string = "") => {
     setCategoriaFiltrada(categoria ?? null);
     setNombreFilter(nombre);
-    setStock(!stock);
   };
 
   const handleFilterProductosStock = () => {
@@ -129,6 +134,7 @@ export const useProductos = () => {
     categoriaIds: number[],
     ingredienteIds: number[],
   ) => {
+    setErrorMessage(null);
     if (modal.type === "edit" && modal.producto.id) {
       const prodId = modal.producto.id;
       editMutation.mutate({ id: prodId, data }, {
@@ -138,6 +144,10 @@ export const useProductos = () => {
           queryClient.invalidateQueries({ queryKey: ["productos"] });
           handleClose();
         },
+        onError: (err: any) => {
+          const detail = err.response?.data?.detail || "Error al editar el producto";
+          setErrorMessage(detail);
+        }
       });
     } else {
       createMutation.mutate(data, {
@@ -149,6 +159,10 @@ export const useProductos = () => {
           queryClient.invalidateQueries({ queryKey: ["productos"] });
           handleClose();
         },
+        onError: (err: any) => {
+          const detail = err.response?.data?.detail || "Error al crear el producto";
+          setErrorMessage(detail);
+        }
       });
     }
   };
@@ -193,6 +207,8 @@ export const useProductos = () => {
     handleAssignIngredientes,
     changeStateMutation,
     handleFilterProductosStock,
-    handleCambioStock
+    handleCambioStock,
+    errorMessage,
+    setErrorMessage
   };
 };

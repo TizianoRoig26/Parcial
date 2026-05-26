@@ -1,6 +1,7 @@
 import { getUnidadesMedida, getUnidadesMedidaById } from "../../unidadMedida/services/unidadMedida.services";
 import { ProductoModal } from "../components/ProductoModal";
 import { useProductos } from "../hooks/productosHooks";
+import { useAuthStore } from "../../../store/authStore";
 
 export const ProductsPage = () => {
   const {
@@ -26,8 +27,12 @@ export const ProductsPage = () => {
     handleAssignIngredientes,
     changeStateMutation,
     handleFilterProductosStock,
-    handleCambioStock
+    handleCambioStock,
+    errorMessage
   } = useProductos();
+
+  const hasRole = useAuthStore((state) => state.hasRole);
+  const isAdmin = hasRole("admin");
 
   if (isLoading) return <div className="p-8 text-center text-black animate-pulse">Cargando productos...</div>;
   if (isError) return <div className="p-8 text-center text-red-500">Error al cargar productos</div>;
@@ -40,13 +45,15 @@ export const ProductsPage = () => {
             <h1 className="text-3xl font-bold text-[#006D35] tracking-tight ">Gestión de Productos</h1>
             <p className="text-gray-600 mt-1">Gestiona el catálogo de productos</p>
           </div>
-          <button
-            onClick={() => setModal({ type: "create" })}
-            className=" bg-[#47AA66] text-black font-semibold shadow-md rounded-full px-3 pb-1 hover:bg-[#699D64] transition-colors duration-300"
-          >
-            <span className="text-lg">+</span>
-            Nuevo producto
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setModal({ type: "create" })}
+              className=" bg-[#47AA66] text-black font-semibold shadow-md rounded-full px-3 pb-1 hover:bg-[#699D64] transition-colors duration-300"
+            >
+              <span className="text-lg">+</span>
+              Nuevo producto
+            </button>
+          )}
         </div>
         <div className="flex flex-row justify-between pb-4">
           <ul>
@@ -91,7 +98,7 @@ export const ProductsPage = () => {
               <th className="p-3 ">Img</th>
               <th className="p-3">Producto</th>
               <th className="p-3">Categorías</th>
-              <th className="p-3">Precio</th>
+              <th className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold `}>Precio</th>
               <th className="p-3" ><button onClick={() => handleFilterProductosStock()}>
                 Stock
                 </button></th>
@@ -157,16 +164,18 @@ export const ProductsPage = () => {
 
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-center gap-2">
-                    <button title="editar producto"
-                      onClick={() => setModal({ type: "edit", producto: prod })}
-                      className="p-1 text-sm text-[#0D4012] hover:text-[#002204] hover:border-2 rounded-full border-1 border-[#0D4012] hover:bg-[#C9C8A6] transition-colors font-medium"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="icon icon-tabler icons-tabler-outline icon-tabler-pencil">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-                        <path d="M13.5 6.5l4 4" />
-                      </svg>
-                    </button>
+                    {isAdmin && (
+                      <button title="editar producto"
+                        onClick={() => setModal({ type: "edit", producto: prod })}
+                        className="p-1 text-sm text-[#0D4012] hover:text-[#002204] hover:border-2 rounded-full border-1 border-[#0D4012] hover:bg-[#C9C8A6] transition-colors font-medium"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="icon icon-tabler icons-tabler-outline icon-tabler-pencil">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+                          <path d="M13.5 6.5l4 4" />
+                        </svg>
+                      </button>
+                    )}
                     <button title="cambiar estado"
                       onClick={() => prod.id && changeStateMutation.mutate(prod.id)}
                       className={`p-1 text-sm text-[#0D4012] hover:text-[#002204] hover:border-3 rounded-full border-1 border-[#0D4012] hover:bg-[#C9C8A6] transition-colors font-medium ${prod.is_active ? "border-2" : "border-[#647D37]"}`}
@@ -231,6 +240,7 @@ export const ProductsPage = () => {
         unidadesMedidaDisponibles={unidadesMedida?.data ?? []}
         onAssignCategorias={handleAssignCategorias}
         onAssignIngredientes={handleAssignIngredientes}
+        errorMessage={errorMessage}
       />
     </div>
   );

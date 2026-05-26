@@ -13,8 +13,8 @@ import { useAuthStore } from "../../../store/authStore";
  */
 export const apiClient = axios.create({
   baseURL: getApiBase(),
-  withCredentials: true, // Incluye cookies httpOnly
-  timeout: 10000, // 10 segundos
+  withCredentials: true, // cookies httpOnly
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -26,10 +26,6 @@ export const apiClient = axios.create({
 // ============================================================
 apiClient.interceptors.request.use(
   (config) => {
-    // Puedes agregar lógica aquí si necesitas:
-    // - Tokens adicionales (aunque estamos usando httpOnly cookies)
-    // - Headers personalizados
-    // - Transformar datos antes de enviar
     return config;
   },
   (error: AxiosError) => {

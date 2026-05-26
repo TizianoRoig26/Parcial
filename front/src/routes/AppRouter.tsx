@@ -8,6 +8,7 @@ import { LoginPage } from "../features/auth/components/LoginPage";
 import { RegisterPage } from "../features/auth/components/RegisterPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PedidoPage } from "../features/pedidos/pages/PedidosPage";
+import { PedidoDetailPage } from "../features/pedidos/pages/PedidoDetailPage";
 
 
 const AppRouter = () => {
@@ -48,6 +49,7 @@ const AppRouter = () => {
                       </Route>
                       <Route element={<ProtectedRoute allowedRoles={["admin", "pedidos"]} />}>
                         <Route path="/pedidos" element={<PedidoPage />} />
+                        <Route path="/pedidos/:id" element={<PedidoDetailPage />} />
                       </Route>
                       <Route path="*" element={<div className="p-8 text-center text-gray-500 text-2xl">404 — Página no encontrada</div>} />
                     </Routes>

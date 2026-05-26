@@ -3,6 +3,7 @@ import apiClient from "../../auth/services/axiosInstance";
 
 const PATH = "/pedidos";  
 const AUTH = "/api/v1/auth";
+const DIREC = "/direcciones";
 
 type PaginatedResponse = { data: IPedido[]; total: number };
 
@@ -44,3 +45,15 @@ export const cambioEstado = async (id: number, estado: string, motivo?: string):
   console.log(response.data);
   return response.data;
 }
+
+export const getDireccion = async (id: number): Promise<any> => {
+  const response = await apiClient.get(`${DIREC}/${id}`);
+  console.log(response.data);
+  return response.data;
+}
+
+export const getPedidoById = async (id: number): Promise<IPedido> => {
+  const response = await apiClient.get<IPedido>(`${PATH}/${id}`);
+  return response.data;
+};
+

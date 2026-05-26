@@ -35,3 +35,15 @@ export interface IDetallePedido {
   subtotal: number;
   productos?: IProducto[];
 }
+
+export interface IDireccion {
+  id?: number;
+  alias: string;
+  calle: string;
+  numero: string;
+  ciudad: string;
+  provincia: string;
+  codigo_postal: string;
+  pais: string;
+  usuario_id: number;
+}

@@ -46,7 +46,7 @@ export const CategoryPage = () => {
           </thead>
           <tbody className="ivide-y divide-palm/20 bg-[#E5E4C1]">
             {(categories as { data?: ICategoria[] }).data?.map((cat) => (
-              <tr key={cat.id} className="transition-colors text-center hover:bg-[#C9C8A6] border-t-1 border-[#0D4012]">
+              <tr key={cat.id} className="h-20 transition-colors text-center hover:bg-[#C9C8A6]  border-t-1 border-[#0D4012]">
                 <td className="">
                   <div className="flex align-center pl-15 items-center gap-10">
                     {cat.imagen_url && (

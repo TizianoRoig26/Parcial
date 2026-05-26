@@ -4,6 +4,7 @@ import type { UserPublic, UserRegisterPayload } from "../types/index";
 const AUTH = "/api/v1/auth";
 
 /**
+ * 
  * Login con OAuth2 Password Flow.
  *
  * El backend responde con `Set-Cookie: access_token=...; HttpOnly; SameSite=Lax`.
@@ -14,6 +15,7 @@ const AUTH = "/api/v1/auth";
  * - Inclusión de credentials (cookies)
  * - Errores 401 (sesión expirada)
  */
+
 export async function requestLogin(
   username: string,
   password: string,

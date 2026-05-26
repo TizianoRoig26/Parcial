@@ -2,10 +2,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   cambioEstado,
   getDetalle,
-  getPedidos
+  getDireccion,
+  getPedidos,
+  getPedidoById
 } from "../services/pedidos.services";
 import { useState } from "react";
 import { getUsernameById } from "../../auth/services/auth.services";
+import { useAuthStore } from "../../../store/authStore";
 
 export const UsuarioNombre = ({ id }: { id: number }) => {
   const { data: username, isLoading } = useQuery({
@@ -31,6 +34,23 @@ export const PedidoDetalles = ({ pedidoId }: { pedidoId: number }) => {
 
   const itemsText = detalles.map((d: any) => `${d.nombre_snapshot} x${d.cantidad}`).join(", ");
   return itemsText;
+};
+
+
+export const PedidoDireccion = ({ id }: { id: number | null | undefined }) => {
+  const { data: direccion, isLoading } = useQuery({
+    queryKey: ["direccion", id],
+    queryFn: () => getDireccion(id!),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  if (!id) return "Retiro en local";
+  if (isLoading) return "Cargando dirección...";
+  if (!direccion) return "Sin dirección asignada";
+
+  const { alias, linea1, ciudad } = direccion;
+  return `${alias ? `${alias}: ` : ""}${linea1}, ${ciudad}`;
 };
 
 export const usePedidos = () => {
@@ -86,8 +106,6 @@ export const usePedidos = () => {
     }
   }
 
-  
-
   return {
     pedidos,
     isLoading,
@@ -98,4 +116,46 @@ export const usePedidos = () => {
     vista
   };
 }
+
+export const usePedidoDetail = (pedidoId: number) => {
+  const queryClient = useQueryClient();
+  const hasRole = useAuthStore((state) => state.hasRole);
+  const isAdmin = hasRole("admin");
+  const isPedidos = hasRole("pedidos");
+
+  const { data: pedido, isLoading: isPedidoLoading, isError: isPedidoError } = useQuery({
+    queryKey: ["pedido", pedidoId],
+    queryFn: () => getPedidoById(pedidoId),
+    enabled: !isNaN(pedidoId),
+    staleTime: 1000 * 60 * 2,
+  });
+
+  const { data: detalles, isLoading: isDetallesLoading } = useQuery({
+    queryKey: ["pedido-detalles", pedidoId],
+    queryFn: () => getDetalle(pedidoId),
+    enabled: !isNaN(pedidoId),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const handleAvanzarEstado = async (nuevoEstado: string, motivo?: string) => {
+    try {
+      await cambioEstado(pedidoId, nuevoEstado, motivo);
+      queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+      queryClient.invalidateQueries({ queryKey: ["pedido", pedidoId] });
+    } catch (error) {
+      console.error("Error al actualizar el estado del pedido:", error);
+    }
+  };
+
+  return {
+    pedido,
+    isPedidoLoading,
+    isPedidoError,
+    detalles,
+    isDetallesLoading,
+    handleAvanzarEstado,
+    isAdmin,
+    isPedidos
+  };
+};
 

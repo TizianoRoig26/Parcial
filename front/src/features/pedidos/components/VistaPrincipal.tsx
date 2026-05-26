@@ -1,5 +1,6 @@
 import { usePedidos, UsuarioNombre, PedidoDetalles } from "../hooks/pedidosHooks";
 import {BotonCambioEstado} from "./BotonCambioEstado";
+import { Link } from "react-router-dom";
 
 export const VistaPrincipal = () => {
     const {
@@ -34,8 +35,8 @@ export const VistaPrincipal = () => {
                     <li key={pedido.id} className="mb-4 ">
                       <article className="flex flex-col border-3 gap-2 border-[#929373] rounded-xl p-4">
                         <div className="flex justify-between ">
-                          <span className="text-lg text-[#006D35]">
-                            #{pedido.id}
+                          <span className="text-lg text-[#006D35] hover:underline font-bold">
+                            <Link to={`/pedidos/${pedido.id}`}>#{pedido.id}</Link>
                           </span>
                           <span className="text-sm font-medium  ">
                             HACE {handleObtenerTiempo(pedido.created_at)} MIN
@@ -87,8 +88,8 @@ export const VistaPrincipal = () => {
                     <li key={pedido.id} className="mb-4 ">
                       <article className="flex flex-col border-3 gap-2 border-[#929373] rounded-xl p-4">
                         <div className="flex justify-between ">
-                          <span className="text-lg text-[#006D35]">
-                            #{pedido.id}
+                          <span className="text-lg text-[#006D35] hover:underline font-bold">
+                            <Link to={`/pedidos/${pedido.id}`}>#{pedido.id}</Link>
                           </span>
                           <span className="text-sm font-medium  ">
                             HACE {handleObtenerTiempo(pedido.created_at)} MIN
@@ -142,8 +143,8 @@ export const VistaPrincipal = () => {
                     <li key={pedido.id} className="mb-4 ">
                       <article className="flex flex-col border-3 gap-2 border-[#929373] rounded-xl p-4">
                         <div className="flex justify-between ">
-                          <span className="text-lg text-[#006D35]">
-                            #{pedido.id}
+                          <span className="text-lg text-[#006D35] hover:underline font-bold">
+                            <Link to={`/pedidos/${pedido.id}`}>#{pedido.id}</Link>
                           </span>
                           <span className="text-sm font-medium  ">
                             HACE {handleObtenerTiempo(pedido.created_at)} MIN
