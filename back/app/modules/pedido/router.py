@@ -1,13 +1,17 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, WebSocket, WebSocketDisconnect, status
+from sqlmodel import Session
+
+from app.core.websocket import manager
 from app.core.deps import get_current_active_user, require_role
-from app.modules.pedido.schemas import PedidoCreate, PedidoEstadoUpdate, PedidoList, PedidoPublic, DetallePedidoPublic
+from app.core.database import engine
+from app.core.security import decode_access_token
+from app.modules.pedido.schemas import DetallePedidoPublic, PedidoCreate, PedidoEstadoUpdate, PedidoList, PedidoPublic
 from app.modules.pedido.service import PedidoService
 from app.modules.pedido.unit_of_work import PedidosUnitOfWork, get_uow
+from app.modules.usuario.unit_of_work import UsuariosUnitOfWork
 from app.modules.usuario.model import Usuario
-from fastapi import HTTPException
-from fastapi import status
 
 router = APIRouter()
 
@@ -135,4 +139,47 @@ def get_pedido_detalles(
 	svc: PedidoService = Depends(get_pedido_service),
 ) -> list[DetallePedidoPublic]:
 	return svc.get_detalles_por_pedido(id)
+
+
+async def _reject_websocket(websocket: WebSocket, reason: str) -> None:
+	await websocket.accept()
+	await websocket.close(code=1008, reason=reason)
+
+
+@router.websocket("/ws")
+async def websocket_pedidos(websocket: WebSocket) -> None:
+	token = websocket.cookies.get("access_token")
+	if not token:
+		await _reject_websocket(websocket, "Token de autenticación requerido")
+		return
+
+	payload = decode_access_token(token)
+	if not payload:
+		await _reject_websocket(websocket, "Token inválido o expirado")
+		return
+
+	username = payload.get("sub")
+	if not username:
+		await _reject_websocket(websocket, "Token inválido")
+		return
+
+	with Session(engine) as db_session:
+		with UsuariosUnitOfWork(db_session) as uow:
+			user = uow.usuarios.get_by_username(username)
+			if not user or user.disabled:
+				await _reject_websocket(websocket, "Usuario inválido o inactivo")
+				return
+
+			if set(user.role_codes).isdisjoint({"ADMIN", "PEDIDOS"}):
+				await _reject_websocket(websocket, "Permisos insuficientes")
+				return
+
+	await manager.connect(websocket)
+	try:
+		while True:
+			await websocket.receive_text()
+	except WebSocketDisconnect:
+		manager.disconnect(websocket)
+	finally:
+		manager.disconnect(websocket)
 

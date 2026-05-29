@@ -1,12 +1,13 @@
+from anyio.from_thread import run as run_from_thread
 from collections.abc import Iterable
 from decimal import Decimal, ROUND_HALF_UP
 
 from fastapi import HTTPException, status
 
+from app.core.websocket import manager
 from app.modules.pedido.models import DetallePedido, HistorialEstadoPedido, Pedido
-from app.modules.pedido.schemas import PedidoCreate, PedidoEstadoUpdate
+from app.modules.pedido.schemas import PedidoCreate, PedidoEstadoUpdate, PedidoList, PedidoPublic
 from app.modules.pedido.unit_of_work import PedidosUnitOfWork
-from app.modules.pedido.schemas import PedidoList, PedidoPublic
 
 
 class PedidoService:
@@ -24,8 +25,25 @@ class PedidoService:
 	COSTO_ENVIO_DOMICILIO = Decimal("50.00")
 	COSTO_ENVIO_RETIRO = Decimal("0.00")
 
+	EVENTOS_WS = {
+		"CONFIRMADO": "PEDIDO_CONFIRMADO",
+		"EN_PREP": "PEDIDO_EN_PREPARACION",
+		"EN_CAMINO": "PEDIDO_EN_CAMINO",
+		"ENTREGADO": "PEDIDO_ENTREGADO",
+		"CANCELADO": "PEDIDO_CANCELADO",
+	}
+
 	def __init__(self, uow: PedidosUnitOfWork) -> None:
 		self.uow = uow
+
+	def _emitir_evento_ws(self, event_type: str | None, pedido: PedidoPublic) -> None:
+		if not event_type:
+			return
+
+		try:
+			run_from_thread(manager.broadcast, event_type, pedido.model_dump(mode="json"))
+		except RuntimeError:
+			return
 
 	@staticmethod
 	def _moneda(value: Decimal | int | float) -> Decimal:
@@ -90,7 +108,7 @@ class PedidoService:
 		*,
 		usuario_id: int | None = None,
 		roles_usuario: Iterable[str] | None = None,
-	) -> Pedido:
+	) -> PedidoPublic:
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)
 			if not pedido:
@@ -118,7 +136,12 @@ class PedidoService:
 				motivo=data.motivo,
 			)
 			self.uow.historial_estados_pedido.add(historial)
-			return pedido
+
+			resultado = PedidoPublic.model_validate(pedido)
+
+		event_type = self.EVENTOS_WS.get(data.estado_hacia)
+		self._emitir_evento_ws(event_type, resultado)
+		return resultado
 
 	def create(self, data: PedidoCreate, *, usuario_id: int) -> PedidoPublic:
 		with self.uow:
@@ -256,7 +279,10 @@ class PedidoService:
 			)
 			self.uow.historial_estados_pedido.add(historial)
 
-			return PedidoPublic.model_validate(pedido)
+			resultado = PedidoPublic.model_validate(pedido)
+
+		self._emitir_evento_ws("PEDIDO_CREADO", resultado)
+		return resultado
 
 	def get_by_id(self, pedido_id: int) -> PedidoPublic:
 		with self.uow:
@@ -295,7 +321,7 @@ class PedidoService:
 				)
 			return self.uow.detalles_pedido.get_by_pedido(pedido_id)
 
-	def cancelar_por_usuario(self, pedido_id: int, motivo: str | None, *, usuario_id: int) -> Pedido:
+	def cancelar_por_usuario(self, pedido_id: int, motivo: str | None, *, usuario_id: int) -> PedidoPublic:
 	
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)
@@ -337,9 +363,13 @@ class PedidoService:
 				motivo=motivo,
 			)
 			self.uow.historial_estados_pedido.add(historial)
-			return pedido
 
-	def cancelar_por_admin(self, pedido_id: int, motivo: str | None, *, usuario_id: int | None = None) -> Pedido:
+			resultado = PedidoPublic.model_validate(pedido)
+
+		self._emitir_evento_ws("PEDIDO_CANCELADO", resultado)
+		return resultado
+
+	def cancelar_por_admin(self, pedido_id: int, motivo: str | None, *, usuario_id: int | None = None) -> PedidoPublic:
 
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)
@@ -367,4 +397,8 @@ class PedidoService:
 				motivo=motivo,
 			)
 			self.uow.historial_estados_pedido.add(historial)
-			return pedido
+
+			resultado = PedidoPublic.model_validate(pedido)
+
+		self._emitir_evento_ws("PEDIDO_CANCELADO", resultado)
+		return resultado
