@@ -5,10 +5,10 @@ export interface IPedido {
   usuario_id: number;
   direccion_id: number;
   estado_codigo: string;
-  forma_pago: string;
+  forma_pago_codigo: string;
   subtotal: number;
   descuento: number;
-  costoenvio: number;
+  costo_envio: number;
   total: number;
   notas: string;
   created_at: string;

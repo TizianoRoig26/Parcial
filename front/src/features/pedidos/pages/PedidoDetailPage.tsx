@@ -172,7 +172,7 @@ export const PedidoDetailPage = () => {
               </div>
               <div>
                 <span className="text-xs text-gray-600 block">Forma de Pago</span>
-                <span className="font-semibold text-gray-800">{pedido.forma_pago}</span>
+                <span className="font-semibold text-gray-800">{pedido.forma_pago_codigo}</span>
               </div>
             </div>
           </div>
@@ -242,7 +242,7 @@ export const PedidoDetailPage = () => {
               </div>
               <div className="flex justify-between text-sm text-gray-700">
                 <span>Costo de Envío:</span>
-                <span className="font-semibold">${pedido.costoenvio}</span>
+                <span className="font-semibold">${pedido.costo_envio}</span>
               </div>
               <div className="flex justify-between text-lg font-bold text-[#0D4012] border-t border-[#C9C8A6] pt-2 mt-2">
                 <span>Total:</span>
