@@ -18,6 +18,38 @@ class DireccionService:
     def __init__(self, session: Session) -> None:
         self._session = session
 
+    def _validate_coordinates(self, latitud: float | int | None, longitud: float | int | None) -> None:
+
+        if latitud is None and longitud is None:
+            return
+
+        if latitud is None or longitud is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Latitud y longitud deben estar presentes juntos",
+            )
+
+        try:
+            lat = float(latitud)
+            lon = float(longitud)
+        except (TypeError, ValueError):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Latitud/longitud con formato inválido",
+            )
+
+        if not (-90.0 <= lat <= 90.0):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Latitud fuera de rango (-90..90)",
+            )
+
+        if not (-180.0 <= lon <= 180.0):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Longitud fuera de rango (-180..180)",
+            )
+
     def _get_or_404(
         self,
         uow: DireccionUnitOfWork,

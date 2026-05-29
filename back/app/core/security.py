@@ -32,7 +32,7 @@ from app.core.config import settings
 # - "pbkdf2_sha256" → algoritmo seguro sin límite de 72 bytes y sin backend nativo
 # - "bcrypt" → compatibilidad con hashes existentes si los hubiera
 # - deprecated="auto" → permite migraciones futuras de algoritmo
-pwd_context = CryptContext(schemes=["pbkdf2_sha256", "bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes="bcrypt", deprecated="auto")
 
 
 def hash_password(plain: str) -> str:
