@@ -20,7 +20,7 @@ from app.core.config import settings
 from app.core.security import hash_password, verify_password, create_access_token
 from app.modules.usuario.unit_of_work import UsuariosUnitOfWork
 from app.modules.usuario.model import Usuario
-from app.modules.usuario.schemas import UserCreate, Token, UserPublic
+from app.modules.usuario.schemas import UserCreate, UserCreateTrabajador, Token, UserPublic
 from app.modules.usuario.usuario_rol import UsuarioRol
 
 
@@ -61,6 +61,62 @@ class UsuarioService:
 
         rta = UserPublic.model_validate(self.uow.usuarios.add(usuario))
         return rta
+    
+    def register_trabajador(self, user_in: UserCreateTrabajador, admin_id: int) -> UserPublic:
+        if self.uow.usuarios.get_by_username(user_in.username):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="El nombre de usuario ya está en uso",
+            )
+
+        if self.uow.usuarios.get_by_email(user_in.email):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="El email ya está registrado",
+            )
+        if not user_in.roles:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Debe asignar al menos un rol al trabajador",
+            )
+
+        roles = []
+        for rol_codigo in user_in.roles:
+            rol_codigo = rol_codigo.upper()
+            role = self.uow.roles.get_by_codigo(rol_codigo)
+            if role is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"No existe el rol '{rol_codigo}'",
+                )
+            roles.append(role)
+
+        usuario = Usuario(
+            username=user_in.username,
+            full_name=user_in.full_name,
+            email=user_in.email,
+            hashed_password=hash_password(user_in.password),
+        )
+
+        usuario_db = self.uow.usuarios.add(usuario)
+
+        for role in roles:
+            self.uow.usuarios_roles.add(
+                UsuarioRol(
+                    usuario_id=usuario_db.id,
+                    rol_codigo=role.codigo,
+                    asignado_por=admin_id,
+                )
+            )
+
+        updated_user = self.uow.usuarios.get_by_id(usuario_db.id)
+        if updated_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado",
+            )
+
+        return UserPublic.model_validate(updated_user)
 
     def authenticate(self, username: str, password: str) -> Token:
         """Autentica con username + password y retorna un Token con JWT."""
