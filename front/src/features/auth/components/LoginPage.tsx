@@ -79,16 +79,6 @@ export function LoginPage() {
           {isLoading ? "Iniciando sesión…" : "Iniciar Sesión"}
         </button>
       </form>
-
-      <p className="text-center text-sm text-zinc-600">
-        ¿No tienes cuenta?{" "}
-        <button
-          onClick={() => navigate("/register")}
-          className="font-medium text-zinc-900 hover:underline"
-        >
-          Registrarse
-        </button>
-      </p>
     </div>
   );
 }

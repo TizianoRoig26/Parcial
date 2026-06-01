@@ -40,15 +40,15 @@ function mapUser(user: any): UserPublic {
 
 
 
-export async function requestRegister(
-  payload: UserRegisterPayload,
-): Promise<UserPublic> {
-  const response = await apiClient.post<any>(
-    `${AUTH}/register`,
-    payload,
-  );
-  return mapUser(response.data);
-}
+// export async function requestRegister(
+//   payload: UserRegisterPayload,
+// ): Promise<UserPublic> {
+//   const response = await apiClient.post<any>(
+//     `${AUTH}/register`,
+//     payload,
+//   );
+//   return mapUser(response.data);
+// }
 
 /**
  * Rehidrata el estado de autenticación leyendo el usuario desde el backend.

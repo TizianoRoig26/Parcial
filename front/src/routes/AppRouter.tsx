@@ -5,7 +5,6 @@ import { IngredientsPage } from "../features/ingredientes/pages/IngredientsPage"
 import { ProductsPage } from "../features/productos/pages/ProductsPage";
 import { AuthLayout } from "../shared/layout/AuthLayout";
 import { LoginPage } from "../features/auth/components/LoginPage";
-import { RegisterPage } from "../features/auth/components/RegisterPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PedidoPage } from "../features/pedidos/pages/PedidosPage";
 import { PedidoDetailPage } from "../features/pedidos/pages/PedidoDetailPage";
@@ -21,14 +20,6 @@ const AppRouter = () => {
             element={
               <AuthLayout>
                 <LoginPage />
-              </AuthLayout>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <AuthLayout>
-                <RegisterPage />
               </AuthLayout>
             }
           />
