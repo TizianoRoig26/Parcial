@@ -20,7 +20,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.modules.usuario.unit_of_work import UsuariosUnitOfWork, get_uow
 from app.core.deps import get_current_active_user, require_role
 from app.modules.usuario.model import Usuario
-from app.modules.usuario.schemas import UserCreate, UserPublic, Token
+from app.modules.usuario.schemas import UserCreate, UserCreateTrabajador, UserPublic, Token
 from app.modules.usuario.service import UsuarioService
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
@@ -36,6 +36,16 @@ def register(
     with uow:
         service = UsuarioService(uow)
         return service.register(user_in)
+
+@router.post("/register_trabajador", response_model=UserPublic, status_code=status.HTTP_201_CREATED)
+def register_trabajador(
+    user_in: UserCreateTrabajador,
+    uow: Annotated[UsuariosUnitOfWork, Depends(get_uow)],
+    admin: Annotated[Usuario, Depends(require_role(["ADMIN"]))]
+):
+    with uow:
+        service = UsuarioService(uow)
+        return service.register_trabajador(user_in, admin_id=admin.id)
 
 
 # ─── Login (OAuth2 Password Flow) ────────────────────────────────────────────

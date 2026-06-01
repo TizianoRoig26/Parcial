@@ -1,10 +1,12 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
+from fastapi.responses import HTMLResponse
 from sqlmodel import Session
 
-from app.core.database import get_session
+from app.core.database import get_session, engine
 from app.core.deps import get_current_active_user
+
 from app.modules.direccion.schemas import (
     DireccionCreate,
     DireccionList,
