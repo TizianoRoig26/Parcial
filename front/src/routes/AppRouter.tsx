@@ -8,6 +8,7 @@ import { LoginPage } from "../features/auth/components/LoginPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PedidoPage } from "../features/pedidos/pages/PedidosPage";
 import { PedidoDetailPage } from "../features/pedidos/pages/PedidoDetailPage";
+import { UsuariosPage } from "../features/usuarios/pages/UsuariosPage";
 
 
 const AppRouter = () => {
@@ -37,6 +38,7 @@ const AppRouter = () => {
                       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
                         <Route path="/categorias" element={<CategoryPage />} />
                         <Route path="/ingredientes" element={<IngredientsPage />} />
+                        <Route path="/usuarios" element={<UsuariosPage />} />
                       </Route>
                       <Route element={<ProtectedRoute allowedRoles={["admin", "pedidos"]} />}>
                         <Route path="/pedidos" element={<PedidoPage />} />
