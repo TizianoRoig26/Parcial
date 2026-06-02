@@ -226,3 +226,36 @@ class UsuarioService:
                 detail="Usuario no encontrado",
             )
         return updated_user
+
+    def desasignar_rol(self, user_id: int, rol_codigo: str) -> Usuario:
+        user = self.uow.usuarios.get_by_id(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado",
+            )
+
+        rol_codigo = rol_codigo.upper()
+        role = self.uow.roles.get_by_codigo(rol_codigo)
+        if role is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"No existe el rol '{rol_codigo}'",
+            )
+
+        existing_link = self.uow.usuarios_roles.get(user_id, rol_codigo)
+        if existing_link is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"El usuario no tiene asignado el rol '{rol_codigo}'",
+            )
+
+        self.uow.usuarios_roles.delete(existing_link)
+
+        updated_user = self.uow.usuarios.get_by_id(user_id)
+        if updated_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado",
+            )
+        return updated_user

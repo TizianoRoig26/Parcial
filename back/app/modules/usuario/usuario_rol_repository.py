@@ -26,3 +26,7 @@ class UsuarioRolRepository:
         self.session.flush()
         self.session.refresh(usuario_rol)
         return usuario_rol
+
+    def delete(self, usuario_rol: UsuarioRol) -> None:
+        self.session.delete(usuario_rol)
+        self.session.flush()

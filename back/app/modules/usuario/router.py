@@ -164,3 +164,15 @@ def asignar_rol_a_usuario(
     with uow:
         service = UsuarioService(uow)
         return service.asignar_rol(user_id, rol_codigo, admin_id=admin.id)
+
+
+@router.delete("/admin/usuarios/{user_id}/roles/{rol_codigo}", response_model=UserPublic)
+def desasignar_rol_a_usuario(
+    user_id: int,
+    rol_codigo: str,
+    _admin: Annotated[Usuario, Depends(require_role(["ADMIN"]))],
+    uow: Annotated[UsuariosUnitOfWork, Depends(get_uow)],
+):
+    with uow:
+        service = UsuarioService(uow)
+        return service.desasignar_rol(user_id, rol_codigo)

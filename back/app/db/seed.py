@@ -22,6 +22,7 @@ def seed_roles() -> None:
 	roles = [
 		Rol(codigo="ADMIN", nombre="Admin", descripcion="Acceso total sin restricciones"),
 		Rol(codigo="STOCK", nombre="Stock", descripcion="Actualiza stock y disponible"),
+  		Rol(codigo="COCINA", nombre="Cocina", descripcion="Prepara pedidos CONFIRMADOS a EN_PREP y a ENTREGADO"),
 		Rol(codigo="PEDIDOS", nombre="Pedidos", descripcion="Avanza estados CONFIRMADO->ENTREGADO"),
 		Rol(codigo="CLIENT", nombre="Client", descripcion="Opera solo sus propios datos"),
 	]
