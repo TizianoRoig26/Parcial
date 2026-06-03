@@ -44,7 +44,7 @@ const AppRouter = () => {
                         <Route path="/pedidos" element={<PedidoPage />} />
                         <Route path="/pedidos/:id" element={<PedidoDetailPage />} />
                       </Route>
-                      <Route path="*" element={<div className="p-8 text-center text-gray-500 text-2xl">404 — Página no encontrada</div>} />
+                      <Route path="*" element={<img className="flex items-center justify-center w-screen h-screen" src="src/assets/logoAccesoDenegado.png" alt="404" />} />
                     </Routes>
                   </main>
                 </div>

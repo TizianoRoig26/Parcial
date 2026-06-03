@@ -23,10 +23,10 @@ interface Props {
 }
 
 const ROLES_DISPONIBLES = [
-  { codigo: "ADMIN", nombre: "Administrador" },
   { codigo: "PEDIDOS", nombre: "Pedidos" },
   { codigo: "STOCK", nombre: "Stock" },
   { codigo: "CLIENT", nombre: "Cliente" },
+  { codigo: "COCINA", nombre: "Cocina" },
 ];
 
 export const UsuariosModal = ({
