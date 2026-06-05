@@ -14,6 +14,7 @@ class Ingrediente(SQLModel, table=True):
     nombre: str = Field (unique=True, nullable=False)
     descripcion: str = Field (max_length=500)
     es_alergeno: bool = Field (default=False, nullable=False)
+    stock_cantidad: int = Field(default=0)
     is_active: bool  = Field (default=True)
 
     productos: list["Producto"] = Relationship(

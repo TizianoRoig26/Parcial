@@ -14,8 +14,7 @@ class PedidoService:
 	TRANSICIONES: dict[str, set[str]] = {
 		"PENDIENTE": {"CONFIRMADO", "CANCELADO"},
 		"CONFIRMADO": {"EN_PREP", "CANCELADO"},
-		"EN_PREP": {"EN_CAMINO", "CANCELADO"},
-		"EN_CAMINO": {"ENTREGADO"},
+		"EN_PREP": {"ENTREGADO", "CANCELADO"},
 		"ENTREGADO": set(),
 		"CANCELADO": set(),
 	}
@@ -28,7 +27,6 @@ class PedidoService:
 	EVENTOS_WS = {
 		"CONFIRMADO": "PEDIDO_CONFIRMADO",
 		"EN_PREP": "PEDIDO_EN_PREPARACION",
-		"EN_CAMINO": "PEDIDO_EN_CAMINO",
 		"ENTREGADO": "PEDIDO_ENTREGADO",
 		"CANCELADO": "PEDIDO_CANCELADO",
 	}
@@ -200,21 +198,24 @@ class PedidoService:
 
 				personalizacion = payload["personalizacion"]
 				cantidad = int(payload["cantidad"])
+				ingredientes_producto = self.uow.ingredientes.get_by_producto(producto_id)
 				relaciones = self.uow.productos.get_ingrediente_relaciones(producto_id)
 				removibles = {rel.ingrediente_id for rel in relaciones if rel.es_removible}
 
-				if producto.stock_cantidad is None:
-					producto.stock_cantidad = 0
-				if producto.stock_cantidad < cantidad:
-					raise HTTPException(
-						status_code=status.HTTP_400_BAD_REQUEST,
-						detail=(
-							f"Stock insuficiente para producto id={producto_id}. "
-							f"Disponible={producto.stock_cantidad}, pedido={cantidad}"
-						),
-					)
-				producto.stock_cantidad = int(producto.stock_cantidad) - cantidad
-				self.uow.productos.update(producto)
+				for ingrediente in ingredientes_producto:
+					if ingrediente.stock_cantidad is None:
+						ingrediente.stock_cantidad = 0
+					if ingrediente.stock_cantidad < cantidad:
+						raise HTTPException(
+							status_code=status.HTTP_400_BAD_REQUEST,
+							detail=(
+								f"Stock insuficiente para ingrediente id={ingrediente.id} "
+								f"({ingrediente.nombre}). Disponible={ingrediente.stock_cantidad}, "
+								f"pedido={cantidad}"
+							),
+						)
+					ingrediente.stock_cantidad = int(ingrediente.stock_cantidad) - cantidad
+					self.uow.ingredientes.update(ingrediente)
 
 				if personalizacion:
 					for ingrediente_id in personalizacion:

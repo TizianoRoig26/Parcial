@@ -22,15 +22,6 @@ class DireccionEntrega(SQLModel, table=True):
 	provincia: Optional[str] = Field(default=None, max_length=100)
 	codigo_postal: Optional[str] = Field(default=None, max_length=10)
 
-	latitud: Optional[Decimal] = Field(
-		default=None,
-		sa_column=Column(Numeric(9, 6), nullable=True),
-	)
-	longitud: Optional[Decimal] = Field(
-		default=None,
-		sa_column=Column(Numeric(9, 6), nullable=True),
-	)
-
 	es_principal: bool = Field(default=False, nullable=False)
 
 	created_at: Optional[datetime] = Field(

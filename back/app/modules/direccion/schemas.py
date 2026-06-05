@@ -37,8 +37,6 @@ class DireccionPublic(SQLModel):
     ciudad: str
     provincia: Optional[str] = None
     codigo_postal: Optional[str] = None
-    latitud: Optional[Decimal] = None
-    longitud: Optional[Decimal] = None
     es_principal: bool
 
 

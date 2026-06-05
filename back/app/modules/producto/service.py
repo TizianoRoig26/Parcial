@@ -62,14 +62,6 @@ class ProductoService:
             result = ProductoPublic.model_validate(producto)
         return result
 
-    def update_stock(self, id: int, stock_cantidad: int) -> ProductoPublic:
-        with ProductoUnitOfWork(self._session) as uow:
-            producto = self._get_or_404(uow, id)
-            producto.stock_cantidad += stock_cantidad
-            uow.Producto.add(producto)
-            result = ProductoPublic.model_validate(producto)
-        return result
-
     def update(self, id: int, data: ProductoUpdate) -> ProductoPublic:
         with ProductoUnitOfWork(self._session) as uow:
             producto = self._get_or_404(uow, id)

@@ -12,7 +12,6 @@ class ProductoCreate(SQLModel):
     nombre: str = Field(min_length=2, max_length=100)
     descripcion: str = Field(min_length=2, max_length=500)
     precio_base: int = Field(ge=0)
-    stock_cantidad: int = Field(default=0, ge=0)
     imagen_url: str = Field(max_length=255)
     unidad_venta_id: Optional[int] = Field(default=None)
 
@@ -21,7 +20,6 @@ class ProductoUpdate(SQLModel):
     nombre: Optional[str] = Field(default=None, min_length=2, max_length=100)
     descripcion: Optional[str] = Field(default=None, min_length=2, max_length=500)
     precio_base: Optional[int] = Field(default=None, ge=0)
-    stock_cantidad: Optional[int] = Field(default=None, ge=0)
     imagen_url: Optional[str] = Field(default=None, max_length=255)
     is_active: Optional[bool] = None
     unidad_venta_id: Optional[int] = Field(default=None)
@@ -36,9 +34,6 @@ class IngredienteAssign(SQLModel):
 class UnidadMedidaAssign(SQLModel):
     unidad_venta_id: Optional[int] = Field(default=None)
 
-class ProductoStockUpdate(SQLModel):
-    cantidad: int
-
 
 # ── Salida ────────────────────────────────────────────────────────────────────
 
@@ -47,7 +42,6 @@ class ProductoPublic(SQLModel):
     nombre: str
     descripcion: str
     precio_base: int
-    stock_cantidad: int
     imagen_url: str
     is_active: bool
     unidad_venta_id: Optional[int] = None

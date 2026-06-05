@@ -49,6 +49,14 @@ class IngredienteService:
             result = IngredientePublic.model_validate(ingrediente)
         return result
 
+    def update_stock(self, id: int, stock_cantidad: int) -> IngredientePublic:
+        with IngredienteUnitOfWork(self._session) as uow:
+            ingrediente = self._get_or_404(uow, id)
+            ingrediente.stock_cantidad += stock_cantidad
+            uow.Ingrediente.add(ingrediente)
+            result = IngredientePublic.model_validate(ingrediente)
+        return result
+
     def update(self, id: int, data: IngredienteUpdate) -> IngredientePublic:
         with IngredienteUnitOfWork(self._session) as uow:
             ingrediente = self._get_or_404(uow, id)

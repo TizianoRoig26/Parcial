@@ -6,7 +6,7 @@ from sqlmodel import Session
 from app.core.database import get_session
 from app.core.deps import require_role
 from app.core.deps import require_role
-from app.modules.ingerediente.schemas import IngredienteCreate, IngredientePublic, IngredienteUpdate, IngredienteList
+from app.modules.ingerediente.schemas import IngredienteCreate, IngredientePublic, IngredienteUpdate, IngredienteList, IngredienteStockUpdate
 from app.modules.ingerediente.service import IngredienteService
 from app.modules.usuario.model import Usuario
 
@@ -66,6 +66,19 @@ def update_ingrediente(
     svc: IngredienteService = Depends(get_ingrediente_service),
 ) -> IngredientePublic:
     return svc.update(id, data)
+
+@router.patch(
+    "/stock/{id}",
+    response_model=IngredientePublic,
+    summary="Actualizacion del stock de un Ingrediente",
+)
+def change_stock_ingrediente(
+    id: int,
+    rol: Annotated[Usuario, Depends(require_role(["ADMIN","STOCK"]))],
+    data: IngredienteStockUpdate,
+    svc: IngredienteService = Depends(get_ingrediente_service),
+) -> IngredientePublic:
+    return svc.update_stock(id, data.cantidad)
 
 @router.delete(
     "/{id}",
