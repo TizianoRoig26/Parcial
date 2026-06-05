@@ -1,8 +1,10 @@
-from anyio.from_thread import run as run_from_thread
+
 from collections.abc import Iterable
 from decimal import Decimal, ROUND_HALF_UP
 
+import logging
 from fastapi import HTTPException, status
+from sqlmodel import Session
 
 from app.core.websocket import manager
 from app.modules.pedido.models import DetallePedido, HistorialEstadoPedido, Pedido
@@ -24,25 +26,63 @@ class PedidoService:
 	COSTO_ENVIO_DOMICILIO = Decimal("50.00")
 	COSTO_ENVIO_RETIRO = Decimal("0.00")
 
+	TRANSICIONES = {
+    # Admin puede hacer CUALQUIER transición válida
+    "ADMIN": {
+        "pendiente":  {"confirmado", "cancelado"},
+        "confirmado": {"preparando", "cancelado"},
+        "preparando": {"listo", "cancelado"},
+        "listo":      {"entregado", "cancelado"},
+        "entregado":  set(),   # Estado terminal — no admite transiciones
+        "cancelado":  set(),   # Estado terminal — no admite transiciones
+    },
+		# Pedidos: confirma, manda a cocina y entrega cuando está listo
+		"PEDIDOS": {
+			"pendiente":  {"confirmado", "cancelado"},
+			"confirmado": {"preparando", "cancelado"},
+			"preparando": set(),            # La cocina se encarga — cajero no avanza de aquí
+			"listo":      {"entregado"},    # Cajero entrega cuando cocina lo marca listo
+			"entregado":  set(),
+			"cancelado":  set(),
+		},
+		# Cocina marca el pedido como listo para que el cajero lo entregue
+		"COCINA": {
+			"preparando": {"listo"},        # Marcar como listo para entrega
+		},
+	}
+
+
+	# =============================================================================
+	# EVENTOS WebSocket
+	# =============================================================================
+	#
+	# Mapea cada estado destino al nombre del evento WebSocket que se envía
+	# al frontend. Los nombres siguen convención SCREAMING_SNAKE_CASE.
+	#
+	# Estos eventos son los que el frontend KDS escucha en socket.onmessage.
+	#
 	EVENTOS_WS = {
-		"CONFIRMADO": "PEDIDO_CONFIRMADO",
-		"EN_PREP": "PEDIDO_EN_PREPARACION",
-		"ENTREGADO": "PEDIDO_ENTREGADO",
-		"CANCELADO": "PEDIDO_CANCELADO",
+		"pendiente":  "NUEVO_PEDIDO",
+		"confirmado": "PEDIDO_CONFIRMADO",
+		"preparando": "PEDIDO_EN_PREPARACION",
+		"listo":      "PEDIDO_LISTO",
+		"cancelado":  "PEDIDO_CANCELADO",
+		"entregado":  "PEDIDO_ENTREGADO",
+	}
+ 
+	ROLES_POR_TRANSICION = {
+    "pendiente":  ["pedidos", "admin"],
+    "confirmado": ["pedidos", "cocina", "admin"],
+    "preparando": ["cocina", "pedidos", "admin"],
+    "listo":      ["pedidos", "admin"],   
+    "entregado":  ["pedidos", "admin"],
+    "cancelado":  ["pedidos", "cocina", "admin"],
 	}
 
 	def __init__(self, uow: PedidosUnitOfWork) -> None:
 		self.uow = uow
-
-	def _emitir_evento_ws(self, event_type: str | None, pedido: PedidoPublic) -> None:
-		if not event_type:
-			return
-
-		try:
-			run_from_thread(manager.broadcast, event_type, pedido.model_dump(mode="json"))
-		except RuntimeError:
-			return
-
+  
+  
 	@staticmethod
 	def _moneda(value: Decimal | int | float) -> Decimal:
 		return Decimal(str(value)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -99,7 +139,7 @@ class PedidoService:
 	def es_terminal(cls, estado_codigo: str) -> bool:
 		return estado_codigo in cls.ESTADOS_TERMINALES
 
-	def avanzar_estado(
+	async def avanzar_estado(
 		self,
 		pedido_id: int,
 		data: PedidoEstadoUpdate,
@@ -138,10 +178,10 @@ class PedidoService:
 			resultado = PedidoPublic.model_validate(pedido)
 
 		event_type = self.EVENTOS_WS.get(data.estado_hacia)
-		self._emitir_evento_ws(event_type, resultado)
+		await self._emit_ws_events(pedido.id, event_type, resultado)
 		return resultado
 
-	def create(self, data: PedidoCreate, *, usuario_id: int) -> PedidoPublic:
+	async def create(self, data: PedidoCreate, *, usuario_id: int) -> PedidoPublic:
 		with self.uow:
 			if not data.items:
 				raise HTTPException(
@@ -282,7 +322,7 @@ class PedidoService:
 
 			resultado = PedidoPublic.model_validate(pedido)
 
-		self._emitir_evento_ws("PEDIDO_CREADO", resultado)
+		await self._emit_ws_events(resultado.id, "PEDIDO_CREADO", resultado)
 		return resultado
 
 	def get_by_id(self, pedido_id: int) -> PedidoPublic:
@@ -322,7 +362,7 @@ class PedidoService:
 				)
 			return self.uow.detalles_pedido.get_by_pedido(pedido_id)
 
-	def cancelar_por_usuario(self, pedido_id: int, motivo: str | None, *, usuario_id: int) -> PedidoPublic:
+	async def cancelar_por_usuario(self, pedido_id: int, motivo: str | None, *, usuario_id: int) -> PedidoPublic:
 	
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)
@@ -367,10 +407,10 @@ class PedidoService:
 
 			resultado = PedidoPublic.model_validate(pedido)
 
-		self._emitir_evento_ws("PEDIDO_CANCELADO", resultado)
+		await self._emit_ws_events(pedido.id, "CANCELADO", resultado)
 		return resultado
 
-	def cancelar_por_admin(self, pedido_id: int, motivo: str | None, *, usuario_id: int | None = None) -> PedidoPublic:
+	async def cancelar_por_admin(self, pedido_id: int, motivo: str | None, *, usuario_id: int | None = None) -> PedidoPublic:
 
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)
@@ -401,5 +441,41 @@ class PedidoService:
 
 			resultado = PedidoPublic.model_validate(pedido)
 
-		self._emitir_evento_ws("PEDIDO_CANCELADO", resultado)
+		await self._emit_ws_events(pedido.id, "CANCELADO", resultado)
 		return resultado
+    # =========================================================================
+    # EMISIÓN DE EVENTOS WebSocket
+    # =========================================================================
+
+	async def _emit_ws_events(
+        self, pedido_id: int, destino: str, result: PedidoPublic
+    ) -> None:
+		from app.core.websocket import manager
+
+        # Mapear estado destino → nombre del evento WebSocket
+        # Si el estado no tiene evento asociado (ej: "pendiente"), no se emite
+		event_type = self.EVENTOS_WS.get(destino)
+		if not event_type:
+			return
+
+        # Serializar el pedido a diccionario para enviar como JSON
+		data = result.model_dump()
+
+        # ─── NOTIFICAR AL CLIENTE (room del pedido) ──────────────────────────
+        # El cliente que hizo el pedido siempre recibe la actualización,
+        # sin importar qué rol procesó el cambio.
+        #
+        # Ejemplo: si el pedido #5 pasó a "confirmado":
+        #   broadcast_to_order(5, "PEDIDO_CONFIRMADO", pedido_data)
+        #   → El socket del cliente en "order:5" recibe el evento
+        #
+		await manager.broadcast_to_order(pedido_id, event_type, data)
+
+		roles_a_notificar = self.ROLES_POR_TRANSICION.get(destino, [])
+		if roles_a_notificar:
+			await manager.broadcast_to_roles(roles_a_notificar, event_type, data)
+   
+		logger.info(
+            f"WS emitido: {event_type} | pedido={pedido_id} | "
+            f"roles={roles_a_notificar} | rooms_activas={manager.get_rooms_info()}"
+        )
