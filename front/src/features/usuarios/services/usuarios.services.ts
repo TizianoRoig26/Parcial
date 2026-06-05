@@ -19,11 +19,24 @@ export const updateUsuario = async (
   id: number,
   data: Partial<UserPublic> & { roles?: string[] },
 ): Promise<UserPublic> => {
-  // Como no hay endpoint PATCH en el backend, si se actualizan roles,
-  // asignamos los roles uno por uno.
   if (data.roles) {
-    for (const role of data.roles) {
+    // Obtenemos los roles actuales del usuario desde la API para poder comparar
+    const currentUserRes = await apiClient.get<UserPublic>(`${PATH}/admin/usuarios/${id}`);
+    const currentRoles = currentUserRes.data.roles?.map(r => r.codigo.toUpperCase()) ?? [];
+    
+    const newRoles = data.roles.map(r => r.toUpperCase());
+
+    // Roles que se agregaron
+    const rolesToAdd = newRoles.filter(r => !currentRoles.includes(r));
+    // Roles que se quitaron
+    const rolesToRemove = currentRoles.filter(r => !newRoles.includes(r));
+
+    for (const role of rolesToAdd) {
       await apiClient.post(`${PATH}/admin/usuarios/${id}/roles/${role}`);
+    }
+
+    for (const role of rolesToRemove) {
+      await apiClient.delete(`${PATH}/admin/usuarios/${id}/roles/${role}`);
     }
   }
   // Devolvemos el usuario actualizado obteniéndolo de nuevo

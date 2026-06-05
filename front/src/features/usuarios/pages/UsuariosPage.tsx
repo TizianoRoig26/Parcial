@@ -40,8 +40,8 @@ export const UsuariosPage = () => {
           )}
         </div>
       </div>
-      <div className="flex-1 rounded-xl border border-[#0D4012] overflow-y-auto min-h-0 shadow-lg custom-scrollbar">
-        <table className="w-full text-left table-fixed shadow-lg  ">
+      <div className="flex-1 rounded-xl border-[#0D4012] border-1 overflow-y-auto min-h-0 shadow-lg custom-scrollbar">
+        <table className="w-full text-left table-fixed shadow-lg  rounded-xl">
           <thead className="border-[#0D4012] ">
             <tr className="sticky top-0 z-10 bg-[#F4F3CF] text-center  font-normal text-[#0D4012] text-xs uppercase ">
               <th className="p-3 ">Username</th>
@@ -53,9 +53,9 @@ export const UsuariosPage = () => {
           </thead>
           <tbody className="divide-y divide-palm/20 bg-[#E5E4C1]">
             {usuarios?.map((user) => (
-              <tr key={user.id} className="transition-colors text-center hover:bg-[#C9C8A6] border-t-1 border-[#0D4012]">
-                <td className=" px-6 py-4 text-start">
-                  <p className="font-bold text-sm text-[#0D4012]">{user.username}</p>
+              <tr key={user.id} className="transition-colors  text-center hover:bg-[#C9C8A6] border-t-1 border-[#0D4012]">
+                <td className=" px-6 py-4 text-start ">
+                  <p className="font-bold text-sm text-[#0D4012] ">{user.username}</p>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-1 justify-center text-sm text-black">
@@ -69,7 +69,7 @@ export const UsuariosPage = () => {
                   <div className="flex flex-wrap gap-1 justify-center">
                     {user.roles?.length
                       ? user.roles.map(r => (
-                          <span key={r.codigo} className="px-2 py-0.5 bg-[#47AA66]/20 text-[#0d4012] text-xs rounded-full font-semibold">
+                          <span key={r.codigo}className="px-2 py-0.5 bg-fern/15 text-black text-xs rounded-full font-medium">
                             {r.nombre}
                           </span>
                         ))

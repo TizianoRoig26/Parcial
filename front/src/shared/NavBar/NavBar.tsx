@@ -37,7 +37,7 @@ const navLinks = [
   </svg>, href: "/pedidos" },
 
   { label: "Usuarios", icono: 
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
     <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
     <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
@@ -68,9 +68,9 @@ export const NavBar = () => {
         {/* CONTENEDOR SUPERIOR */}
         <div>
           {/* Logo + título con padding y separación */}
-          <div className="flex flex-col items-center py-4 mb-6">
-            <div className="text-3xl text-[#544518] bg-[#887543] font-bold rounded-full w-20 h-20 flex items-center justify-center">
-              <h1>BP</h1>
+          <div className="flex flex-col items-center">
+            <div className="text-3xl overflow-hidden font-bold flex items-center justify-center">
+              <img src="src/assets/logo.png" alt="logo" />
             </div>
             <span className="text-2xl font-bold tracking-wide block text-[#0D4012]">
               BigPickle
