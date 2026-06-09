@@ -21,7 +21,6 @@ from app.modules.usuario.schemas import UserPublic
 # CONFIGURACIÓN DEL ROUTER
 # =============================================================================
 
-# Router con prefijo /api/v1 — afecta a todas las rutas definidas abajo
 router = APIRouter()
 
 # Roles autorizados para acceder a los endpoints de cocina/KDS
@@ -232,7 +231,7 @@ def list_cliente_pedidos(
     svc: PedidoService = Depends(get_pedido_service),
 ) -> list[PedidoPublic]:
     """GET /api/v1/cliente/mis-pedidos — Lista pedidos del usuario autenticado."""
-    from app.modules.pedidos.unit_of_work import PedidoUnitOfWork
+    from app.modules.pedido.unit_of_work import PedidoUnitOfWork
     with PedidoUnitOfWork(svc._session) as uow:
         pedidos = uow.pedidos.get_all()
         mis = [p for p in pedidos if p.usuario_id == current_user.id]
@@ -455,9 +454,9 @@ async def websocket_endpoint(
                 if rol_upper not in ("ADMIN", "PEDIDOS", "COCINA"):
                     with Session(engine) as db_session:
                         with UsuarioUnitOfWork(db_session) as uow:
-                            from app.modules.pedidos.unit_of_work import PedidoUnitOfWork
+                            from app.modules.pedido.unit_of_work import PedidoUnitOfWork
                             pedido_uow = PedidoUnitOfWork(db_session)
-                            pedido = pedido_uow.pedidos.get_by_id(order_id)
+                            pedido = pedido_uow.pedido.get_by_id(order_id)
 
                             # Validar que:
                             #   a. El pedido exista

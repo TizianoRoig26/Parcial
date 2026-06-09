@@ -32,7 +32,7 @@ from app.modules.pago.service import PaymentService
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/pagos", tags=["pagos"])
+router = APIRouter()
 
 
 def get_payment_service(session: Session = Depends(get_session)) -> PaymentService:
