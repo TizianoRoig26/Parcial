@@ -26,30 +26,7 @@ class PedidoService:
 	COSTO_ENVIO_DOMICILIO = Decimal("50.00")
 	COSTO_ENVIO_RETIRO = Decimal("0.00")
 
-	TRANSICIONES = {
-    # Admin puede hacer CUALQUIER transición válida
-    "ADMIN": {
-        "pendiente":  {"confirmado", "cancelado"},
-        "confirmado": {"preparando", "cancelado"},
-        "preparando": {"listo", "cancelado"},
-        "listo":      {"entregado", "cancelado"},
-        "entregado":  set(),   # Estado terminal — no admite transiciones
-        "cancelado":  set(),   # Estado terminal — no admite transiciones
-    },
-		# Pedidos: confirma, manda a cocina y entrega cuando está listo
-		"PEDIDOS": {
-			"pendiente":  {"confirmado", "cancelado"},
-			"confirmado": {"preparando", "cancelado"},
-			"preparando": set(),            # La cocina se encarga — cajero no avanza de aquí
-			"listo":      {"entregado"},    # Cajero entrega cuando cocina lo marca listo
-			"entregado":  set(),
-			"cancelado":  set(),
-		},
-		# Cocina marca el pedido como listo para que el cajero lo entregue
-		"COCINA": {
-			"preparando": {"listo"},        # Marcar como listo para entrega
-		},
-	}
+	
 
 
 	# =============================================================================

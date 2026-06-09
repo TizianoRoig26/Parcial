@@ -100,7 +100,7 @@ async def avanzar_estado_pedido(
 	current_user: Annotated[Usuario, Depends(require_role(["ADMIN", "PEDIDOS"]))],
 	svc: PedidoService = Depends(get_pedido_service),
 ) -> PedidoPublic:
-	return await PedidoPublic.model_validate(
+	return PedidoPublic.model_validate( await
 		svc.avanzar_estado(
 			pedido_id=id,
 			data=data,
