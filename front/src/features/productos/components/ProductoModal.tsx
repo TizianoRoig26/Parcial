@@ -43,7 +43,6 @@ export const ProductoModal = ({
       setNombre(productoParaEditar.nombre);
       setDescripcion(productoParaEditar.descripcion);
       setPrecioBase(productoParaEditar.precio_base);
-      setStockCantidad(productoParaEditar.stock_cantidad);
       setImagenUrl(productoParaEditar.imagen_url);
       setSelectedCategorias(productoParaEditar.categorias?.map(c => c.id!) ?? []);
       setSelectedIngredientes(productoParaEditar.ingredientes?.map(i => i.id!) ?? []);
@@ -63,7 +62,7 @@ export const ProductoModal = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(
-      { nombre, descripcion, precio_base: precioBase, stock_cantidad: stockCantidad, imagen_url: imagenUrl, unidad_venta_id: selectedUnidadMedida || undefined },
+      { nombre, descripcion, precio_base: precioBase, imagen_url: imagenUrl, unidad_venta_id: selectedUnidadMedida || undefined },
       selectedCategorias,
       selectedIngredientes,
     );
@@ -116,13 +115,7 @@ export const ProductoModal = ({
               </div>
               <div className="flex flex-row gap-3 items-center justify-center">
                   <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Stock</label>
-                  <input type="number" required min={0} value={stockCantidad}
-                    onChange={e => setStockCantidad(Number(e.target.value))}
-                    className="w-25 border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm" title="stock"/>
-                  </div>
-                  <div>
-                    <label className=" block text-sm font-semibold text-gray-700 mb-1.5">Medida</label>
+                  <label className=" block text-sm font-semibold text-gray-700 mb-1.5">Medida</label>
                     <select required value={selectedUnidadMedida}
                       onChange={e => setSelectedUnidadMedida(Number(e.target.value))}
                       className="w-25 border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm" title="unidad de medida">

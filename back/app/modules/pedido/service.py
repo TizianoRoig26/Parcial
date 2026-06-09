@@ -11,6 +11,7 @@ from app.modules.pedido.models import DetallePedido, HistorialEstadoPedido, Pedi
 from app.modules.pedido.schemas import PedidoCreate, PedidoEstadoUpdate, PedidoList, PedidoPublic
 from app.modules.pedido.unit_of_work import PedidosUnitOfWork
 
+logger = logging.getLogger(__name__)
 
 class PedidoService:
 	TRANSICIONES: dict[str, set[str]] = {
@@ -29,31 +30,20 @@ class PedidoService:
 	
 
 
-	# =============================================================================
-	# EVENTOS WebSocket
-	# =============================================================================
-	#
-	# Mapea cada estado destino al nombre del evento WebSocket que se envía
-	# al frontend. Los nombres siguen convención SCREAMING_SNAKE_CASE.
-	#
-	# Estos eventos son los que el frontend KDS escucha en socket.onmessage.
-	#
 	EVENTOS_WS = {
-		"pendiente":  "NUEVO_PEDIDO",
-		"confirmado": "PEDIDO_CONFIRMADO",
-		"preparando": "PEDIDO_EN_PREPARACION",
-		"listo":      "PEDIDO_LISTO",
-		"cancelado":  "PEDIDO_CANCELADO",
-		"entregado":  "PEDIDO_ENTREGADO",
+		"PENDIENTE":  "NUEVO_PEDIDO",
+		"CONFIRMADO": "PEDIDO_CONFIRMADO",
+		"EN_PREP":    "PEDIDO_EN_PREPARACION",
+		"ENTREGADO":  "PEDIDO_ENTREGADO",
+		"CANCELADO":  "PEDIDO_CANCELADO",
 	}
  
 	ROLES_POR_TRANSICION = {
-    "pendiente":  ["pedidos", "admin"],
-    "confirmado": ["pedidos", "cocina", "admin"],
-    "preparando": ["cocina", "pedidos", "admin"],
-    "listo":      ["pedidos", "admin"],   
-    "entregado":  ["pedidos", "admin"],
-    "cancelado":  ["pedidos", "cocina", "admin"],
+		"PENDIENTE":  ["pedidos", "admin"],
+		"CONFIRMADO": ["pedidos", "cocina", "admin"],
+		"EN_PREP":    ["cocina", "pedidos", "admin"],
+		"ENTREGADO":  ["pedidos", "admin"],
+		"CANCELADO":  ["pedidos", "cocina", "admin"],
 	}
 
 	def __init__(self, uow: PedidosUnitOfWork) -> None:
@@ -154,8 +144,7 @@ class PedidoService:
 
 			resultado = PedidoPublic.model_validate(pedido)
 
-		event_type = self.EVENTOS_WS.get(data.estado_hacia)
-		await self._emit_ws_events(pedido.id, event_type, resultado)
+		await self._emit_ws_events(pedido.id, data.estado_hacia, resultado)
 		return resultado
 
 	async def create(self, data: PedidoCreate, *, usuario_id: int) -> PedidoPublic:
@@ -299,7 +288,7 @@ class PedidoService:
 
 			resultado = PedidoPublic.model_validate(pedido)
 
-		await self._emit_ws_events(resultado.id, "PEDIDO_CREADO", resultado)
+		await self._emit_ws_events(resultado.id, resultado.estado_codigo, resultado)
 		return resultado
 
 	def get_by_id(self, pedido_id: int) -> PedidoPublic:
@@ -436,7 +425,7 @@ class PedidoService:
 			return
 
         # Serializar el pedido a diccionario para enviar como JSON
-		data = result.model_dump()
+		data = result.model_dump(mode="json")
 
         # ─── NOTIFICAR AL CLIENTE (room del pedido) ──────────────────────────
         # El cliente que hizo el pedido siempre recibe la actualización,

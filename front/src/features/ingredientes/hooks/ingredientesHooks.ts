@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import type { IIngrediente } from "../IIngredientes";
-import { getIngredientes, createIngrediente, updateIngrediente, deleteIngrediente } from "../services/ingrediente.services";
+import { getIngredientes, createIngrediente, updateIngrediente, deleteIngrediente, cambiostock } from "../services/ingrediente.services";
 
 export type ModalState =
   | { type: "none" }
@@ -11,7 +11,11 @@ export type ModalState =
 export const useIngredientes = () => {
   const queryClient = useQueryClient();
   const [modal, setModal] = useState<ModalState>({ type: "none" });
-  const handleClose = () => setModal({ type: "none" });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const handleClose = () => {
+    setModal({ type: "none" });
+    setErrorMessage(null);
+  };
   const [limit, setLimit] = useState(10);
 
   const { data: ingredientes, isLoading, isError } = useQuery({
@@ -35,11 +39,27 @@ export const useIngredientes = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ingredientes"] }),
   });
 
+  const stockMutation = useMutation({
+    mutationFn: ( {id, cantidad}: {id: number, cantidad: number} ) => cambiostock(id, cantidad),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ingredientes"] }),
+  });
+
   const handleSubmit = (data: Omit<IIngrediente, "id">) => {
+    setErrorMessage(null);
     if (modal.type === "edit" && modal.ingrediente.id) {
-      editMutation.mutate({ id: modal.ingrediente.id, data });
+      editMutation.mutate({ id: modal.ingrediente.id, data }, {
+        onError: (err: any) => {
+          const detail = err.response?.data?.detail || "Error al editar el ingrediente";
+          setErrorMessage(detail);
+        }
+      });
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate(data, {
+        onError: (err: any) => {
+          const detail = err.response?.data?.detail || "Error al crear el ingrediente";
+          setErrorMessage(detail);
+        }
+      });
     }
   };
   const [esAlergenoFilter, setEsAlergenoFilter] = useState<boolean | null>(null);
@@ -59,6 +79,11 @@ export const useIngredientes = () => {
     setLimit(prev => prev + 10);
   };
 
+  const handleCambioStock = async (id: number, cantidad: number) => {
+    stockMutation.mutate({ id, cantidad });
+  };
+
+
 
   return {
     modal,
@@ -71,6 +96,8 @@ export const useIngredientes = () => {
     deleteMutation,
     handleFilterAlergenos,
     ordenarIngredientes,
-    handleVerMas
+    handleVerMas,
+    handleCambioStock,
+    errorMessage
   };
 };

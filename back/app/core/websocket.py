@@ -12,18 +12,21 @@ class ConnectionManager:
         # Set de conexiones activas. Se usa set para evitar duplicados.
         self.active_connections: set[WebSocket] = set()
         self.socket_rooms: dict[WebSocket, set[str]] = {}
+        self.rooms: dict[str, set[WebSocket]] = {}
 
-    async def connect(self, websocket: WebSocket) -> None:
+    async def connect(self, websocket: WebSocket, *, role: str = "", user_id: int = 0) -> None:
         # Acepta el handshake y registra la conexión
         await websocket.accept()
-        role_key = f"role:{role.lower()}"
-
-        # Unir el socket a su room de rol
-        self._join_room(websocket, role_key)
+        self.active_connections.add(websocket)
+        
+        if role:
+            role_key = f"role:{role.lower()}"
+            # Unir el socket a su room de rol
+            self._join_room(websocket, role_key)
 
         logger.info(
             f"Conexión WebSocket aceptada. user_id={user_id}, role={role}, "
-            f"room={role_key}. Total rooms activas: {len(self.rooms)}"
+            f"Total rooms activas: {len(self.rooms)}"
         )
 
     def disconnect(self, websocket: WebSocket) -> None:

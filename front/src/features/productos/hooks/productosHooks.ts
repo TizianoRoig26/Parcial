@@ -8,7 +8,6 @@ import {
   updateProducto,
   assignCategorias,
   assignIngredientes,
-  cambiostock,
 } from "../services/producto.services";
 import { getCategorias } from "../../categoria/services/categoria.services";
 import { getIngredientes } from "../../ingredientes/services/ingrediente.services";
@@ -64,26 +63,11 @@ export const useProductos = () => {
       queryClient.invalidateQueries({ queryKey: ["productos"] });
     },
   });
-  const stockMutation = useMutation({
-    mutationFn: ({ id, cantidad }: { id: number; cantidad: number }) => cambiostock(id, cantidad),
-    onSuccess: (updatedProd) => {
-      queryClient.setQueryData(["productos", currentPage], (cargados: any) => {
-        if (!cargados) return cargados;
-        return {
-          ...cargados,
-          data: cargados.data.map((p: IProducto) =>
-            p.id === updatedProd.id ? { ...p, stock_cantidad: updatedProd.stock_cantidad } : p
-          ),
-        };
-      });
-    }
-  });
 
   const editMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<IProducto> }) => updateProducto(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["productos"] });
-      handleClose();
     },
   });
 
@@ -104,13 +88,11 @@ export const useProductos = () => {
 
   const [categoriaFiltrada, setCategoriaFiltrada] = useState<number | null>(null);
   const [nombreFilter, setNombreFilter] = useState<string>("");
-  const [stock, setStock] = useState<boolean>(false);
 
   const ordenarProductos = (productosList: IProducto[]) => {
     return productosList
       .filter((p) => (categoriaFiltrada ? p.categorias?.some((c) => c.id === categoriaFiltrada) : true))
       .filter((p) => (nombreFilter ? p.nombre.toLowerCase().includes(nombreFilter.toLowerCase()) : true))
-      .filter((p) => (stock ? p.stock_cantidad < 10 : true))
       .sort((a, b) => {
         return a.nombre.localeCompare(b.nombre);
       });
@@ -121,49 +103,36 @@ export const useProductos = () => {
     setNombreFilter(nombre);
   };
 
-  const handleFilterProductosStock = () => {
-    if (stock === true) {
-      setStock(false)
-    } else {
-      setStock(true)
-    }
-  };
-
-  const handleSubmit = (
+  const handleSubmit = async (
     data: Omit<IProducto, "id" | "categorias" | "ingredientes">,
     categoriaIds: number[],
     ingredienteIds: number[],
   ) => {
     setErrorMessage(null);
-    if (modal.type === "edit" && modal.producto.id) {
-      const prodId = modal.producto.id;
-      editMutation.mutate({ id: prodId, data }, {
-        onSuccess: () => {
-          assignCategoriasMutation.mutate({ id: prodId, ids: categoriaIds });
-          assignIngredientesMutation.mutate({ id: prodId, ids: ingredienteIds });
-          queryClient.invalidateQueries({ queryKey: ["productos"] });
-          handleClose();
-        },
-        onError: (err: any) => {
-          const detail = err.response?.data?.detail || "Error al editar el producto";
-          setErrorMessage(detail);
+    try {
+      if (modal.type === "edit" && modal.producto.id) {
+        const prodId = modal.producto.id;
+        await editMutation.mutateAsync({ id: prodId, data });
+        await Promise.all([
+          assignCategoriasMutation.mutateAsync({ id: prodId, ids: categoriaIds }),
+          assignIngredientesMutation.mutateAsync({ id: prodId, ids: ingredienteIds }),
+        ]);
+        queryClient.invalidateQueries({ queryKey: ["productos"] });
+        handleClose();
+      } else {
+        const newProd = await createMutation.mutateAsync(data);
+        if (newProd.id) {
+          await Promise.all([
+            assignCategoriasMutation.mutateAsync({ id: newProd.id, ids: categoriaIds }),
+            assignIngredientesMutation.mutateAsync({ id: newProd.id, ids: ingredienteIds }),
+          ]);
         }
-      });
-    } else {
-      createMutation.mutate(data, {
-        onSuccess: (newProd) => {
-          if (newProd.id) {
-            assignCategoriasMutation.mutate({ id: newProd.id, ids: categoriaIds });
-            assignIngredientesMutation.mutate({ id: newProd.id, ids: ingredienteIds });
-          }
-          queryClient.invalidateQueries({ queryKey: ["productos"] });
-          handleClose();
-        },
-        onError: (err: any) => {
-          const detail = err.response?.data?.detail || "Error al crear el producto";
-          setErrorMessage(detail);
-        }
-      });
+        queryClient.invalidateQueries({ queryKey: ["productos"] });
+        handleClose();
+      }
+    } catch (err: any) {
+      const detail = err.response?.data?.detail || "Error al guardar el producto";
+      setErrorMessage(detail);
     }
   };
 
@@ -179,9 +148,6 @@ export const useProductos = () => {
     }
   };
 
-  const handleCambioStock = async (id: number, cantidad: number) => {
-    stockMutation.mutate({ id, cantidad });
-  };
 
 
   return {
@@ -206,8 +172,6 @@ export const useProductos = () => {
     handleAssignCategorias,
     handleAssignIngredientes,
     changeStateMutation,
-    handleFilterProductosStock,
-    handleCambioStock,
     errorMessage,
     setErrorMessage
   };

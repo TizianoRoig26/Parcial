@@ -26,8 +26,6 @@ export const ProductsPage = () => {
     handleAssignCategorias,
     handleAssignIngredientes,
     changeStateMutation,
-    handleFilterProductosStock,
-    handleCambioStock,
     errorMessage
   } = useProductos();
 
@@ -98,10 +96,9 @@ export const ProductsPage = () => {
               <th className="p-3 ">Img</th>
               <th className="p-3">Producto</th>
               <th className="p-3">Categorías</th>
-              <th className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold `}>Precio</th>
-              <th className="p-3" ><button onClick={() => handleFilterProductosStock()}>
-                Stock
-                </button></th>
+              <th className="p-3">Ingredientes</th>
+              <th className="text-xs font-semibold ">Precio</th>
+              <th className="p-3" >Unidad</th>
               <th className="">Acciones</th>
             </tr>
           </thead>
@@ -131,35 +128,25 @@ export const ProductsPage = () => {
                     }
                   </div>
                 </td>
+
+                <td className="px-6 py-4">
+                  <div 
+                    className="text-xs text-black text-center max-w-[150px] truncate mx-auto font-medium" 
+                    title={prod.ingredientes?.map(i => i.nombre).join(", ")}
+                  >
+                    {prod.ingredientes?.length
+                      ? prod.ingredientes.map(i => i.nombre).join(", ")
+                      : "—"
+                    }
+                  </div>
+                </td>
+
                 <td className="px-6 py-4">
                   <span className="font-semibold text-black">${prod.precio_base}</span>
                 </td>
 
                 <td className="flex flex-row justify-around px-6 py-4 text-center">
-                  <button title="restar stock"
-                    onClick={() => handleCambioStock(prod.id, -1)} 
-                  className="p-1 text-sm text-[#0D4012] hover:text-[#002204] rounded-full hover:bg-[#C9C8A6] transition-colors font-medium" >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                    <path d="M9 12l6 0" />
-                  </svg>
-                  </button>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${prod.stock_cantidad > 10 ? "bg-palm/30 text-black" : "bg-red-100 text-red-600 border-1 border-red"
-                    }`}>
-                    {prod.stock_cantidad}
-                    {prod.unidad_medida?.simbolo}
-                  </span>
-                  <button title="sumar stock"
-                    onClick={() => handleCambioStock(prod.id, 1)} 
-                  className="p-1 text-sm text-[#0D4012] hover:text-[#002204] rounded-full hover:bg-[#C9C8A6] transition-colors font-medium" >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
-                    <path d="M9 12h6" />
-                    <path d="M12 9v6" />
-                  </svg>
-                  </button> 
+                    <span className="font-semibold text-black">{prod.unidad_medida.simbolo}</span>
                 </td>
 
                 <td className="px-6 py-4">

@@ -14,6 +14,8 @@ export const IngredientsPage = () => {
     handleFilterAlergenos,
     ordenarIngredientes,
     handleVerMas,
+    handleCambioStock,
+    errorMessage
   } = useIngredientes();
 
   if (isLoading) return <div className="p-8 text-center text-black animate-pulse">Cargando ingredientes...</div>;
@@ -62,6 +64,7 @@ export const IngredientsPage = () => {
               <th className="px-6 py-4 font-bold">Nombre</th>
               <th className="px-6 py-4 font-bold">Descripción</th>
               <th className="px-6 py-4 font-bold text-center">Alérgeno</th>
+              <th className="px-6 py-4 font-bold text-center">Stock</th>
               <th className="px-6 py-4 font-bold text-center">Acciones</th>
             </tr>
           </thead>
@@ -75,6 +78,31 @@ export const IngredientsPage = () => {
                     ? <span className="border-2 border-[#ba1a1a] bg-[#ba1a1a]/10 px-3 py-1.5 rounded-full">Sí</span>
                     : <span>No</span>
                   }
+                </td>
+                <td className="flex flex-row justify-around px-6 py-4 text-center">
+                  <button title="restar stock"
+                    onClick={() => handleCambioStock(ing.id, -1)} 
+                  className="p-1 text-sm text-[#0D4012] hover:text-[#002204] rounded-full hover:bg-[#C9C8A6] transition-colors font-medium" >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                    <path d="M9 12l6 0" />
+                  </svg>
+                  </button>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold min-w-10 justify-center ${ing.stock_cantidad > 10 ? "bg-palm/30 text-black" : "bg-red-100 text-red-600 border-1 border-red"
+                    }`}>
+                    {ing.stock_cantidad}
+                  </span>
+                  <button title="sumar stock"
+                    onClick={() => handleCambioStock(ing.id, 1)} 
+                  className="p-1 text-sm text-[#0D4012] hover:text-[#002204] rounded-full hover:bg-[#C9C8A6] transition-colors font-medium" >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"  >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                    <path d="M9 12h6" />
+                    <path d="M12 9v6" />
+                  </svg>
+                  </button> 
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-center gap-2">
@@ -132,6 +160,7 @@ export const IngredientsPage = () => {
         onClose={handleClose}
         onSubmit={handleSubmit}
         ingredienteParaEditar={modal.type === "edit" ? modal.ingrediente : null}
+        errorMessage={errorMessage}
       />
     </div>
   );

@@ -4,4 +4,5 @@ export interface IIngrediente {
   descripcion: string;
   es_alergeno: boolean;
   is_active?: boolean;
+  stock_cantidad?: number;
 }

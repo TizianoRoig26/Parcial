@@ -6,22 +6,27 @@ interface Props {
   onClose: () => void;
   onSubmit: (data: Omit<IIngrediente, "id">) => void;
   ingredienteParaEditar?: IIngrediente | null;
+  errorMessage?: string | null;
 }
 
-export const IngredienteModal = ({ isOpen, onClose, onSubmit, ingredienteParaEditar }: Props) => {
+export const IngredienteModal = ({ isOpen, onClose, onSubmit, ingredienteParaEditar, errorMessage }: Props) => {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [esAlergeno, setEsAlergeno] = useState(false);
+  const [stock, setStock] = useState(0);
+
 
   useEffect(() => {
     if (ingredienteParaEditar) {
       setNombre(ingredienteParaEditar.nombre);
       setDescripcion(ingredienteParaEditar.descripcion);
       setEsAlergeno(ingredienteParaEditar.es_alergeno);
+      setStock(ingredienteParaEditar.stock_cantidad ?? 0);
     } else {
       setNombre("");
       setDescripcion("");
       setEsAlergeno(false);
+      setStock(0);
     }
   }, [ingredienteParaEditar, isOpen]);
 
@@ -29,7 +34,7 @@ export const IngredienteModal = ({ isOpen, onClose, onSubmit, ingredienteParaEdi
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ nombre, descripcion, es_alergeno: esAlergeno });
+    onSubmit({ nombre, descripcion, es_alergeno: esAlergeno, stock_cantidad: stock });
   };
 
   return (
@@ -40,8 +45,12 @@ export const IngredienteModal = ({ isOpen, onClose, onSubmit, ingredienteParaEdi
             {ingredienteParaEditar ? "Editar Ingrediente" : "Nuevo Ingrediente"}
           </h2>
         </div>
-
         <form onSubmit={handleSubmit} className="px-8 py-6 space-y-5">
+        {errorMessage && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2.5 rounded-xl text-sm font-semibold">
+                {errorMessage}
+              </div>
+            )}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre</label>
             <input
@@ -67,6 +76,13 @@ export const IngredienteModal = ({ isOpen, onClose, onSubmit, ingredienteParaEdi
               className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition h-28 resize-none"
               placeholder="Descripción del ingrediente"
             />
+          </div>
+          
+          <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Stock</label>
+          <input type="number" required min={0} value={stock}
+            onChange={e => setStock(Number(e.target.value))}
+            className="w-25 border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm" title="stock"/>
           </div>
 
           <div className="border border-gray-200 rounded-xl divide-y divide-gray-100">

@@ -9,6 +9,8 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { PedidoPage } from "../features/pedidos/pages/PedidosPage";
 import { PedidoDetailPage } from "../features/pedidos/pages/PedidoDetailPage";
 import { UsuariosPage } from "../features/usuarios/pages/UsuariosPage";
+import { EstadisticasPages } from "../features/estadisticas/pages/EstadisticasPages";
+
 
 
 const AppRouter = () => {
@@ -39,6 +41,7 @@ const AppRouter = () => {
                         <Route path="/categorias" element={<CategoryPage />} />
                         <Route path="/ingredientes" element={<IngredientsPage />} />
                         <Route path="/usuarios" element={<UsuariosPage />} />
+                        <Route path="/estadisticas" element={<EstadisticasPages />} />
                       </Route>
                       <Route element={<ProtectedRoute allowedRoles={["admin", "pedidos"]} />}>
                         <Route path="/pedidos" element={<PedidoPage />} />
