@@ -10,6 +10,7 @@ from app.modules.direccion.router import router as direccion_router
 from app.modules.pedido.router import router as pedido_router
 from app.modules.usuario.router import router as usuarios_router
 from app.modules.unidadMedida.router import router as unidad_medida_router
+from app.modules.pago.router import router as pagos_router
 
 # Importar modelos para registro en SQLModel
 from app.modules.categoria.models import Categoria
@@ -63,3 +64,4 @@ app.include_router(ingrediente_router, prefix="/ingredientes", tags=["ingredient
 app.include_router(direccion_router, prefix="/direcciones", tags=["direcciones"])
 app.include_router(pedido_router, prefix="/pedidos", tags=["pedidos"])
 app.include_router(unidad_medida_router, prefix="/unidades-medida", tags=["unidades-medida"])
+app.include_router(pagos_router, prefix="/pagos", tags=["pagos"])
