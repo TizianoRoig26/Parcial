@@ -34,7 +34,8 @@ STAFF_ROLES = ["admin", "pedidos", "cocina"]
 
 def get_pedido_service(session: Session = Depends(get_session)) -> PedidoService:
     """Factory: inyecta la sesión de BD en el service (dependency injection)."""
-    return PedidoService(session)
+    uow = PedidosUnitOfWork(session)
+    return PedidoService(uow)
 
 
 @router.post(
@@ -43,12 +44,12 @@ def get_pedido_service(session: Session = Depends(get_session)) -> PedidoService
 	status_code=status.HTTP_201_CREATED,
 	summary="Crear pedido",
 )
-def create_pedido(
+async def create_pedido(
 	data: PedidoCreate,
 	current_user: Annotated[Usuario, Depends(get_current_active_user)],
 	svc: PedidoService = Depends(get_pedido_service),
 ) -> PedidoPublic:
-	return svc.create(data, usuario_id=current_user.id)
+	return await svc.create(data, usuario_id=current_user.id)
 
 
 @router.get(
