@@ -1,5 +1,5 @@
 # app/core/config.py
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import computed_field
 from pydantic_settings import BaseSettings
@@ -51,6 +51,8 @@ class Settings(BaseSettings):
         "env_file_encoding": "utf-8",
         "extra":             "ignore",   # ignora vars extra del .env (ej. DATABASE_URL literal)
     }
+
+LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 
 
 # Instancia global — importar desde aquí en toda la app

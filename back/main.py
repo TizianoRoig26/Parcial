@@ -25,6 +25,8 @@ from app.modules.usuario.usuario_rol import UsuarioRol
 from app.modules.pedido.models import DetallePedido, EstadoPedido, FormaPago, HistorialEstadoPedido, Pedido
 from app.db.seed import seed_pedido_catalogos, seed_roles
 
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gestión del ciclo de vida de la aplicación."""
