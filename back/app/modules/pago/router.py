@@ -22,13 +22,13 @@ from sqlmodel import Session
 
 from app.core.config import settings
 from app.core.database import get_session
-from app.modules.payments.schemas import (
+from app.modules.pago.schemas import (
     CrearPagoRequest,
     ConfirmarPagoRequest,
     PagoCrearResponse,
     PagoEstadoResponse,
 )
-from app.modules.payments.service import PaymentService
+from app.modules.pago.service import PaymentService
 
 logger = logging.getLogger(__name__)
 

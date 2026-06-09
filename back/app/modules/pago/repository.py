@@ -1,7 +1,7 @@
 from typing import Optional, List
 from sqlmodel import Session, select
 from app.core.base_repository import BaseRepository
-from app.modules.payments.models import Pago
+from app.modules.pago.models import Pago
 
 
 class PagoRepository(BaseRepository[Pago]):

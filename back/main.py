@@ -2,6 +2,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
+from app.core.middleware.logging_middleware import LoggingMiddleware
+
 from app.core.database import create_db_and_tables
 from app.modules.producto.router import router as producto_router
 from app.modules.categoria.router import router as categoria_router
@@ -41,6 +43,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(LoggingMiddleware)
+
 # Configuración de CORS
 app.add_middleware(
     CORSMiddleware,
@@ -49,6 +53,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 # Root endpoint para verificar que el server corre

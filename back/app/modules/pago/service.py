@@ -41,10 +41,10 @@ from fastapi import HTTPException, status
 from sqlmodel import Session
 
 from app.core.config import settings
-from app.modules.orders.models import Pedido
-from app.modules.payments.models import Pago
-from app.modules.payments.schemas import PagoCrearResponse, PagoEstadoResponse
-from app.modules.payments.unit_of_work import PagoUnitOfWork
+from app.modules.pedido.models import Pedido
+from app.modules.pago.models import Pago
+from app.modules.pago.schemas import PagoCrearResponse, PagoEstadoResponse
+from app.modules.pago.unit_of_work import PagoUnitOfWork
 
 logger = logging.getLogger(__name__)
 

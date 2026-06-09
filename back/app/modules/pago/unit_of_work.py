@@ -6,7 +6,7 @@
 #
 from sqlmodel import Session
 from app.core.unit_of_work import UnitOfWork
-from app.modules.payments.repository import PagoRepository
+from app.modules.pago.repository import PagoRepository
 
 
 class PagoUnitOfWork(UnitOfWork):
