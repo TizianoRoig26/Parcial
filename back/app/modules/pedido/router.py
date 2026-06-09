@@ -22,7 +22,7 @@ from app.modules.usuario.schemas import UserPublic
 # =============================================================================
 
 # Router con prefijo /api/v1 — afecta a todas las rutas definidas abajo
-router = APIRouter(prefix="/api/v1", tags=["pedidos"])
+router = APIRouter()
 
 # Roles autorizados para acceder a los endpoints de cocina/KDS
 # Se incluyen variaciones en mayúsculas para robustez en comparación
