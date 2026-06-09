@@ -94,13 +94,13 @@ def get_pedido(
 	response_model=PedidoPublic,
 	summary="Avanzar estado del pedido",
 )
-def avanzar_estado_pedido(
+async def avanzar_estado_pedido(
 	id: int,
 	data: PedidoEstadoUpdate,
 	current_user: Annotated[Usuario, Depends(require_role(["ADMIN", "PEDIDOS"]))],
 	svc: PedidoService = Depends(get_pedido_service),
 ) -> PedidoPublic:
-	return PedidoPublic.model_validate(
+	return await PedidoPublic.model_validate(
 		svc.avanzar_estado(
 			pedido_id=id,
 			data=data,
@@ -115,7 +115,7 @@ def avanzar_estado_pedido(
 	response_model=PedidoPublic,
 	summary="Cancelar pedido (usuario)",
 )
-def cancelar_pedido_usuario(
+async def cancelar_pedido_usuario(
  	id: int,
  	data: PedidoEstadoUpdate,
  	current_user: Annotated[Usuario, Depends(get_current_active_user)],
@@ -123,7 +123,7 @@ def cancelar_pedido_usuario(
 ) -> PedidoPublic:
 	if data.estado_hacia != "CANCELADO":
 		raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El estado objetivo debe ser 'CANCELADO'")
-	return PedidoPublic.model_validate(
+	return await PedidoPublic.model_validate(
 		svc.cancelar_por_usuario(pedido_id=id, motivo=data.motivo, usuario_id=current_user.id)
 	)
 
@@ -134,7 +134,7 @@ def cancelar_pedido_usuario(
 	summary="Cancelar pedido (admin)",
 	dependencies=[Depends(require_role(["ADMIN", "PEDIDOS"]))],
 )
-def cancelar_pedido_admin(
+async def cancelar_pedido_admin(
  	id: int,
  	data: PedidoEstadoUpdate,
  	current_user: Annotated[Usuario, Depends(require_role(["ADMIN", "PEDIDOS"]))],
@@ -142,7 +142,7 @@ def cancelar_pedido_admin(
 ) -> PedidoPublic:
 	if data.estado_hacia != "CANCELADO":
 		raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El estado objetivo debe ser 'CANCELADO'")
-	return PedidoPublic.model_validate(
+	return await PedidoPublic.model_validate(
 		svc.cancelar_por_admin(pedido_id=id, motivo=data.motivo, usuario_id=current_user.id)
 	)
 
