@@ -458,7 +458,7 @@ class PaymentService:
                 if nuevo_estado == "aprobado":
                     pedido = self._session.get(Pedido, pago.pedido_id)
                     if pedido:
-                        pedido.estado = "pagado"
+                        pedido.pagado = True
                         pedido.updated_at = datetime.utcnow()
                         self._session.add(pedido)
 
@@ -556,7 +556,7 @@ class PaymentService:
 
                     # Si se aprobó, actualizamos el pedido
                     if nuevo_estado == "aprobado":
-                        pedido.estado = "pagado"
+                        pedido.pagado = True
                         pedido.updated_at = datetime.utcnow()
                         self._session.add(pedido)
 

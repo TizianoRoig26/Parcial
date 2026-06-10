@@ -4,7 +4,7 @@ from typing import Optional
 
 from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, Numeric, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlmodel import Field, SQLModel
+from sqlmodel import Boolean, Field, SQLModel
 
 
 class Pedido(SQLModel, table=True):
@@ -34,7 +34,10 @@ class Pedido(SQLModel, table=True):
 		nullable=False,
 		index=True,
 	)
-
+	pagado: bool = Field(
+        default=False, 
+        sa_column=Column(Boolean, nullable=False, server_default="false")
+    )
 	subtotal: Decimal = Field(
 		sa_column=Column(Numeric(10, 2), nullable=False),
 	)
