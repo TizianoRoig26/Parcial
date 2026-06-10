@@ -23,12 +23,11 @@ export const updateProducto = async (
   id: number,
   data: Partial<IProducto>,
 ): Promise<IProducto> => {
-  const { nombre, descripcion, precio_base, stock_cantidad, imagen_url, unidad_venta_id } = data;
+  const { nombre, descripcion, precio_base, imagen_url, unidad_venta_id } = data;
   const response = await apiClient.patch<IProducto>(`${PATH}/${id}`, {
     nombre,
     descripcion,
     precio_base,
-    stock_cantidad,
     imagen_url,
     unidad_venta_id,
   });
@@ -67,8 +66,3 @@ export const assignIngredientes = async (
   });
   return response.data;
 };
-
-export const cambiostock = async(id:number, cantidad:number)=>{
-  const response = await apiClient.patch(`${PATH}/stock/${id}`, {cantidad});
-  return response.data;
-}

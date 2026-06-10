@@ -27,12 +27,13 @@ export const updateIngrediente = async (
   id: number,
   data: Partial<IIngrediente>,
 ): Promise<IIngrediente> => {
-  const { nombre, descripcion, es_alergeno, is_active } = data;
+  const { nombre, descripcion, es_alergeno, is_active, stock_cantidad } = data;
   const response = await apiClient.patch<IIngrediente>(`${PATH}/${id}`, {
     nombre,
     descripcion,
     es_alergeno,
     is_active,
+    stock_cantidad,
   });
   return response.data;
 };
@@ -47,3 +48,7 @@ export const deleteIngrediente = async (id: number): Promise<void> => {
   await apiClient.delete(`${PATH}/${id}`);
 };
 
+export const cambiostock = async(id:number, cantidad:number)=>{
+  const response = await apiClient.patch(`${PATH}/stock/${id}`, {cantidad});
+  return response.data;
+}

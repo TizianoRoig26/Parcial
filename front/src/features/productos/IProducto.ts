@@ -7,7 +7,6 @@ export interface IProducto {
   nombre: string;
   descripcion: string;
   precio_base: number;
-  stock_cantidad: number;
   imagen_url: string;
   is_active?: boolean;
   unidad_venta_id?: number;

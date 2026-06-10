@@ -100,13 +100,11 @@ async def avanzar_estado_pedido(
 	current_user: Annotated[Usuario, Depends(require_role(["ADMIN", "PEDIDOS"]))],
 	svc: PedidoService = Depends(get_pedido_service),
 ) -> PedidoPublic:
-	return PedidoPublic.model_validate( await
-		svc.avanzar_estado(
-			pedido_id=id,
-			data=data,
-			usuario_id=current_user.id,
-			roles_usuario=current_user.role_codes,
-		)
+	return await svc.avanzar_estado(
+		pedido_id=id,
+		data=data,
+		usuario_id=current_user.id,
+		roles_usuario=current_user.role_codes,
 	)
 
 
@@ -123,9 +121,7 @@ async def cancelar_pedido_usuario(
 ) -> PedidoPublic:
 	if data.estado_hacia != "CANCELADO":
 		raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El estado objetivo debe ser 'CANCELADO'")
-	return await PedidoPublic.model_validate(
-		svc.cancelar_por_usuario(pedido_id=id, motivo=data.motivo, usuario_id=current_user.id)
-	)
+	return await svc.cancelar_por_usuario(pedido_id=id, motivo=data.motivo, usuario_id=current_user.id)
 
 
 @router.post(
@@ -142,9 +138,7 @@ async def cancelar_pedido_admin(
 ) -> PedidoPublic:
 	if data.estado_hacia != "CANCELADO":
 		raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El estado objetivo debe ser 'CANCELADO'")
-	return await PedidoPublic.model_validate(
-		svc.cancelar_por_admin(pedido_id=id, motivo=data.motivo, usuario_id=current_user.id)
-	)
+	return await svc.cancelar_por_admin(pedido_id=id, motivo=data.motivo, usuario_id=current_user.id)
 
 
 @router.get(
@@ -323,21 +317,31 @@ async def websocket_endpoint(
                 return
             # Extraer valores primitivos DENTRO de la sesión antes de que se cierre.
             # Evita DetachedInstanceError al acceder a atributos fuera del bloque.
-            user_role: str = user.role
+            user_roles: list[str] = user.role_codes  # e.g. ["ADMIN", "PEDIDOS"]
             user_id: int = user.id
+
+    # Determinar el rol principal para el connection manager.
+    # Prioridad: ADMIN > PEDIDOS > COCINA > primer rol disponible > "user"
+    role_priority = ["ADMIN", "PEDIDOS", "COCINA"]
+    user_roles_upper = [r.upper().strip() for r in user_roles]
+    primary_role = "user"
+    for rp in role_priority:
+        if rp in user_roles_upper:
+            primary_role = rp.lower()
+            break
+    else:
+        if user_roles_upper:
+            primary_role = user_roles_upper[0].lower()
 
     # =========================================================================
     # PASO 4: REGISTRAR EN EL CONNECTION MANAGER
     # =========================================================================
     from app.core.websocket import manager
-    await manager.connect(websocket, role=user_role, user_id=user_id)
+    await manager.connect(websocket, role=primary_role, user_id=user_id)
 
-    # Si el usuario es admin, también unirse a la room de admin
-    # para recibir TODOS los eventos del sistema
-    rol_upper = user_role.upper().strip()
-    if rol_upper in ("ADMIN",):
-        from app.core.websocket import manager as mgr
-        mgr._join_room(websocket, "role:admin")
+    # Unir a rooms de TODOS los roles del usuario
+    for role_code in user_roles_upper:
+        manager._join_room(websocket, f"role:{role_code.lower()}")
 
     # =========================================================================
     # PASO 5: BUCLE DE ESCUCHA DE MENSAJES
@@ -384,7 +388,7 @@ async def websocket_endpoint(
 
                 # Validación de propiedad: solo para clientes (no staff)
                 # Los staff pueden ver todos los pedidos
-                if rol_upper not in ("ADMIN", "PEDIDOS", "COCINA"):
+                if not set(user_roles_upper) & {"ADMIN", "PEDIDOS", "COCINA"}:
                     with Session(engine) as db_session:
                         with UsuariosUnitOfWork(db_session) as uow:
                             from app.modules.pedido.unit_of_work import PedidoUnitOfWork
