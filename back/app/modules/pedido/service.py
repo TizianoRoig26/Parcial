@@ -11,8 +11,11 @@ from app.modules.pedido.models import DetallePedido, HistorialEstadoPedido, Pedi
 from app.modules.pedido.schemas import PedidoCreate, PedidoEstadoUpdate, PedidoList, PedidoPublic
 from app.modules.pedido.unit_of_work import PedidosUnitOfWork
 
+logger = logging.getLogger(__name__)
 
 class PedidoService:
+    
+    
 	TRANSICIONES: dict[str, set[str]] = {
 		"PENDIENTE": {"CONFIRMADO", "CANCELADO"},
 		"CONFIRMADO": {"EN_PREP", "CANCELADO"},

@@ -16,7 +16,7 @@ class Producto(SQLModel, table=True):
     nombre: str
     descripcion: str
     precio_base: int
-    imagen_url: str
+    imagen_url: Optional[str] = Field(default=None, nullable=True)
     is_active: bool = Field(default=True)
     unidad_venta_id: Optional[int] = Field(default=None, foreign_key="unidad_medidas.id")
     

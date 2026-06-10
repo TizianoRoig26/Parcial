@@ -315,7 +315,7 @@ async def websocket_endpoint(
     #   - role:user    → solo recibe eventos de sus pedidos específicos
     #
     with Session(engine) as db_session:
-        with UsuarioUnitOfWork(db_session) as uow:
+        with UsuariosUnitOfWork(db_session) as uow:
             user = uow.usuarios.get_by_username(username)
             if not user or user.disabled:
                 await websocket.accept()
@@ -386,7 +386,7 @@ async def websocket_endpoint(
                 # Los staff pueden ver todos los pedidos
                 if rol_upper not in ("ADMIN", "PEDIDOS", "COCINA"):
                     with Session(engine) as db_session:
-                        with UsuarioUnitOfWork(db_session) as uow:
+                        with UsuariosUnitOfWork(db_session) as uow:
                             from app.modules.pedido.unit_of_work import PedidoUnitOfWork
                             pedido_uow = PedidoUnitOfWork(db_session)
                             pedido = pedido_uow.pedido.get_by_id(order_id)
