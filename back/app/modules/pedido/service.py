@@ -334,6 +334,11 @@ class PedidoService:
 				total=total,
 			)
 
+	def get_estadisticas(self) -> list[dict]:
+		with self.uow:
+			return self.uow.pedidos.get_estadisticas()
+
+
 	def get_detalles_por_pedido(self, pedido_id: int) -> list[DetallePedido]:
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)

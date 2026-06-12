@@ -63,3 +63,9 @@ export const getPedidoById = async (id: number): Promise<IPedido> => {
   return response.data;
 };
 
+export const getEstadisticas = async ():Promise<any> => {
+  const response = await apiClient.get(`${PATH}/cajero/estadisticas`);
+  console.log(response.data);
+  return response.data;
+}
+

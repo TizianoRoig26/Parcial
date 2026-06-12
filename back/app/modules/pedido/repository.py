@@ -1,4 +1,4 @@
-from sqlmodel import Session, select, func
+from sqlmodel import Session, select, func, text
 
 from app.core.repository import BaseRepository
 from app.modules.pedido.models import DetallePedido, EstadoPedido, FormaPago, HistorialEstadoPedido, Pedido
@@ -32,6 +32,15 @@ class PedidoRepository(BaseRepository[Pedido]):
 			).all()
 		)
 
+	def get_estadisticas(self) -> list[dict]:
+		result = self.session.execute(
+			text(
+				"SELECT mes_anio, producto_top_unidades, producto_top_nombre, "
+				"ticket_promedio_anual_global, ticket_promedio_mes, cantidad_pedidos "
+				"FROM vista_metricas_ultimo_anio"
+			)
+		)
+		return [dict(row._mapping) for row in result]
 	def count(self) -> int:
 		return self.session.exec(select(func.count(Pedido.id))).one()
 

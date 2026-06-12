@@ -2,6 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { getProductos } from "../../productos/services/producto.services";
 import { getIngredientes } from "../../ingredientes/services/ingrediente.services";
 import { getCategorias } from "../../categoria";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { getEstadisticas } from "../../pedidos/services/pedidos.services";
+
 
 export const EstadisticasPages = () => {
   const {
@@ -11,6 +14,16 @@ export const EstadisticasPages = () => {
   } = useQuery({
     queryKey: ["productos", "stats"],
     queryFn: () => getProductos(0, 1),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const {
+    data: metricasData,
+    isLoading: isLoadingMetricas,
+    isError: isErrorMetricas,
+  } = useQuery({
+    queryKey: ["metricas"],
+    queryFn: () => getEstadisticas(),
     staleTime: 1000 * 60 * 5,
   });
 
@@ -34,8 +47,8 @@ export const EstadisticasPages = () => {
     staleTime: 1000 * 60 * 5,
   });
 
-  const isLoading = isLoadingProductos || isLoadingIngredientes || isLoadingCategorias;
-  const isError = isErrorProductos || isErrorIngredientes || isErrorCategorias;
+  const isLoading = isLoadingProductos || isLoadingIngredientes || isLoadingCategorias || isLoadingMetricas;
+  const isError = isErrorProductos || isErrorIngredientes || isErrorCategorias || isErrorMetricas;
 
   return (
     <div className="w-full h-full flex flex-col min-h-0 overflow-hidden rounded-b-xl p-6">
@@ -118,8 +131,27 @@ export const EstadisticasPages = () => {
               </div>
               <div className="mt-4">
                 <p className="text-sm font-semibold text-gray-600">Ticket Promedio</p>
-                <h3 className="text-3xl font-black text-black mt-1">${}</h3>
+                <h3 className="text-3xl font-black text-black mt-1">
+                  ${metricasData && metricasData.length > 0 ? metricasData[0].ticket_promedio_anual_global : 0}
+                </h3>
               </div>
+            </div>
+          </div>
+
+          {/* Gráfico de barras real */}
+          <div className="mt-8 bg-[#E5E4C1] border border-[#0D4012]/15 rounded-3xl p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-[#0D4012] mb-4">Pedidos Mensuales (Último Año)</h3>
+            <div className="w-full h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={metricasData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#0D4012" strokeOpacity={0.1} />
+                  <XAxis dataKey="mes_anio" stroke="#0D4012" tickLine={false} />
+                  <YAxis stroke="#0D4012" tickLine={false} />
+                  <Tooltip cursor={{ fill: '#47AA66', opacity: 0.05 }} />
+                  <Legend />
+                  <Bar dataKey="cantidad_pedidos" fill="#47AA66" name="Cantidad de Pedidos" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
@@ -127,6 +159,11 @@ export const EstadisticasPages = () => {
           <div className="mt-8 pt-4 border-t border-[#0D4012]/10 flex justify-between text-xs text-gray-600">
             <span>Total Productos en Catálogo: <strong className="text-black">{productosData?.total ?? 0}</strong></span>
             <span>Total Ingredientes Registrados: <strong className="text-black">{ingredientesData?.total ?? 0}</strong></span>
+            {metricasData && metricasData.length > 0 && (
+              <span>
+                Producto estrella: <strong className="text-black">{metricasData[0].producto_top_nombre}</strong> ({metricasData[0].producto_top_unidades} u.)
+              </span>
+            )}
           </div>
         </div>
       )}

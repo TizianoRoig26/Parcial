@@ -1,3 +1,4 @@
+import datetime
 from decimal import Decimal
 from sqlalchemy import inspect
 from sqlmodel import Session, select, delete
@@ -555,9 +556,15 @@ def seed_pedidos() -> None:
 			}
 		]
 
-		for data in pedidos_data:
+		# Distribuir las fechas de manera irregular para variar la cantidad de pedidos por mes
+		desfases = [2, 5, 10, 32, 35, 40, 42, 45, 65, 92, 95, 98, 105, 152, 160, 182, 185, 190, 212, 220]
+		now = datetime.datetime.now(datetime.timezone.utc)
+		for idx, data in enumerate(pedidos_data):
 			subtotal = sum([d["producto"].precio_base * d["cantidad"] for d in data["detalles"]])
 			total = subtotal + data["costo_envio"]
+
+			dias_restar = desfases[idx] if idx < len(desfases) else idx * 15
+			created_date = now - datetime.timedelta(days=dias_restar)
 
 			pedido = Pedido(
 				usuario_id=usuario.id,
@@ -567,6 +574,8 @@ def seed_pedidos() -> None:
 				costo_envio=data["costo_envio"],
 				total=total,
 				notas=data.get("notas", ""),
+				created_at=created_date,
+				updated_at=created_date,
 			)
 			session.add(pedido)
 			session.flush()
@@ -586,7 +595,8 @@ def seed_pedidos() -> None:
 			historial = HistorialEstadoPedido(
 				pedido_id=pedido.id,
 				estado_hacia=data["estado_codigo"],
-				motivo="Creación inicial en seed"
+				motivo="Creación inicial en seed",
+				created_at=created_date,
 			)
 			session.add(historial)
 
@@ -602,3 +612,47 @@ if __name__ == "__main__":
 	seed_roles()
 	seed_pedido_catalogos()
 	seed_pedidos()
+
+
+# Crear vista
+# CREATE OR REPLACE VIEW vista_metricas_ultimo_anio AS
+# WITH pedidos_ultimo_anio AS (
+#     SELECT 
+#         id,
+#         total,
+#         DATE_TRUNC('month', created_at) AS mes
+#     FROM pedidos
+#     WHERE created_at >= NOW() - INTERVAL '1 year'
+#       AND deleted_at IS NULL
+# ),
+# metricas_por_mes AS (
+#     SELECT 
+#         TO_CHAR(mes, 'YYYY-MM') AS mes_anio,
+#         COUNT(id) AS cantidad_pedidos,
+#         ROUND(AVG(total), 2) AS ticket_promedio_mes
+#     FROM pedidos_ultimo_anio
+#     GROUP BY mes
+# ),
+# ticket_promedio_global AS (
+#     SELECT ROUND(AVG(total), 2) AS ticket_promedio_anio
+#     FROM pedidos_ultimo_anio
+# ),
+# producto_mas_vendido AS (
+#     SELECT 
+#         dp.nombre_snapshot AS nombre_producto,
+#         SUM(dp.cantidad) AS total_unidades_vendidas
+#     FROM detalles_pedido dp
+#     JOIN pedidos_ultimo_anio p ON dp.pedido_id = p.id
+#     GROUP BY dp.producto_id, dp.nombre_snapshot
+#     ORDER BY total_unidades_vendidas DESC
+#     LIMIT 1
+# )
+# SELECT 
+#     m.mes_anio,
+#     m.cantidad_pedidos,
+#     m.ticket_promedio_mes,
+#     (SELECT ticket_promedio_anio FROM ticket_promedio_global) AS ticket_promedio_anual_global,
+#     (SELECT nombre_producto FROM producto_mas_vendido) AS producto_top_nombre,
+#     (SELECT total_unidades_vendidas FROM producto_mas_vendido) AS producto_top_unidades
+# FROM metricas_por_mes m
+# ORDER BY m.mes_anio DESC;
