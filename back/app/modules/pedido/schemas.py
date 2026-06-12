@@ -37,6 +37,7 @@ class PedidoPublic(SQLModel):
 	descuento: Decimal
 	costo_envio: Decimal
 	total: Decimal
+	pagado: bool
 	notas: Optional[str] = None
 	created_at: datetime
 	updated_at: datetime

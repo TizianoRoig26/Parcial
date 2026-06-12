@@ -4,7 +4,8 @@ import {
   getDetalle,
   getDireccion,
   getPedidos,
-  getPedidoById
+  getPedidoById,
+  pagoPedido
 } from "../services/pedidos.services";
 import { useCallback, useState } from "react";
 import { getUsernameById } from "../../auth/services/auth.services";
@@ -193,6 +194,16 @@ export const usePedidoDetail = (pedidoId: number) => {
     }
   };
 
+  const hanldePagado = async () => {
+    try {
+      await pagoPedido(pedidoId);
+      queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+      queryClient.invalidateQueries({ queryKey: ["pedido", pedidoId] });
+    } catch (error) {
+      console.error("Error al actualizar el estado del pedido:", error);
+    }
+  };
+
   return {
     pedido,
     isPedidoLoading,
@@ -201,7 +212,8 @@ export const usePedidoDetail = (pedidoId: number) => {
     isDetallesLoading,
     handleAvanzarEstado,
     isAdmin,
-    isPedidos
+    isPedidos,
+    hanldePagado
   };
 };
 

@@ -11,6 +11,7 @@ import { PedidoDetailPage } from "../features/pedidos/pages/PedidoDetailPage";
 import { UsuariosPage } from "../features/usuarios/pages/UsuariosPage";
 import { EstadisticasPages } from "../features/estadisticas/pages/EstadisticasPages";
 import { CocinaPage } from "../features/pedidos/pages/CocinaPage";
+import logoAccesoDenegado from "../assets/logoAccesoDenegado.png";
 
 
 
@@ -49,7 +50,7 @@ const AppRouter = () => {
                         <Route path="/pedidos/:id" element={<PedidoDetailPage />} />
                         <Route path="/pedidos/cocina" element={<CocinaPage />} />
                       </Route>
-                      <Route path="*" element={<img className="flex items-center justify-center w-screen h-screen" src="src/assets/logoAccesoDenegado.png" alt="404" />} />
+                      <Route path="*" element={<img className="flex items-center justify-center w-screen h-screen" src={logoAccesoDenegado} alt="404" />} />
                     </Routes>
                   </main>
                 </div>
