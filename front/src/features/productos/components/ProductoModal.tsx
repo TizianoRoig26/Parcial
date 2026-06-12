@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { IProducto } from "../IProducto";
 import type { ICategoria } from "../../categoria/ICategoria";
 import type { IIngrediente } from "../../ingredientes/IIngredientes";
@@ -7,7 +7,7 @@ import type { IUnidadMedida } from "../../unidadMedida/IUnidadMedida";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: Omit<IProducto, "id" | "categorias" | "ingredientes">, categoriaIds: number[], ingredienteIds: number[]) => void;
+  onSubmit: (data: Omit<IProducto, "id" | "categorias" | "ingredientes">, categoriaIds: number[], ingredienteIds: number[], file?: File) => void;
   productoParaEditar?: IProducto | null;
   categoriasDisponibles: ICategoria[];
   ingredientesDisponibles: IIngrediente[];
@@ -37,19 +37,37 @@ export const ProductoModal = ({
   const [selectedCategorias, setSelectedCategorias] = useState<number[]>([]);
   const [selectedIngredientes, setSelectedIngredientes] = useState<number[]>([]);
   const [selectedUnidadMedida, setSelectedUnidadMedida] = useState<number>(0);
+  const [files, setFiles] = useState<File[]>([]);
+  const [dragging, setDragging] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
+  const addFiles = (fileList: FileList | null) => {
+    if (!fileList || fileList.length === 0) return;
+    setFiles([fileList[0]]);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    if (e.dataTransfer.files) {
+      addFiles(e.dataTransfer.files);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
   useEffect(() => {
     if (productoParaEditar) {
       setNombre(productoParaEditar.nombre);
       setDescripcion(productoParaEditar.descripcion);
       setPrecioBase(productoParaEditar.precio_base);
-      setImagenUrl(productoParaEditar.imagen_url);
       setSelectedCategorias(productoParaEditar.categorias?.map(c => c.id!) ?? []);
       setSelectedIngredientes(productoParaEditar.ingredientes?.map(i => i.id!) ?? []);
       setSelectedUnidadMedida(productoParaEditar.unidad_medida?.id ?? 0);
     } else {
       setNombre(""); setDescripcion(""); setPrecioBase(0);
-      setStockCantidad(0); setImagenUrl("");
+      setStockCantidad(0); 
       setSelectedCategorias([]); setSelectedIngredientes([]);
     }
   }, [productoParaEditar, isOpen]);
@@ -65,6 +83,7 @@ export const ProductoModal = ({
       { nombre, descripcion, precio_base: precioBase, imagen_url: imagenUrl, unidad_venta_id: selectedUnidadMedida || undefined },
       selectedCategorias,
       selectedIngredientes,
+      files[0]
     );
   };
 
@@ -81,21 +100,12 @@ export const ProductoModal = ({
                 {errorMessage}
               </div>
             )}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre</label>
-                <input type="text" required minLength={2} maxLength={100} value={nombre}
-                  onChange={e => setNombre(e.target.value)}
-                  className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm"
-                  placeholder="Nombre del producto" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">URL de Imagen</label>
-                <input type="url" required value={imagenUrl}
-                  onChange={e => setImagenUrl(e.target.value)}
-                  className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm"
-                  placeholder="https://..." />
-              </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre</label>
+              <input type="text" required minLength={2} maxLength={100} value={nombre}
+                onChange={e => setNombre(e.target.value)}
+                className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm"
+                placeholder="Nombre del producto" />
             </div>
             
             <div>
@@ -173,7 +183,106 @@ export const ProductoModal = ({
                 ))}
               </div>
             </div>
+             <div className="px-6 pt-5">
+          <div
+            onClick={() => inputRef.current?.click()}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+            className={`cursor-pointer rounded-xl border-2 border-dashed transition-all duration-200 flex flex-col items-center justify-center gap-3 py-11
+              ${
+                dragging
+                  ? "border-violet-500 bg-violet-500/10 shadow-lg shadow-violet-500/10"
+                  : "border-zinc-700 hover:border-violet-500/60 hover:bg-violet-500/5"
+              }`}
+          >
+            <div
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${dragging ? "bg-violet-500/20" : "bg-zinc-800"}`}
+            >
+              <svg
+                className={`w-6 h-6 transition-colors ${dragging ? "text-violet-400" : "text-zinc-500"}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                />
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-zinc-300">
+                <span className="font-semibold text-violet-400">
+                  Click to browse
+                </span>{" "}
+                or drag & drop
+              </p>
+              <p className="text-xs text-zinc-600 mt-1">
+                PNG, JPG, GIF, WEBP · max 10 MB each
+              </p>
+            </div>
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => addFiles(e.target.files)}
+            />
           </div>
+        </div>
+
+        {/* File list */}
+        {files.length > 0 && (
+          <ul className="px-6 mt-4 max-h-48 overflow-y-auto space-y-1.5">
+            {files.map((file, i) => (
+              <li
+                key={i}
+                className="flex items-center gap-3 bg-zinc-800/70 hover:bg-zinc-800 rounded-xl px-3 py-2.5 transition-colors group/item"
+              >
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={file.name}
+                  className="w-9 h-9 object-cover rounded-lg shrink-0 border border-white/5"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm text-zinc-200 truncate font-medium">
+                    {file.name}
+                  </p>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    {file.size < 1024 * 1024
+                      ? `${(file.size / 1024).toFixed(1)} KB`
+                      : `${(file.size / (1024 * 1024)).toFixed(1)} MB`}
+                  </p>
+                </div>
+                <button
+                  onClick={() => removeFile(i)}
+                  className="text-zinc-600 hover:text-red-400 transition-colors opacity-0 group-hover/item:opacity-100 shrink-0"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+             </div>
 
           <div className="flex justify-end gap-3 py-4">
             <button type="button" onClick={onClose}

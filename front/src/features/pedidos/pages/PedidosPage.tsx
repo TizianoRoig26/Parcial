@@ -1,6 +1,7 @@
 import { usePedidos, UsuarioNombre, PedidoDetalles } from "../hooks/pedidosHooks";
 import { VistaPrincipal } from "../components/VistaPrincipal";
 import { VistaSecundaria } from "../components/VistaSecundaria";
+import { VistaCocina } from "../components/VistaCocina";
 export const PedidoPage = () => {
   const {
     pedidos,

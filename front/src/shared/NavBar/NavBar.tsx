@@ -3,6 +3,15 @@ import { useAuthStore } from "../../store/authStore";
 
 
 const navLinks = [
+  { label: "Estadísticas", icono: 
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <path d="M3 3v18h18" />
+    <path d="M20 18v-4" />
+    <path d="M16 18v-7" />
+    <path d="M12 18v-10" />
+    <path d="M8 18v-5" />
+  </svg>, href: "/estadisticas" },
 
   { label: "Productos", icono: 
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"  >
@@ -36,6 +45,14 @@ const navLinks = [
 	<path d="M4 18h4" />
   </svg>, href: "/pedidos" },
 
+  { 
+  label: "Cocina", icono: 
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M12 3c1.918 0 3.52 1.35 3.91 3.151a4 4 0 0 1 2.09 7.723l0 7.126h-12v-7.126a4 4 0 1 1 2.092 -7.723a4 4 0 0 1 3.908 -3.151" />
+    <path d="M6.161 17.009l11.839 -.009" />
+  </svg>, href: "/pedidos/cocina" },
+
   { label: "Usuarios", icono: 
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -43,15 +60,9 @@ const navLinks = [
     <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
   </svg>, href: "/usuarios" },
 
-  { label: "Estadísticas", icono: 
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-    <path d="M3 3v18h18" />
-    <path d="M20 18v-4" />
-    <path d="M16 18v-7" />
-    <path d="M12 18v-10" />
-    <path d="M8 18v-5" />
-  </svg>, href: "/estadisticas" },
+  
+
+  
 
 ];
 
@@ -91,17 +102,13 @@ export const NavBar = () => {
             <span className="text-md font-medium tracking-wide block text-[#606044]">
               Gestión de cocina
             </span>
-
-            
-            
           </div>
-
           
 
           {/* Links */}
           <nav>
-            <ul className="space-y-1.5">
-              <li className="mb-9">
+            <ul className="space-y-1.3">
+              <li className="mb-4">
                 <Link
                   to={"/"}
                   className={`flex items-center gap-2 m-2 px-4 py-2 font-semibold rounded-full transition-colors duration-350 bg-[#47AA66] text-black font-semibold shadow-md text-[#544518] hover:bg-[#47AA66] hover:text-[#F1F0CC]`}

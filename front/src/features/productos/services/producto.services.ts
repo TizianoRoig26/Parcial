@@ -66,3 +66,18 @@ export const assignIngredientes = async (
   });
   return response.data;
 };
+
+export const uploadImage = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await apiClient.post<{ url: string }>(
+    `/imagenes/api/v1/uploads/imagen`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data.url;
+};

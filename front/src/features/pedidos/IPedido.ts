@@ -11,6 +11,7 @@ export interface IPedido {
   costo_envio: number;
   total: number;
   notas: string;
+  pagado: boolean;
   created_at: string;
 }
 

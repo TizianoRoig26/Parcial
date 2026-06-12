@@ -145,8 +145,8 @@ export const ProductsPage = () => {
                   <span className="font-semibold text-black">${prod.precio_base}</span>
                 </td>
 
-                <td className="flex flex-row justify-around px-6 py-4 text-center">
-                    <span className="font-semibold text-black">{prod.unidad_medida.simbolo}</span>
+                <td className="px-6 py-4">
+                  <span className="font-semibold text-black">{prod.unidad_medida.simbolo}</span>
                 </td>
 
                 <td className="px-6 py-4">

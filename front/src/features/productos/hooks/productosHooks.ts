@@ -8,6 +8,7 @@ import {
   updateProducto,
   assignCategorias,
   assignIngredientes,
+  uploadImage,
 } from "../services/producto.services";
 import { getCategorias } from "../../categoria/services/categoria.services";
 import { getIngredientes } from "../../ingredientes/services/ingrediente.services";
@@ -103,16 +104,36 @@ export const useProductos = () => {
     setNombreFilter(nombre);
   };
 
+  const uploadImageMutation = useMutation({
+    mutationFn: uploadImage,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["productos"] });
+    },
+  });
+
   const handleSubmit = async (
     data: Omit<IProducto, "id" | "categorias" | "ingredientes">,
     categoriaIds: number[],
     ingredienteIds: number[],
+    file?: File,
   ) => {
     setErrorMessage(null);
     try {
+      let finalImageUrl = data.imagen_url;
+
+      // 1. Si hay un archivo seleccionado, primero lo subimos al servidor
+      if (file) {
+        finalImageUrl = await uploadImageMutation.mutateAsync(file);
+      }
+
+      const updatedData = {
+        ...data,
+        imagen_url: finalImageUrl,
+      };
+
       if (modal.type === "edit" && modal.producto.id) {
         const prodId = modal.producto.id;
-        await editMutation.mutateAsync({ id: prodId, data });
+        await editMutation.mutateAsync({ id: prodId, data: updatedData });
         await Promise.all([
           assignCategoriasMutation.mutateAsync({ id: prodId, ids: categoriaIds }),
           assignIngredientesMutation.mutateAsync({ id: prodId, ids: ingredienteIds }),
@@ -120,7 +141,7 @@ export const useProductos = () => {
         queryClient.invalidateQueries({ queryKey: ["productos"] });
         handleClose();
       } else {
-        const newProd = await createMutation.mutateAsync(data);
+        const newProd = await createMutation.mutateAsync(updatedData);
         if (newProd.id) {
           await Promise.all([
             assignCategoriasMutation.mutateAsync({ id: newProd.id, ids: categoriaIds }),
