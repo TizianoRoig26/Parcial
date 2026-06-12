@@ -46,6 +46,12 @@ export const cambioEstado = async (id: number, estado: string, motivo?: string):
   return response.data;
 }
 
+export const pagoPedido = async (id: number): Promise<any> => {
+  const response = await apiClient.patch(`${PATH}/${id}/pagar`);
+  console.log(response.data);
+  return response.data;
+}
+
 export const getDireccion = async (id: number): Promise<any> => {
   const response = await apiClient.get(`${DIREC}/${id}`);
   console.log(response.data);

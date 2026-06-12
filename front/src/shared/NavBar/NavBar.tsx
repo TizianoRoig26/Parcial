@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import logo from "../../assets/logo.png";
 
 
 const navLinks = [
@@ -91,7 +92,7 @@ export const NavBar = () => {
           {/* Logo + título con padding y separación */}
           <div className="flex flex-col items-center">
             <div className="text-3xl overflow-hidden font-bold flex items-center justify-center">
-              <img src="src/assets/logo.png" alt="logo" />
+              <img src={logo} alt="logo" />
             </div>
             <span className="text-2xl font-bold tracking-wide block text-[#0D4012]">
               BigPickle
