@@ -107,6 +107,17 @@ async def avanzar_estado_pedido(
 		roles_usuario=current_user.role_codes,
 	)
 
+@router.patch(
+    "/{id}/pagar",
+    response_model=PedidoPublic,
+    summary="Marcar pedido como pagado",
+)
+def pagar_pedido(
+    id: int,
+    current_user: Annotated[Usuario, Depends(require_role(["ADMIN", "PEDIDOS"]))],
+    svc: PedidoService = Depends(get_pedido_service),
+) -> PedidoPublic:
+    return svc.pagar_pedido(pedido_id=id)
 
 @router.post(
 	"/{id}/cancel",

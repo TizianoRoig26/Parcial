@@ -149,6 +149,20 @@ class PedidoService:
 		await self._emit_ws_events(pedido.id, data.estado_hacia, resultado)
 		return resultado
 
+	def pagar_pedido(self, pedido_id: int) -> PedidoPublic:
+		with self.uow:
+			pedido = self.uow.pedidos.get_by_id(pedido_id)
+			if not pedido:
+				raise HTTPException(
+					status_code=status.HTTP_404_NOT_FOUND,
+					detail=f"Pedido con id={pedido_id} no encontrado",
+				)
+
+			pedido.pagado = True
+			self.uow.pedidos.update(pedido)
+			resultado = PedidoPublic.model_validate(pedido)
+		return resultado
+
 	async def create(self, data: PedidoCreate, *, usuario_id: int) -> PedidoPublic:
 		with self.uow:
 			if not data.items:
