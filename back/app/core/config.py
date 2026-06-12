@@ -6,23 +6,12 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # ─── Base de datos (PostgreSQL — patrón u_05_v2) ──────────────────────────
-    postgres_user:     str = "postgres"
-    postgres_password: str = "password"
-    postgres_db:       str = "seguridad_jwt_db"
-    postgres_host:     str = "localhost"
-    postgres_port:     int = 5432
-
-
-# @computed_field:
-# Decorador de Pydantic v2 que indica que este atributo calculado
-# debe incluirse en la serialización del modelo (model_dump / JSON),
-# aunque no sea un campo persistido.
-
-# @property:
-# Convierte el método en una propiedad de solo lectura.
-# Permite acceder como atributo (obj.algo) en lugar de método (obj.algo()).
-# El valor se calcula dinámicamente en cada acceso.
+    # ─── PostgreSQL ──────────────────────────────────────────────────────────
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int
+    POSTGRES_DB: str 
     @computed_field
     @property
     def DATABASE_URL(self) -> str:
@@ -31,8 +20,8 @@ class Settings(BaseSettings):
         Para tests se sobreescribe con SQLite en memoria desde conftest.py.
         """
         return (
-            f"postgresql://{self.postgres_user}:{self.postgres_password}"
-            f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+            f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
 
     # ─── JWT ──────────────────────────────────────────────────────────────────
