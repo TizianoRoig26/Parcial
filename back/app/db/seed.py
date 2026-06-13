@@ -344,6 +344,7 @@ def seed_pedidos() -> None:
 		existing_pedidos = session.exec(select(Pedido)).all()
 		if existing_pedidos:
 			print("  [~] Limpiando pedidos existentes para re-seed...")
+			
 			session.exec(delete(HistorialEstadoPedido))
 			session.exec(delete(DetallePedido))
 			session.exec(delete(Pedido))
