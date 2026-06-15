@@ -64,13 +64,20 @@ export const ProductoModal = ({
       setPrecioBase(productoParaEditar.precio_base);
       setSelectedCategorias(productoParaEditar.categorias?.map(c => c.id!) ?? []);
       setSelectedIngredientes(productoParaEditar.ingredientes?.map(i => i.id!) ?? []);
-      setSelectedUnidadMedida(productoParaEditar.unidad_medida?.id ?? 0);
+      setSelectedUnidadMedida(productoParaEditar.unidad_medida?.id ?? productoParaEditar.unidad_venta_id ?? (unidadesMedidaDisponibles[0]?.id ?? 0));
     } else {
       setNombre(""); setDescripcion(""); setPrecioBase(0);
       setStockCantidad(0); 
       setSelectedCategorias([]); setSelectedIngredientes([]);
+      setSelectedUnidadMedida(unidadesMedidaDisponibles[0]?.id ?? 0);
     }
   }, [productoParaEditar, isOpen]);
+
+  useEffect(() => {
+    if (selectedUnidadMedida === 0 && unidadesMedidaDisponibles.length > 0) {
+      setSelectedUnidadMedida(productoParaEditar?.unidad_medida?.id ?? productoParaEditar?.unidad_venta_id ?? unidadesMedidaDisponibles[0].id ?? 0);
+    }
+  }, [unidadesMedidaDisponibles, selectedUnidadMedida, productoParaEditar]);
 
   if (!isOpen) return null;
 
@@ -195,15 +202,15 @@ export const ProductoModal = ({
             className={`cursor-pointer rounded-xl border-2 border-dashed transition-all duration-200 flex flex-col items-center justify-center gap-3 py-11
               ${
                 dragging
-                  ? "border-violet-500 bg-violet-500/10 shadow-lg shadow-violet-500/10"
-                  : "border-zinc-700 hover:border-violet-500/60 hover:bg-violet-500/5"
+                  ? "border-[#8C7045] bg-[#F4F3CF]/10 shadow-lg shadow-[#8C7045]/10"
+                  : "border-[#8C7045] hover:border-[#8C7045]/60 hover:bg-[#8C7045]/5"
               }`}
           >
             <div
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${dragging ? "bg-violet-500/20" : "bg-zinc-800"}`}
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${dragging ? "bg-[#8C7045]/20" : "bg-[#8C7045]/5"}`}
             >
               <svg
-                className={`w-6 h-6 transition-colors ${dragging ? "text-violet-400" : "text-zinc-500"}`}
+                className={`w-6 h-6 transition-colors ${dragging ? "text-[#8C7045]" : "text-[#8C7045]"}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -217,13 +224,13 @@ export const ProductoModal = ({
               </svg>
             </div>
             <div className="text-center">
-              <p className="text-sm text-zinc-300">
-                <span className="font-semibold text-violet-400">
+              <p className="text-sm text-[#8C7045]">
+                <span className="font-semibold text-[#8C7045]">
                   Click to browse
                 </span>{" "}
                 or drag & drop
               </p>
-              <p className="text-xs text-zinc-600 mt-1">
+              <p className="text-xs text-[#8C7045] mt-1">
                 PNG, JPG, GIF, WEBP · max 10 MB each
               </p>
             </div>
@@ -243,12 +250,12 @@ export const ProductoModal = ({
             {files.map((file, i) => (
               <li
                 key={i}
-                className="flex items-center gap-3 bg-zinc-800/70 hover:bg-zinc-800 rounded-xl px-3 py-2.5 transition-colors group/item"
+                className="flex items-center gap-3 bg-[#D5BF86] hover:bg-[#BEA972] rounded-xl px-3 py-2.5 transition-colors group/item"
               >
                 <img
                   src={URL.createObjectURL(file)}
                   alt={file.name}
-                  className="w-9 h-9 object-cover rounded-lg shrink-0 border border-white/5"
+                  className="w-9 h-9 object-cover rounded-lg shrink-0 border border-[#8C7045]"
                 />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-zinc-200 truncate font-medium">

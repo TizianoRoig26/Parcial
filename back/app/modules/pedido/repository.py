@@ -32,17 +32,10 @@ class PedidoRepository(BaseRepository[Pedido]):
 			).all()
 		)
 
-	def get_estadisticas(self) -> list[dict]:
-		result = self.session.execute(
-			text(
-				"SELECT mes_anio, producto_top_unidades, producto_top_nombre, "
-				"ticket_promedio_anual_global, ticket_promedio_mes, cantidad_pedidos "
-				"FROM vista_metricas_ultimo_anio"
-			)
-		)
-		return [dict(row._mapping) for row in result]
 	def count(self) -> int:
-		return self.session.exec(select(func.count(Pedido.id))).one()
+		return self.session.exec(
+			select(func.count(Pedido.id)).where(Pedido.deleted_at == None)
+		).one()
 
 
 class EstadoPedidoRepository(BaseRepository[EstadoPedido]):

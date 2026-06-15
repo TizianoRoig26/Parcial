@@ -360,7 +360,8 @@ def seed_pedidos() -> None:
 					{"producto": productos[0], "cantidad": 2},
 					{"producto": productos[1], "cantidad": 1},
 					{"producto": productos[24], "cantidad": 2},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "CONFIRMADO",
@@ -370,7 +371,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[11], "cantidad": 1},
 					{"producto": productos[21], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "EN_PREP",
@@ -380,7 +382,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[2], "cantidad": 1},
 					{"producto": productos[32], "cantidad": 2},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "EN_CAMINO",
@@ -390,7 +393,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[3], "cantidad": 1},
 					{"producto": productos[27], "cantidad": 2},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "ENTREGADO",
@@ -400,7 +404,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[4], "cantidad": 1},
 					{"producto": productos[31], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "CANCELADO",
@@ -410,7 +415,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[5], "cantidad": 1},
 					{"producto": productos[20], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "PENDIENTE",
@@ -421,7 +427,8 @@ def seed_pedidos() -> None:
 					{"producto": productos[6], "cantidad": 1},
 					{"producto": productos[33], "cantidad": 1},
 					{"producto": productos[28], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "CONFIRMADO",
@@ -431,7 +438,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[7], "cantidad": 1},
 					{"producto": productos[25], "cantidad": 2},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "EN_PREP",
@@ -441,7 +449,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[8], "cantidad": 1},
 					{"producto": productos[29], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "EN_CAMINO",
@@ -451,7 +460,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[9], "cantidad": 1},
 					{"producto": productos[30], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "ENTREGADO",
@@ -461,7 +471,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[10], "cantidad": 2},
 					{"producto": productos[24], "cantidad": 2},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "CANCELADO",
@@ -471,7 +482,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[12], "cantidad": 1},
 					{"producto": productos[23], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "PENDIENTE",
@@ -481,7 +493,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[13], "cantidad": 1},
 					{"producto": productos[35], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "CONFIRMADO",
@@ -491,7 +504,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[14], "cantidad": 2},
 					{"producto": productos[27], "cantidad": 2},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "EN_PREP",
@@ -501,7 +515,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[15], "cantidad": 1},
 					{"producto": productos[37], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "EN_CAMINO",
@@ -511,7 +526,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[16], "cantidad": 1},
 					{"producto": productos[22], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "ENTREGADO",
@@ -521,7 +537,8 @@ def seed_pedidos() -> None:
 				"detalles": [
 					{"producto": productos[17], "cantidad": 1},
 					{"producto": productos[26], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "PENDIENTE",
@@ -532,7 +549,8 @@ def seed_pedidos() -> None:
 					{"producto": productos[40], "cantidad": 6},
 					{"producto": productos[44], "cantidad": 6},
 					{"producto": productos[20], "cantidad": 1},
-				]
+				],
+				"pagado": True
 			},
 			{
 				"estado_codigo": "CONFIRMADO",
@@ -571,6 +589,7 @@ def seed_pedidos() -> None:
 				usuario_id=usuario.id,
 				estado_codigo=data["estado_codigo"],
 				forma_pago_codigo=data["forma_pago_codigo"],
+				pagado=data.get("pagado", False),
 				subtotal=subtotal,
 				costo_envio=data["costo_envio"],
 				total=total,

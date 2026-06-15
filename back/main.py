@@ -14,6 +14,7 @@ from app.modules.usuario.router import router as usuarios_router
 from app.modules.unidadMedida.router import router as unidad_medida_router
 from app.modules.pago.router import router as pagos_router
 from app.modules.imagen.router import router as imagen_router
+from app.modules.estadisticas.router import router as estadisticas_router
 
 # Importar modelos para registro en SQLModel
 from app.modules.categoria.models import Categoria
@@ -76,3 +77,4 @@ app.include_router(pedido_router, prefix="/pedidos", tags=["pedidos"])
 app.include_router(unidad_medida_router, prefix="/unidades-medida", tags=["unidades-medida"])
 app.include_router(pagos_router, prefix="/pagos", tags=["pagos"])
 app.include_router(imagen_router, prefix="/imagenes", tags=["imagenes"])
+app.include_router(estadisticas_router, prefix="/estadisticas", tags=["estadisticas"])

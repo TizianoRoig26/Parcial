@@ -1,64 +1,58 @@
 import { useState } from "react";
-import type { IProducto } from "../../productos";
-import { getProductos } from "../../productos";
-import { getCategorias } from "../../categoria";
-import { getIngredientes, type IIngrediente } from "../../ingredientes";
+import { EstadisticasService } from "../services/estadisticas.services";
 import { useQuery } from "@tanstack/react-query";
 
 
-export type ModalState =
-  | { type: "none" }
-  | { type: "create" }
-  | { type: "edit"; producto: IProducto };
-
-export const useProductos = () => {
-  const [modal, setModal] = useState<ModalState>({ type: "none" });
+export const useEstadisticas = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const handleClose = () => {
-    setModal({ type: "none" });
-    setErrorMessage(null);
-  };
-  const LIMIT = 100;
+  const [desde, setDesde] = useState("2026-01-01");
+  const [hasta, setHasta] = useState("2026-12-31");
+  const [agrupacion, setAgrupacion] = useState("day");
 
-  const { data: productos, isLoading, isError } = useQuery({
-    queryKey: ["productos"],
-    queryFn: () => getProductos(0, LIMIT),
-    staleTime: 1000 * 60 * 2,
-  });
-
-  const { data: categorias } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategorias,
+  const { data: kpis, isLoading: isLoadingKpis, isError: isErrorKpis } = useQuery({
+    queryKey: ["kpis"],
+    queryFn: () => EstadisticasService.getResumenKPIs(),
     staleTime: 1000 * 60 * 5,
   });
 
-  const { data: ingredientes } = useQuery({
-    queryKey: ["ingredientes"],
-    queryFn: () => getIngredientes(0, LIMIT),
+  const { data: ventasPeriodo, isLoading: isLoadingVentas, isError: isErrorVentas } = useQuery({
+    queryKey: ["ventasPeriodo", desde, hasta, agrupacion],
+    queryFn: () => EstadisticasService.getVentasPeriodo(desde, hasta, agrupacion),
     staleTime: 1000 * 60 * 5,
   });
 
-  const [nombreFilter, setNombreFilter] = useState<string>("");
+  const { data: ingresosFormaPago, isLoading: isLoadingIngresos, isError: isErrorIngresos } = useQuery({
+    queryKey: ["ingresosFormaPago", desde, hasta],
+    queryFn: () => EstadisticasService.getIngresosFormaPago(desde, hasta),
+    staleTime: 1000 * 60 * 5,
+  });
 
-  const IngredientesBajoStock = (productosList: IProducto[]) => {
-    return productosList
-      .filter((i) => i.stock_cantidad < 10)
-      .sort((a, b) => {
-        return a.stock_cantidad - b.stock_cantidad;
-      });
-  };
+  const { data: pedidosPorEstado, isLoading: isLoadingEstados, isError: isErrorEstados } = useQuery({
+    queryKey: ["pedidosPorEstado"],
+    queryFn: () => EstadisticasService.getPedidosPorEstado(),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const { data: productosMasVendidos, isLoading: isLoadingProductos, isError: isErrorProductos } = useQuery({
+    queryKey: ["productosMasVendidos"],
+    queryFn: () => EstadisticasService.getProductosMasVendidos(),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const isLoading = isLoadingKpis || isLoadingVentas || isLoadingIngresos || isLoadingEstados || isLoadingProductos;
+  const isError = isErrorKpis || isErrorVentas || isErrorIngresos || isErrorEstados || isErrorProductos;
 
   return {
-    modal,
-    setModal,
-    handleClose,
-    productos,
+    kpis,
+    ventasPeriodo,
+    ingresosFormaPago,
+    pedidosPorEstado,
+    productosMasVendidos,
     isLoading,
     isError,
-    categorias,
-    ingredientes,
-    nombreFilter,
-    setNombreFilter,
+    setDesde,
+    setHasta,
+    setAgrupacion,
     errorMessage,
     setErrorMessage
   };

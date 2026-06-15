@@ -3,6 +3,7 @@ import type { ICategoria } from "../ICategoria";
 import { createCategory, getCategorias, updateCategory, deleteCategory } from "../services/categoria.services";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { uploadImage } from "../../productos/services/producto.services";
 
 export type ModalState =
   | { type: "none" }
@@ -15,11 +16,34 @@ export const useCategorias = () => {
   const [modal, setModal] = useState<ModalState>({ type: "none" });
   const handleCloseModal = () => setModal({ type: "none" });
 
-  const handleSubmit = (categoria: ICategoria) => {
+   const uploadImageMutation = useMutation({
+      mutationFn: uploadImage,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["productos"] });
+      },
+    });
+
+  const handleSubmit = async (categoria: ICategoria, file?: File) => {
+    try{
+      let finalImageUrl = categoria.imagen_url;
+
+      if (file) {
+        finalImageUrl = await uploadImageMutation.mutateAsync(file);
+      }
+
+      const updatedData = {
+        ...categoria,
+        imagen_url: finalImageUrl,
+      };
+    
     if (modal.type === "edit") {
-      editMutation.mutate({ id: String(modal.categoria.id), category: categoria });
+      editMutation.mutate({ id: String(modal.categoria.id), category: updatedData });
     } else {
-      createMutation.mutate(categoria);
+      createMutation.mutate(updatedData);
+    }
+  } catch (err: any) {
+      const detail = err.response?.data?.detail || "Error al guardar la categoría";
+      console.log(detail);
     }
   };
 

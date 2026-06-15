@@ -4,51 +4,24 @@ import { getIngredientes } from "../../ingredientes/services/ingrediente.service
 import { getCategorias } from "../../categoria";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { getEstadisticas } from "../../pedidos/services/pedidos.services";
+import { useEstadisticas } from "../hooks/estadisticasHooks";
 
 
 export const EstadisticasPages = () => {
   const {
-    data: productosData,
-    isLoading: isLoadingProductos,
-    isError: isErrorProductos,
-  } = useQuery({
-    queryKey: ["productos", "stats"],
-    queryFn: () => getProductos(0, 1),
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const {
-    data: metricasData,
-    isLoading: isLoadingMetricas,
-    isError: isErrorMetricas,
-  } = useQuery({
-    queryKey: ["metricas"],
-    queryFn: () => getEstadisticas(),
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const {
-    data: ingredientesData,
-    isLoading: isLoadingIngredientes,
-    isError: isErrorIngredientes,
-  } = useQuery({
-    queryKey: ["ingredientes", "stats"],
-    queryFn: () => getIngredientes(0, 1),
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const {
-    data: categoriasData,
-    isLoading: isLoadingCategorias,
-    isError: isErrorCategorias,
-  } = useQuery({
-    queryKey: ["categorias", "stats"],
-    queryFn: () => getCategorias(),
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const isLoading = isLoadingProductos || isLoadingIngredientes || isLoadingCategorias || isLoadingMetricas;
-  const isError = isErrorProductos || isErrorIngredientes || isErrorCategorias || isErrorMetricas;
+    kpis,
+    ventasPeriodo,
+    ingresosFormaPago,
+    pedidosPorEstado,
+    productosMasVendidos,
+    setDesde,
+    setHasta,
+    setAgrupacion,
+    errorMessage,
+    setErrorMessage,
+    isLoading,
+    isError
+  } = useEstadisticas();
 
   return (
     <div className="w-full h-full flex flex-col min-h-0 overflow-hidden rounded-b-xl p-6">
@@ -60,10 +33,8 @@ export const EstadisticasPages = () => {
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
-          <div className="h-32 bg-white/50 border border-[#0D4012]/10 rounded-3xl"></div>
-          <div className="h-32 bg-white/50 border border-[#0D4012]/10 rounded-3xl"></div>
-          <div className="h-32 bg-white/50 border border-[#0D4012]/10 rounded-3xl"></div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-pulse">
+          <div className="h-32 bg-white/50 border border-[#0D4012]/10 rounded-3xl">Cargando...</div>
         </div>
       ) : isError ? (
         <div className="p-6 text-center text-red-600 bg-red-50 border border-red-200 rounded-2xl">
@@ -85,8 +56,8 @@ export const EstadisticasPages = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-sm font-semibold text-gray-600">Total Productos</p>
-                <h3 className="text-3xl font-black text-black mt-1">{productosData?.total ?? 0}</h3>
+                <p className="text-sm font-semibold text-gray-600">Total Pedidos del Mes</p>
+                <h3 className="text-3xl font-black text-black mt-1">{kpis?.cantidad_pedidos_mes}</h3>
               </div>
             </div>
 
@@ -100,8 +71,8 @@ export const EstadisticasPages = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-sm font-semibold text-gray-600">Total Ingredientes</p>
-                <h3 className="text-3xl font-black text-black mt-1">{ingredientesData?.total ?? 0}</h3>
+                <p className="text-sm font-semibold text-gray-600">Total Ventas de Hoy</p>
+                <h3 className="text-3xl font-black text-black mt-1">{kpis?.ventas_hoy}</h3>
               </div>
             </div>
 
@@ -115,8 +86,8 @@ export const EstadisticasPages = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-sm font-semibold text-gray-600">Total de Categorías</p>
-                <h3 className="text-3xl font-black text-black mt-1">{categoriasData?.total ?? 0}</h3>
+                <p className="text-sm font-semibold text-gray-600">Ticket Promedio</p>
+                <h3 className="text-3xl font-black text-black mt-1">${kpis?.ticket_promedio}</h3>
               </div>
             </div>
 
@@ -130,41 +101,12 @@ export const EstadisticasPages = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-sm font-semibold text-gray-600">Ticket Promedio</p>
-                <h3 className="text-3xl font-black text-black mt-1">
-                  ${metricasData && metricasData.length > 0 ? metricasData[0].ticket_promedio_anual_global : 0}
-                </h3>
+                <p className="text-sm font-semibold text-gray-600">Pedidos Activos</p>
+                <h3 className="text-3xl font-black text-black mt-1">{kpis?.pedidos_activos}</h3>
               </div>
             </div>
           </div>
 
-          {/* Gráfico de barras real */}
-          <div className="mt-8 bg-[#E5E4C1] border border-[#0D4012]/15 rounded-3xl p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-[#0D4012] mb-4">Pedidos Mensuales (Último Año)</h3>
-            <div className="w-full h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={metricasData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#0D4012" strokeOpacity={0.1} />
-                  <XAxis dataKey="mes_anio" stroke="#0D4012" tickLine={false} />
-                  <YAxis stroke="#0D4012" tickLine={false} />
-                  <Tooltip cursor={{ fill: '#47AA66', opacity: 0.05 }} />
-                  <Legend />
-                  <Bar dataKey="cantidad_pedidos" fill="#47AA66" name="Cantidad de Pedidos" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Sección de Datos Reales del Inventario */}
-          <div className="mt-8 pt-4 border-t border-[#0D4012]/10 flex justify-between text-xs text-gray-600">
-            <span>Total Productos en Catálogo: <strong className="text-black">{productosData?.total ?? 0}</strong></span>
-            <span>Total Ingredientes Registrados: <strong className="text-black">{ingredientesData?.total ?? 0}</strong></span>
-            {metricasData && metricasData.length > 0 && (
-              <span>
-                Producto estrella: <strong className="text-black">{metricasData[0].producto_top_nombre}</strong> ({metricasData[0].producto_top_unidades} u.)
-              </span>
-            )}
-          </div>
         </div>
       )}
     </div>

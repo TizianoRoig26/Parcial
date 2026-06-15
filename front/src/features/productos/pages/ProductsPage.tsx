@@ -20,7 +20,8 @@ export const ProductsPage = () => {
     categoriaFiltrada,
     nombreFilter,
     setNombreFilter,
-    ordenarProductos,
+    paginatedProductos,
+    filteredCount,
     handleFilterProductos,
     handleSubmit,
     handleAssignCategorias,
@@ -57,7 +58,7 @@ export const ProductsPage = () => {
           <ul>
             <li>
               <div className="flex flex-wrap gap-1 pt-2.5">
-                 <button
+                <button
                   onClick={() => handleFilterProductos(undefined, "")}
                   className="px-3 py-1.5 ml-3 bg-[#47AA66] text-black text-xs rounded-full font-semibold shadow-md hover:bg-[#699D64] transition-colors duration-300"
                 >
@@ -84,12 +85,12 @@ export const ProductsPage = () => {
               className="px-3 py-1.5 border border-[#0D4012] rounded-sm text-xs text-[#0D4012] placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[#0D4012] w-48 font-medium"
             />
             <button onClick={() => handleFilterProductos(categoriaFiltrada ?? undefined, "")} title="Aplicar Filtros">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 6h16" /><path d="M6 12h12" /><path d="M9 18h6" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 6h16" /><path d="M6 12h12" /><path d="M9 18h6" /></svg>
             </button>
           </div>
         </div>
       </div>
-     <div className="flex-1 rounded-xl border border-[#0D4012] overflow-y-auto min-h-0 shadow-lg custom-scrollbar">
+      <div className="flex-1 rounded-xl border border-[#0D4012] overflow-y-auto min-h-0 shadow-lg custom-scrollbar">
         <table className="w-full text-left table-fixed shadow-lg  ">
           <thead className="border-[#0D4012] ">
             <tr className="sticky top-0 z-10 bg-[#F4F3CF] text-center  font-normal text-[#0D4012] text-xs uppercase ">
@@ -103,7 +104,7 @@ export const ProductsPage = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-palm/20 bg-[#E5E4C1]">
-            {ordenarProductos(productos?.data || []).map((prod) => (
+            {paginatedProductos.map((prod) => (
               <tr key={prod.id} className="transition-colors text-center hover:bg-[#C9C8A6] border-t-1 border-[#0D4012]">
                 <td className=" ">
                   <div className="flex align-center justify-center">
@@ -130,8 +131,8 @@ export const ProductsPage = () => {
                 </td>
 
                 <td className="px-6 py-4">
-                  <div 
-                    className="text-xs text-black text-center max-w-[150px] truncate mx-auto font-medium" 
+                  <div
+                    className="text-xs text-black text-center max-w-[150px] truncate mx-auto font-medium"
                     title={prod.ingredientes?.map(i => i.nombre).join(", ")}
                   >
                     {prod.ingredientes?.length
@@ -146,7 +147,7 @@ export const ProductsPage = () => {
                 </td>
 
                 <td className="px-6 py-4">
-                  <span className="font-semibold text-black">{prod.unidad_medida.simbolo}</span>
+                  <span className="font-semibold text-black">{prod.unidad_medida?.simbolo || "--"}</span>
                 </td>
 
                 <td className="px-6 py-4">
@@ -175,7 +176,7 @@ export const ProductsPage = () => {
                         </svg>
                         :
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="icon icon-tabler icons-tabler-outline icon-tabler-eye-off">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"  />
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                           <path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" />
                           <path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" />
                           <path d="M3 3l18 18" />
@@ -190,7 +191,7 @@ export const ProductsPage = () => {
         </table>
         <div className="py-2 border-t-1 border-[#0D4012] flex items-center justify-between px-4 bg-[#F4F3CF] sticky bottom-0">
           <span className="text-sm text-[#0D4012] font-semibold">
-            Página {currentPage} de {totalPages} | {productos?.data?.length} Productos
+            Página {currentPage} de {totalPages} | {filteredCount} Productos
           </span>
           <div className="flex gap-2">
             <button
@@ -210,7 +211,7 @@ export const ProductsPage = () => {
           </div>
         </div>
 
-        {(!productos?.data || productos.data.length === 0) && (
+        {filteredCount === 0 && (
           <div className="py-20 text-center">
             <h3 className="text-lg font-semibold text-black">No hay productos</h3>
           </div>

@@ -10,7 +10,7 @@ from app.core.websocket import manager
 from app.core.deps import get_current_active_user, require_role
 from app.core.database import engine, get_session
 from app.core.security import decode_access_token
-from app.modules.pedido.schemas import DetallePedidoPublic, PedidoCreate, PedidoEstadoUpdate, PedidoList, PedidoPublic, MetricasUltimoAnio
+from app.modules.pedido.schemas import DetallePedidoPublic, PedidoCreate, PedidoEstadoUpdate, PedidoList, PedidoPublic
 from app.modules.pedido.service import PedidoService
 from app.modules.pedido.unit_of_work import PedidosUnitOfWork, get_uow
 from app.modules.usuario.unit_of_work import UsuariosUnitOfWork
@@ -244,14 +244,6 @@ def list_cliente_pedidos(
         mis.sort(key=lambda p: p.id or 0, reverse=True)
         return [PedidoPublic.model_validate(p) for p in mis]
 
-@router.get("/cajero/estadisticas", response_model=list[MetricasUltimoAnio])
-def list_cajero_estadisticas(
-    _user: Annotated[UserPublic, Depends(require_role(CAJERO_ROLES))],
-    svc: PedidoService = Depends(get_pedido_service),
-) -> list[dict]:
-    """GET /api/v1/cajero/estadisticas — Obtiene estadísticas de pedidos del último año."""
-    return svc.get_estadisticas()
-    
 
 @router.websocket("/cocina/ws")
 async def websocket_endpoint(

@@ -1,73 +1,50 @@
-# React + TypeScript + Vite
+# Frontend - Sistema de Gestión Gastronómica y Administración de Pedidos
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este directorio contiene la interfaz de usuario web interactiva del sistema de gestión gastronómica, construida con React y diseñada para interactuar con la API del backend.
 
-Currently, two official plugins are available:
+## Tecnologías Utilizadas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+* React 19
+* TypeScript
+* Tailwind CSS 4
+* Vite
+* Zustand (Gestión de estado global)
+* TanStack React Query (Sincronización de datos con el servidor)
+* Axios (Cliente HTTP)
+* React Router DOM (Enrutamiento y navegación)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Guía de Instalación y Ejecución
 
-## Expanding the ESLint configuration
+Siga estos pasos para iniciar la aplicación frontend en su entorno local:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Requisitos Previos
+* Tener instalado Node.js (se recomienda la versión LTS activa).
+* Tener instalado el gestor de paquetes global **PNPM**. Si no lo tiene, puede instalarlo ejecutando:
+  ```bash
+  npm install -g pnpm
+  ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Paso 1: Configurar las Variables de Entorno (.env)
+Verifique que en la raíz de la carpeta `front` exista el archivo `.env` con las siguientes direcciones configuradas para conectarse con la API y los canales de WebSocket del backend:
+```env
+VITE_API_URL=http://localhost:8000
+VITE_API_BASE_URL=http://localhost:8000
+VITE_API_URL_BASE=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000/pedidos/cocina/ws
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Paso 2: Instalar Dependencias mediante PNPM
+Instale todas las dependencias del proyecto frontend utilizando PNPM:
+```bash
+pnpm install
 ```
+
+### Paso 3: Levantar el Servidor de Desarrollo
+Inicie la aplicación web ejecutando:
+```bash
+pnpm run dev
+```
+
+La aplicación estará disponible en su navegador en la dirección `http://localhost:5173`.

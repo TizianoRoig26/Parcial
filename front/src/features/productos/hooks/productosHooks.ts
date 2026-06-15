@@ -30,11 +30,14 @@ export const useProductos = () => {
     setErrorMessage(null);
   };
   const [currentPage, setCurrentPage] = useState(1);
-  const LIMIT = 30;
+  const LIMIT = 20;
+
+  const [categoriaFiltrada, setCategoriaFiltrada] = useState<number | null>(null);
+  const [nombreFilter, setNombreFilter] = useState<string>("");
 
   const { data: productos, isLoading, isError } = useQuery({
-    queryKey: ["productos", currentPage],
-    queryFn: () => getProductos((currentPage - 1) * LIMIT, LIMIT),
+    queryKey: ["productos", currentPage, categoriaFiltrada, nombreFilter],
+    queryFn: () => getProductos((currentPage - 1) * LIMIT, LIMIT, nombreFilter || undefined, categoriaFiltrada || undefined),
     staleTime: 1000 * 60 * 2,
   });
 
@@ -87,9 +90,6 @@ export const useProductos = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["productos"] }),
   });
 
-  const [categoriaFiltrada, setCategoriaFiltrada] = useState<number | null>(null);
-  const [nombreFilter, setNombreFilter] = useState<string>("");
-
   const ordenarProductos = (productosList: IProducto[]) => {
     return productosList
       .filter((p) => (categoriaFiltrada ? p.categorias?.some((c) => c.id === categoriaFiltrada) : true))
@@ -99,9 +99,13 @@ export const useProductos = () => {
       });
   };
 
+  const paginatedProductos = productos?.data || [];
+  const filteredCount = productos?.total ?? 0;
+
   const handleFilterProductos = (categoria?: number, nombre: string = "") => {
     setCategoriaFiltrada(categoria ?? null);
     setNombreFilter(nombre);
+    setCurrentPage(1);
   };
 
   const uploadImageMutation = useMutation({
@@ -121,7 +125,6 @@ export const useProductos = () => {
     try {
       let finalImageUrl = data.imagen_url;
 
-      // 1. Si hay un archivo seleccionado, primero lo subimos al servidor
       if (file) {
         finalImageUrl = await uploadImageMutation.mutateAsync(file);
       }
@@ -188,6 +191,8 @@ export const useProductos = () => {
     nombreFilter,
     setNombreFilter,
     ordenarProductos,
+    paginatedProductos,
+    filteredCount,
     handleFilterProductos,
     handleSubmit,
     handleAssignCategorias,

@@ -52,7 +52,7 @@ export const CategoryPage = () => {
                     {cat.imagen_url && (
                       <img src={cat.imagen_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
                     )}
-                    <div className="flex flex-col">
+                    <div className="flex flex-col text-start">
                     <p className="font-bold text-[#0D4012]">{cat.nombre}</p>
                     <p className="text-sm text-black max-w-[200px] truncate ">{cat.descripcion}</p>
                     </div>

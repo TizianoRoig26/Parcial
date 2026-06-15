@@ -5,8 +5,20 @@ const PATH = "/productos";
 
 type PaginatedResponse = { data: IProducto[]; total: number };
 
-export const getProductos = async (offset: number, limit: number): Promise<PaginatedResponse> => {
-  const response = await apiClient.get<PaginatedResponse>(`${PATH}?offset=${offset}&limit=${limit}`);
+export const getProductos = async (
+  offset: number,
+  limit: number,
+  nombre?: string,
+  categoriaId?: number
+): Promise<PaginatedResponse> => {
+  let url = `${PATH}?offset=${offset}&limit=${limit}`;
+  if (nombre) {
+    url += `&nombre=${encodeURIComponent(nombre)}`;
+  }
+  if (categoriaId) {
+    url += `&categoria_id=${categoriaId}`;
+  }
+  const response = await apiClient.get<PaginatedResponse>(url);
 
   return response.data;
 };
@@ -66,6 +78,7 @@ export const assignIngredientes = async (
   });
   return response.data;
 };
+
 
 export const uploadImage = async (file: File): Promise<string> => {
   const formData = new FormData();

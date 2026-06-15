@@ -61,12 +61,3 @@ class DetallePedidoList(SQLModel):
 	data: list[DetallePedidoPublic]
 	total: int
 
-
-class MetricasUltimoAnio(SQLModel):
-	mes_anio: str
-	producto_top_unidades: int
-	producto_top_nombre: str
-	ticket_promedio_anual_global: Decimal
-	ticket_promedio_mes: Decimal
-	cantidad_pedidos: int
-

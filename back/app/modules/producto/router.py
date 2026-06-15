@@ -41,9 +41,11 @@ def create_producto(
 def list_productos(
     offset: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    nombre: str | None = Query(None),
+    categoria_id: int | None = Query(None),
     svc: ProductoService = Depends(get_Producto_service),
 ) -> ProductoList:
-    return svc.get_all(offset=offset, limit=limit)
+    return svc.get_all(offset=offset, limit=limit, nombre=nombre, categoria_id=categoria_id)
 
 
 

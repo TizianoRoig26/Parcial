@@ -327,17 +327,12 @@ class PedidoService:
 
 	def get_all(self, offset: int = 0, limit: int = 20) -> PedidoList:
 		with self.uow:
-			pedidos = self.uow.pedidos.get_all()
+			pedidos = self.uow.pedidos.get_all(offset=offset, limit=limit)
 			total = self.uow.pedidos.count()
 			return PedidoList(
 				data=[PedidoPublic.model_validate(pedido) for pedido in pedidos],
 				total=total,
 			)
-
-	def get_estadisticas(self) -> list[dict]:
-		with self.uow:
-			return self.uow.pedidos.get_estadisticas()
-
 
 	def get_detalles_por_pedido(self, pedido_id: int) -> list[DetallePedido]:
 		with self.uow:
