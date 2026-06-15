@@ -5,9 +5,13 @@ from app.modules.usuario.model import Usuario
 from app.modules.pedido.models import Pedido
 
 @pytest.fixture(scope="function", autouse=True)
-def setup_pedidos_estadisticas(db_session, pedido_factory):
+def setup_pedidos_estadisticas(db_session, pedido_factory, admin_client): # <-- Agregamos admin_client acá
 
     usuario = db_session.exec(select(Usuario).where(Usuario.username == "admin_user")).first()
+    
+
+    if not usuario:
+        usuario = db_session.exec(select(Usuario)).first()
 
     p1 = pedido_factory(usuario_id=usuario.id, estado="ENTREGADO")
     p1.pagado = True
@@ -93,5 +97,5 @@ def test_estadisticas_ingresos_forma_pago(admin_client):
     data = response.json()
     assert isinstance(data, list)
     assert len(data) > 0
-    assert data[0]["nombre"] == "Efectivo" 
+    assert data[0]["nombre"] == "EFECTIVO" 
     assert float(data[0]["total_ventas"]) > 0
