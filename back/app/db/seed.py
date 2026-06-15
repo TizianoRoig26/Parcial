@@ -574,15 +574,23 @@ def seed_pedidos() -> None:
 			}
 		]
 
-		# Distribuir las fechas de manera irregular para variar la cantidad de pedidos por mes
-		desfases = [2, 5, 10, 32, 35, 40, 42, 45, 65, 92, 95, 98, 105, 152, 160, 182, 185, 190, 212, 220]
+		# Distribuir las fechas dentro del mes de junio (mes 6) para evitar pedidos en meses pasados
+		dias_junio = [1, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 13, 14, 14, 15, 15, 15]
 		now = datetime.datetime.now(datetime.timezone.utc)
+		anio_actual = now.year
 		for idx, data in enumerate(pedidos_data):
 			subtotal = sum([d["producto"].precio_base * d["cantidad"] for d in data["detalles"]])
 			total = subtotal + data["costo_envio"]
 
-			dias_restar = desfases[idx] if idx < len(desfases) else idx * 15
-			created_date = now - datetime.timedelta(days=dias_restar)
+			dia = dias_junio[idx] if idx < len(dias_junio) else 15
+			created_date = datetime.datetime(
+				year=anio_actual,
+				month=6,
+				day=dia,
+				hour=(12 + (idx % 8)) % 24,
+				minute=(10 * idx) % 60,
+				tzinfo=datetime.timezone.utc
+			)
 
 			pedido = Pedido(
 				usuario_id=usuario.id,
