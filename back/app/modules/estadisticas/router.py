@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Annotated
-from back.app.core.deps import require_role
-from back.app.modules.usuario.model import Usuario
+from app.core.deps import require_role
+from app.modules.usuario.model import Usuario
 from fastapi import APIRouter, Depends, Query, status
 from sqlmodel import Session
 
