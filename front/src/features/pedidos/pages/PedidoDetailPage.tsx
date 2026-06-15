@@ -55,8 +55,6 @@ export const PedidoDetailPage = () => {
       case "CONFIRMADO":
         return "EN_PREP";
       case "EN_PREP":
-        return "EN_CAMINO";
-      case "EN_CAMINO":
         return "ENTREGADO";
       default:
         return null;
@@ -69,8 +67,6 @@ export const PedidoDetailPage = () => {
         return "Confirmar Pedido";
       case "EN_PREP":
         return "Iniciar Preparación";
-      case "EN_CAMINO":
-        return "Despachar Envío";
       case "ENTREGADO":
         return "Marcar como Entregado";
       default:
@@ -86,8 +82,6 @@ export const PedidoDetailPage = () => {
         return "bg-blue-100 text-blue-800 border-blue-300";
       case "EN_PREP":
         return "bg-purple-100 text-purple-800 border-purple-300";
-      case "EN_CAMINO":
-        return "bg-indigo-100 text-indigo-800 border-indigo-300";
       case "ENTREGADO":
         return "bg-green-100 text-green-800 border-green-300";
       case "CANCELADO":
@@ -116,7 +110,6 @@ export const PedidoDetailPage = () => {
           </svg>
           Volver a Pedidos
         </Link>
-
         <div className="flex gap-2">
           {sePuedeCancelar && (
             <button
@@ -237,7 +230,7 @@ export const PedidoDetailPage = () => {
                         <span className="font-bold block">{item.nombre_snapshot}</span>
                         {item.personalizacion && item.personalizacion.length > 0 && (
                           <span className="text-xs text-gray-500 italic block mt-0.5">
-                            Personalizado (Ingredientes eliminados)
+                            Personalizado 
                           </span>
                         )}
                       </td>

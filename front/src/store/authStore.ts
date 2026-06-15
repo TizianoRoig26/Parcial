@@ -23,7 +23,6 @@ interface AuthState {
 
   hasRole: (...roles: UserRole[]) => boolean;
   login: (username: string, password: string) => Promise<void>;
-  register: (payload: UserRegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   clearSession: () => void;
@@ -70,19 +69,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Error de inicio de sesión";
       set({ user: null, isAuthenticated: false, isLoading: false, error: msg });
-      throw e;
-    }
-  },
-
-  register: async (payload) => {
-    set({ isLoading: true, error: null });
-    try {
-      await authApi.requestRegister(payload);
-      set({ isLoading: false });
-      await get().login(payload.username, payload.password);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Error al registrarse";
-      set({ isLoading: false, error: msg });
       throw e;
     }
   },

@@ -1,5 +1,6 @@
 import { usePedidos } from "../hooks/pedidosHooks";
 import { VistaCocina } from "../components/VistaCocina";
+import { ConnectionBadge } from "../../../shared/layout/ConnectionBadge";
 
 export const CocinaPage = () => {
   const {
@@ -18,6 +19,7 @@ export const CocinaPage = () => {
             <h1 className="text-3xl font-bold text-[#006D35] tracking-tight ">Gestión de Pedidos en Cocina</h1>
             <p className="text-gray-600 mt-1">Gestiona los pedidos en cocina</p>
           </div>
+          <ConnectionBadge />
         </div>
       </div>
       <VistaCocina />

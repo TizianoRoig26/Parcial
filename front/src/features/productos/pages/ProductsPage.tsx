@@ -2,6 +2,7 @@ import { getUnidadesMedida, getUnidadesMedidaById } from "../../unidadMedida/ser
 import { ProductoModal } from "../components/ProductoModal";
 import { useProductos } from "../hooks/productosHooks";
 import { useAuthStore } from "../../../store/authStore";
+import { getOptimizedImageUrl } from "../../../shared/utils/cloudinary";
 
 export const ProductsPage = () => {
   const {
@@ -109,7 +110,7 @@ export const ProductsPage = () => {
                 <td className=" ">
                   <div className="flex align-center justify-center">
                     {prod.imagen_url && (
-                      <img src={prod.imagen_url} alt="" className="w-10 h-10 object-cover shadow-sm" />
+                      <img src={getOptimizedImageUrl(prod.imagen_url)} alt={prod.nombre} className="w-10 h-10 object-cover shadow-sm" />
                     )}
                   </div>
                 </td>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
+import { useWsStore } from "../../../store/wsStore";
 
 const WS_URL = import.meta.env.VITE_WS_URL;
 
@@ -109,6 +110,7 @@ export function useWebSocket({
     const connect = () => {
       if (cancelled) return;
 
+      useWsStore.getState().setStatus("connecting");
       const ws = new WebSocket(WS_URL);
       currentWs = ws;
       // Exponemos el socket en wsRef para que subscribeToOrder pueda usarlo
@@ -125,6 +127,9 @@ export function useWebSocket({
         // Reconexión exitosa: resetear backoff para que el próximo intento
         // (si ocurre) empiece de nuevo desde el delay mínimo.
         retryCount = 0;
+        useWsStore.getState().setStatus("connected");
+        useWsStore.getState().resetRetry();
+        useWsStore.getState().setError(null);
         // Emitir evento sintético para que las páginas sepan que el canal está listo
         // y puedan recargar datos o re-suscribirse a pedidos activos que estaban
         // siguiendo antes de la desconexión.
@@ -144,6 +149,7 @@ export function useWebSocket({
       ws.onerror = () => {
         // Los errores de WebSocket siempre van seguidos de un evento onclose.
         // Toda la lógica de reconexión se centraliza allí para no duplicar código.
+        useWsStore.getState().setError("Error en la conexión de WebSocket");
       };
 
       ws.onclose = (e) => {
@@ -155,6 +161,13 @@ export function useWebSocket({
         const wasNormal = e.code === 1000; // cierre limpio / intencional
         const wasAuthRejected = e.code === 1008; // cookie inválida o expirada
 
+        useWsStore.getState().setStatus("disconnected");
+        if (wasAuthRejected) {
+          useWsStore.getState().setError("Autenticación de WebSocket rechazada");
+        } else if (!wasNormal) {
+          useWsStore.getState().setError(e.reason || "Conexión de WebSocket cerrada de forma anormal");
+        }
+
         // No reintentar si: el componente se desmontó, fue un cierre limpio,
         // o el backend rechazó la autenticación (reintentar no sirve de nada).
         if (cancelled || wasNormal || wasAuthRejected) return;
@@ -162,6 +175,7 @@ export function useWebSocket({
         // Calcular el delay del próximo intento con backoff exponencial y un techo de 30 s.
         // Fórmula: 1000 * 2^retryCount → 2 s, 4 s, 8 s, 16 s, 30 s (cap), 30 s, …
         retryCount++;
+        useWsStore.getState().incrementRetry();
         const delay = Math.min(1000 * 2 ** retryCount, 30_000);
         console.warn(
           `[WS] Reconectando en ${delay / 1000}s (intento ${retryCount})`,
@@ -179,6 +193,7 @@ export function useWebSocket({
       if (retryTimer !== null) clearTimeout(retryTimer);
       if (currentWs) closeCleanly(currentWs);
       wsRef.current = null;
+      useWsStore.getState().clearState();
     };
   }, [enabled]);
 

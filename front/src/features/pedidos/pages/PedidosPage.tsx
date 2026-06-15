@@ -1,7 +1,7 @@
 import { usePedidos, UsuarioNombre, PedidoDetalles } from "../hooks/pedidosHooks";
 import { VistaPrincipal } from "../components/VistaPrincipal";
 import { VistaSecundaria } from "../components/VistaSecundaria";
-import { VistaCocina } from "../components/VistaCocina";
+import { ConnectionBadge } from "../../../shared/layout/ConnectionBadge";
 export const PedidoPage = () => {
   const {
     pedidos,
@@ -23,6 +23,7 @@ export const PedidoPage = () => {
           <div>
             <h1 className="text-3xl font-bold text-[#006D35] tracking-tight ">Gestión de Pedidos</h1>
             <p className="text-gray-600 mt-1">Gestiona los pedidos realizados</p>
+            <ConnectionBadge />
           </div>
           <button onClick={handleCambiarVista} className="px-4 py-2 rounded-lg bg-[#006D35] text-white hover:bg-[#006D35]/80 transition-colors">
             Cambiar vista

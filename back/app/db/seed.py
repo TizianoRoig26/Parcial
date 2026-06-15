@@ -313,7 +313,6 @@ def seed_estados_pedido() -> None:
 		EstadoPedido(codigo="PENDIENTE", descripcion="Pendiente de confirmación", orden=1, es_terminal=False),
 		EstadoPedido(codigo="CONFIRMADO", descripcion="Pedido confirmado", orden=2, es_terminal=False),
 		EstadoPedido(codigo="EN_PREP", descripcion="En preparación", orden=3, es_terminal=False),
-		EstadoPedido(codigo="EN_CAMINO", descripcion="En camino", orden=4, es_terminal=False),
 		EstadoPedido(codigo="ENTREGADO", descripcion="Entregado", orden=5, es_terminal=True),
 		EstadoPedido(codigo="CANCELADO", descripcion="Cancelado", orden=6, es_terminal=True),
 	]
@@ -386,7 +385,7 @@ def seed_pedidos() -> None:
 				"pagado": True
 			},
 			{
-				"estado_codigo": "EN_CAMINO",
+				"estado_codigo": "ENTREGADO",
 				"forma_pago_codigo": "EFECTIVO",
 				"costo_envio": Decimal("400.00"),
 				"notas": "Pedido 4: Tocar timbre del portón gris",
@@ -453,7 +452,7 @@ def seed_pedidos() -> None:
 				"pagado": True
 			},
 			{
-				"estado_codigo": "EN_CAMINO",
+				"estado_codigo": "ENTREGADO",
 				"forma_pago_codigo": "EFECTIVO",
 				"costo_envio": Decimal("500.00"),
 				"notas": "Pedido 10: Llamar al celular al llegar",
@@ -519,7 +518,7 @@ def seed_pedidos() -> None:
 				"pagado": True
 			},
 			{
-				"estado_codigo": "EN_CAMINO",
+				"estado_codigo": "ENTREGADO",
 				"forma_pago_codigo": "EFECTIVO",
 				"costo_envio": Decimal("500.00"),
 				"notas": "Pedido 16: Enviar cambio de 10000",
@@ -633,46 +632,3 @@ if __name__ == "__main__":
 	seed_pedido_catalogos()
 	seed_pedidos()
 
-
-# Crear vista
-# CREATE OR REPLACE VIEW vista_metricas_ultimo_anio AS
-# WITH pedidos_ultimo_anio AS (
-#     SELECT 
-#         id,
-#         total,
-#         DATE_TRUNC('month', created_at) AS mes
-#     FROM pedidos
-#     WHERE created_at >= NOW() - INTERVAL '1 year'
-#       AND deleted_at IS NULL
-# ),
-# metricas_por_mes AS (
-#     SELECT 
-#         TO_CHAR(mes, 'YYYY-MM') AS mes_anio,
-#         COUNT(id) AS cantidad_pedidos,
-#         ROUND(AVG(total), 2) AS ticket_promedio_mes
-#     FROM pedidos_ultimo_anio
-#     GROUP BY mes
-# ),
-# ticket_promedio_global AS (
-#     SELECT ROUND(AVG(total), 2) AS ticket_promedio_anio
-#     FROM pedidos_ultimo_anio
-# ),
-# producto_mas_vendido AS (
-#     SELECT 
-#         dp.nombre_snapshot AS nombre_producto,
-#         SUM(dp.cantidad) AS total_unidades_vendidas
-#     FROM detalles_pedido dp
-#     JOIN pedidos_ultimo_anio p ON dp.pedido_id = p.id
-#     GROUP BY dp.producto_id, dp.nombre_snapshot
-#     ORDER BY total_unidades_vendidas DESC
-#     LIMIT 1
-# )
-# SELECT 
-#     m.mes_anio,
-#     m.cantidad_pedidos,
-#     m.ticket_promedio_mes,
-#     (SELECT ticket_promedio_anio FROM ticket_promedio_global) AS ticket_promedio_anual_global,
-#     (SELECT nombre_producto FROM producto_mas_vendido) AS producto_top_nombre,
-#     (SELECT total_unidades_vendidas FROM producto_mas_vendido) AS producto_top_unidades
-# FROM metricas_por_mes m
-# ORDER BY m.mes_anio DESC;

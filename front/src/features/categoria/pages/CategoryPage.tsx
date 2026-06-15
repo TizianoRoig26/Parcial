@@ -1,6 +1,7 @@
 import { CategoriaModal } from "../components/CategoriaModal";
 import { useCategorias } from "../hooks/categoriaHooks";
 import type { ICategoria } from "../ICategoria";
+import { getOptimizedImageUrl } from "../../../shared/utils/cloudinary";
 
 export const CategoryPage = () => {
   const {
@@ -50,7 +51,7 @@ export const CategoryPage = () => {
                 <td className="">
                   <div className="flex align-center pl-15 items-center gap-10">
                     {cat.imagen_url && (
-                      <img src={cat.imagen_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                      <img src={getOptimizedImageUrl(cat.imagen_url)} alt={cat.nombre} className="w-12 h-12 rounded-lg object-cover" />
                     )}
                     <div className="flex flex-col text-start">
                     <p className="font-bold text-[#0D4012]">{cat.nombre}</p>
