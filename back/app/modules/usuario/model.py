@@ -24,6 +24,7 @@ class Usuario(SQLModel, table=True):
     username:        str        = Field(index=True, unique=True)
     full_name:       str
     email:           str        = Field(index=True, unique=True)  
+    celular:         Optional[str] = Field(default=None, nullable=True)
     hashed_password: str
     disabled:        bool       = Field(default=False)
     

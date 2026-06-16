@@ -37,7 +37,10 @@ import logging
 from datetime import datetime
 from typing import Optional
 
-from app.core.exceptions.custom_exceptions import ResourceNotFoundError, BusinessRuleError
+from app.core.exceptions.custom_exceptions import (
+    ResourceNotFoundError,
+    BusinessRuleError,
+)
 from sqlmodel import Session
 
 from app.core.config import settings
@@ -84,8 +87,9 @@ class PaymentService:
         """
         return settings.MP_PUBLIC_KEY
 
-    def _crear_preferencia_mp(self, monto: float, titulo: str,
-                               pedido_id: int, back_urls: dict) -> dict:
+    def _crear_preferencia_mp(
+        self, monto: float, titulo: str, pedido_id: int, back_urls: dict
+    ) -> dict:
         """
         Crea una preferencia de pago en MercadoPago.
 
@@ -119,19 +123,22 @@ class PaymentService:
             # para que la aplicación pueda arrancar aunque no esté instalado.
             # Si no está, el error es claro: "pip install mercadopago".
             import mercadopago
+
             sdk = mercadopago.SDK(access_token)
 
             # ── Construcción del payload de la preferencia ──────────────
             preference_data = {
-                "items": [{
-                    "title": titulo,
-                    "quantity": 1,
-                    # En este caso la orden es un solo ítem genérico.
-                    # Podríamos enviar los ítems reales del pedido si quisieramos
-                    # mostrar el detalle en el checkout de MP.
-                    "unit_price": float(monto),
-                    "currency_id": "ARS",  # Moneda: pesos argentinos
-                }],
+                "items": [
+                    {
+                        "title": titulo,
+                        "quantity": 1,
+                        # En este caso la orden es un solo ítem genérico.
+                        # Podríamos enviar los ítems reales del pedido si quisieramos
+                        # mostrar el detalle en el checkout de MP.
+                        "unit_price": float(monto),
+                        "currency_id": "ARS",  # Moneda: pesos argentinos
+                    }
+                ],
                 "external_reference": str(pedido_id),
                 # external_reference: MP devuelve esto en el webhook.
                 # Nos permite identificar qué pedido nuestro corresponde al pago.
@@ -205,6 +212,7 @@ class PaymentService:
 
         try:
             import mercadopago
+
             sdk = mercadopago.SDK(access_token)
             result = sdk.payment().get(payment_id)
 
@@ -214,10 +222,10 @@ class PaymentService:
 
             response = result.get("response", {})
             return {
-                "mp_payment_id":        response.get("id"),
-                "mp_status":            response.get("status"),
+                "mp_payment_id": response.get("id"),
+                "mp_status": response.get("status"),
                 # status: approved | rejected | pending | in_process | ...
-                "mp_status_detail":     response.get("status_detail"),
+                "mp_status_detail": response.get("status_detail"),
                 # status_detail: accredited | pending_waiting_payment | ...
                 # Nos da más granularidad sobre POR QUÉ está en ese estado.
                 "mp_merchant_order_id": response.get("merchant_order_id"),
@@ -269,9 +277,9 @@ class PaymentService:
         # Usamos ngrok_url si está configurado (para desarrollo con túneles).
         ngrok_url = settings.NGROK_URL or "http://localhost:8000"
         back_urls = {
-            "success": f"{ngrok_url}/api/v1/pagos/redirect/{pedido_id}/success",
-            "failure": f"{ngrok_url}/api/v1/pagos/redirect/{pedido_id}/failure",
-            "pending": f"{ngrok_url}/api/v1/pagos/redirect/{pedido_id}/pending",
+            "success": f"{ngrok_url}/pagos/redirect/{pedido_id}/success",
+            "failure": f"{ngrok_url}/pagos/redirect/{pedido_id}/failure",
+            "pending": f"{ngrok_url}/pagos/redirect/{pedido_id}/pending",
         }
 
         # ── Creación de la preferencia en MP ────────────────────────────
@@ -292,7 +300,7 @@ class PaymentService:
             pago = Pago(
                 pedido_id=pedido_id,
                 monto=pedido.total,
-                estado="pendiente",              # arranca pendiente
+                estado="pendiente",  # arranca pendiente
                 mp_preference_id=mp_data["preference_id"],
                 mp_init_point=mp_data.get("init_point"),
                 idempotency_key=str(uuid.uuid4()),  # UUID único para idempotencia
@@ -301,14 +309,13 @@ class PaymentService:
 
             # ── Respuesta al frontend ───────────────────────────────────
             return PagoCrearResponse(
-                pago_id=pago.id,                     # ID de nuestro pago local
+                pago_id=pago.id,  # ID de nuestro pago local
                 preference_id=mp_data["preference_id"],  # ID de la preferencia en MP
-                init_point=mp_data.get("init_point"),     # URL del checkout de MP
-                public_key=self._get_mp_public_key(),     # Public Key para el SDK frontend
+                init_point=mp_data.get("init_point"),  # URL del checkout de MP
+                public_key=self._get_mp_public_key(),  # Public Key para el SDK frontend
             )
 
-    def procesar_webhook(self, data: dict,
-                         query_params: Optional[dict] = None) -> dict:
+    def procesar_webhook(self, data: dict, query_params: Optional[dict] = None) -> dict:
         """
         PASO 5 DEL FLUJO: Procesar notificaciones webhook de MercadoPago.
 
@@ -400,14 +407,12 @@ class PaymentService:
             #
             if estado_mp == "approved":
                 nuevo_estado = "aprobado"
-            elif estado_mp in ("rejected", "cancelled",
-                               "refunded", "charged_back"):
+            elif estado_mp in ("rejected", "cancelled", "refunded", "charged_back"):
                 nuevo_estado = "rechazado"
             elif estado_mp in ("pending", "in_process", "authorized"):
                 nuevo_estado = "pendiente"
             else:
-                return {"status": "ignored",
-                        "reason": f"Unknown status: {estado_mp}"}
+                return {"status": "ignored", "reason": f"Unknown status: {estado_mp}"}
 
             # PASO 3: Buscar el pago en nuestra BD
             with PagoUnitOfWork(self._session) as uow:
@@ -425,16 +430,14 @@ class PaymentService:
                 # Esto puede pasar si el webhook llega ANTES de que
                 # hayamos creado el pago en nuestra BD (race condition).
                 if not pago:
-                    return {"status": "ignored",
-                            "reason": "Pago not found in local DB"}
+                    return {"status": "ignored", "reason": "Pago not found in local DB"}
 
                 # ── Idempotencia ─────────────────────────────────────────
                 # Si el pago ya fue procesado (no está pendiente), ignoramos
                 # la notificación. Esto evita procesar dos veces el mismo
                 # webhook si MP reenvía la notificación.
                 if pago.estado != "pendiente":
-                    return {"status": "already_processed",
-                            "estado": pago.estado}
+                    return {"status": "already_processed", "estado": pago.estado}
 
                 # PASO 4: Actualizar el registro de pago con los datos de MP
                 pago.mp_payment_id = int(pago_mp_id)
@@ -471,8 +474,9 @@ class PaymentService:
             logger.exception("Error procesando webhook MP")
             return {"status": "error", "reason": str(e)}
 
-    def confirmar_pago(self, pedido_id: int,
-                       payment_id: Optional[int] = None) -> PagoEstadoResponse:
+    def confirmar_pago(
+        self, pedido_id: int, payment_id: Optional[int] = None
+    ) -> PagoEstadoResponse:
         """
         Consulta y sincroniza el estado de un pago manualmente.
 
@@ -519,8 +523,7 @@ class PaymentService:
             estado_mp = mp_info.get("mp_status")
             if estado_mp == "approved":
                 nuevo_estado = "aprobado"
-            elif estado_mp in ("rejected", "cancelled",
-                               "refunded", "charged_back"):
+            elif estado_mp in ("rejected", "cancelled", "refunded", "charged_back"):
                 nuevo_estado = "rechazado"
             else:
                 nuevo_estado = "pendiente"
@@ -538,9 +541,7 @@ class PaymentService:
                     pago.mp_payment_id = resolved_payment_id
                     pago.mp_status = estado_mp
                     pago.mp_status_detail = mp_info.get("mp_status_detail")
-                    pago.mp_merchant_order_id = mp_info.get(
-                        "mp_merchant_order_id"
-                    )
+                    pago.mp_merchant_order_id = mp_info.get("mp_merchant_order_id")
                     pago.estado = nuevo_estado
                     pago.updated_at = datetime.utcnow()
                     uow.pagos.update(pago)

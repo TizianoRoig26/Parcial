@@ -1,6 +1,7 @@
-
 from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
+from decimal import Decimal
+from sqlalchemy import Numeric
 
 from app.modules.producto.links import ProductoCategoria, ProductoIngrediente
 
@@ -9,30 +10,30 @@ if TYPE_CHECKING:
     from app.modules.ingerediente.models import Ingrediente
     from app.modules.unidadMedida.models import UnidadMedida
 
+
 class Producto(SQLModel, table=True):
     __tablename__ = "productos"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str
     descripcion: str
-    precio_base: int
+    precio_base: Decimal = Field(sa_type=Numeric(10, 2))
     imagen_url: Optional[str] = Field(default=None, nullable=True)
     is_active: bool = Field(default=True)
-    unidad_venta_id: Optional[int] = Field(default=None, foreign_key="unidad_medidas.id")
-    
-    unidad_medida: Optional["UnidadMedida"] = Relationship(
-        back_populates="productos")
+    unidad_venta_id: Optional[int] = Field(
+        default=None, foreign_key="unidad_medidas.id"
+    )
 
+    unidad_medida: Optional["UnidadMedida"] = Relationship(back_populates="productos")
 
     categorias: List["Categoria"] = Relationship(
         back_populates="productos",
         link_model=ProductoCategoria,
-        sa_relationship_kwargs={"overlaps": "producto,categoria"}
+        sa_relationship_kwargs={"overlaps": "producto,categoria"},
     )
-
 
     ingredientes: List["Ingrediente"] = Relationship(
         back_populates="productos",
         link_model=ProductoIngrediente,
-        sa_relationship_kwargs={"overlaps": "producto,ingrediente"}
+        sa_relationship_kwargs={"overlaps": "producto,ingrediente"},
     )

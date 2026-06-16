@@ -35,8 +35,8 @@ async def lifespan(app: FastAPI):
     """Gestión del ciclo de vida de la aplicación."""
     create_db_and_tables()
     seed_roles()
-    seed_pedido_catalogos()
-    seed_pedidos()
+    # seed_pedido_catalogos()
+    # seed_pedidos()
     yield
 
 
@@ -79,5 +79,7 @@ app.include_router(direccion_router, prefix="/direcciones", tags=["direcciones"]
 app.include_router(pedido_router, prefix="/pedidos", tags=["pedidos"])
 app.include_router(unidad_medida_router, prefix="/unidades-medida", tags=["unidades-medida"])
 app.include_router(pagos_router, prefix="/pagos", tags=["pagos"])
+app.include_router(pagos_router, prefix="/api/v1/pagos", tags=["pagos"])
+
 app.include_router(imagen_router, prefix="/imagenes", tags=["imagenes"])
 app.include_router(estadisticas_router, prefix="/estadisticas", tags=["estadisticas"])

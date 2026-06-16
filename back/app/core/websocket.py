@@ -14,11 +14,13 @@ class ConnectionManager:
         self.socket_rooms: dict[WebSocket, set[str]] = {}
         self.rooms: dict[str, set[WebSocket]] = {}
 
-    async def connect(self, websocket: WebSocket, *, role: str = "", user_id: int = 0) -> None:
+    async def connect(
+        self, websocket: WebSocket, *, role: str = "", user_id: int = 0
+    ) -> None:
         # Acepta el handshake y registra la conexión
         await websocket.accept()
         self.active_connections.add(websocket)
-        
+
         if role:
             role_key = f"role:{role.lower()}"
             # Unir el socket a su room de rol
@@ -40,13 +42,15 @@ class ConnectionManager:
                 # Si la room quedó vacía, eliminarla para no acumular rooms huérfanas
                 if not self.rooms[room]:
                     del self.rooms[room]
-                    
+
         logger.info(
             f"Conexión WebSocket finalizada. Rooms liberadas: {rooms}. "
             f"Total rooms activas: {len(self.rooms)}"
         )
 
-    async def broadcast_to_role(self, role: str, event_type: str, data: dict[str, Any]) -> None:
+    async def broadcast_to_role(
+        self, role: str, event_type: str, data: dict[str, Any]
+    ) -> None:
         """
         Envía un evento a TODOS los sockets en la room de un rol específico.
 
@@ -62,7 +66,9 @@ class ConnectionManager:
         room = f"role:{role.lower()}"
         await self._emit_to_room(room, event_type, data)
 
-    async def broadcast_to_order(self, order_id: int, event_type: str, data: dict[str, Any]) -> None:
+    async def broadcast_to_order(
+        self, order_id: int, event_type: str, data: dict[str, Any]
+    ) -> None:
         """
         Envía un evento a todos los sockets suscritos a un pedido específico.
 
@@ -110,7 +116,9 @@ class ConnectionManager:
                         sent_to.add(connection)
                     except Exception as e:
                         # Conexión caída — la removemos y seguimos con las demás
-                        logger.warning(f"Error al enviar WebSocket. Removiendo conexión: {e}")
+                        logger.warning(
+                            f"Error al enviar WebSocket. Removiendo conexión: {e}"
+                        )
                         self.disconnect(connection)
 
     async def broadcast(self, event_type: str, data: dict[str, Any]) -> None:
@@ -134,7 +142,9 @@ class ConnectionManager:
                         await connection.send_json(payload)
                         sent_to.add(connection)
                     except Exception as e:
-                        logger.warning(f"Error al enviar WebSocket. Removiendo conexión: {e}")
+                        logger.warning(
+                            f"Error al enviar WebSocket. Removiendo conexión: {e}"
+                        )
                         self.disconnect(connection)
 
     # =========================================================================
@@ -193,7 +203,9 @@ class ConnectionManager:
             self.socket_rooms[websocket] = set()
         self.socket_rooms[websocket].add(room)
 
-    async def _emit_to_room(self, room: str, event_type: str, data: dict[str, Any]) -> None:
+    async def _emit_to_room(
+        self, room: str, event_type: str, data: dict[str, Any]
+    ) -> None:
         """
         Método interno para enviar un evento a todos los sockets de una room.
 
@@ -213,7 +225,9 @@ class ConnectionManager:
             return
 
         payload = {"event": event_type, "data": data}
-        logger.info(f"Emit {event_type} a room {room} ({len(self.rooms[room])} sockets).")
+        logger.info(
+            f"Emit {event_type} a room {room} ({len(self.rooms[room])} sockets)."
+        )
 
         for connection in list(self.rooms[room]):
             try:

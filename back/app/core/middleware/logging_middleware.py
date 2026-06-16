@@ -22,7 +22,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
     LOGIN_PATH = "/api/v1/auth/token"
     MAX_FAILED_ATTEMPTS = 5
-    BLOCK_SECONDS = 30
+    BLOCK_SECONDS = 900
     WINDOW_SECONDS = 900
 
     _attempts_by_ip: dict[str, list[float]] = {}

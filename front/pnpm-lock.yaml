@@ -17,9 +17,6 @@ importers:
       es-toolkit:
         specifier: ^1.47.0
         version: 1.47.0
-      primereact:
-        specifier: ^10.9.8
-        version: 10.9.8(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -494,11 +491,6 @@ packages:
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
       '@types/react': ^19.2.0
-
-  '@types/react-transition-group@4.4.12':
-    resolution: {integrity: sha512-8TV6R3h2j7a91c+1DXdJi3Syo69zzIZbz7Lg5tORM5LEJG7X/E6a1V3drRyBRZq7/utz7A+c4OgYLiLcYGHG6w==}
-    peerDependencies:
-      '@types/react': '*'
 
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
@@ -1136,17 +1128,6 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  primereact@10.9.8:
-    resolution: {integrity: sha512-kX0hOce2WpG24CzRJWlHrRPsvbCsOyBDqsHCC/p4W8okxHIdkOxxIkQBUVO0gRuh0Lxl5o7lmEEtUMzrlicf8g==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
-      react: ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
 
@@ -1754,10 +1735,6 @@ snapshots:
     dependencies:
       '@types/react': 19.2.14
 
-  '@types/react-transition-group@4.4.12(@types/react@19.2.14)':
-    dependencies:
-      '@types/react': 19.2.14
-
   '@types/react@19.2.14':
     dependencies:
       csstype: 3.2.3
@@ -2358,15 +2335,6 @@ snapshots:
       source-map-js: 1.2.1
 
   prelude-ls@1.2.1: {}
-
-  primereact@10.9.8(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
-    dependencies:
-      '@types/react-transition-group': 4.4.12(@types/react@19.2.14)
-      react: 19.2.5
-      react-dom: 19.2.5(react@19.2.5)
-      react-transition-group: 4.4.5(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-    optionalDependencies:
-      '@types/react': 19.2.14
 
   prop-types@15.8.1:
     dependencies:

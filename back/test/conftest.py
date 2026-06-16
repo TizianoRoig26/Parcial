@@ -19,6 +19,12 @@ from app.modules.usuario.service import UsuarioService
 from app.modules.producto.models import Producto
 from app.modules.pedido.models import Pedido, DetallePedido, EstadoPedido, FormaPago
 
+@pytest.fixture(scope="function", autouse=True)
+def reset_login_limits():
+    from app.core.middleware.logging_middleware import LoggingMiddleware
+    LoggingMiddleware._attempts_by_ip.clear()
+    LoggingMiddleware._blocked_until.clear()
+
 @pytest.fixture(scope="session")
 def engine():
     test_db_url = os.getenv("DATABASE_URL")

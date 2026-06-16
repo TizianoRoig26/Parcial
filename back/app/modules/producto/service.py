@@ -73,8 +73,7 @@ class ProductoService:
             # Check duplicado si cambia nombre
             if data.nombre and data.nombre != producto.nombre:
                 if uow.Producto.get_by_nombre(data.nombre):
-                    raise HTTPException(
-                        status_code=status.HTTP_409_CONFLICT,
+                    raise DuplicateResourceError(
                         detail=f"Ya existe otro producto con el nombre '{data.nombre}'"
                     )
 

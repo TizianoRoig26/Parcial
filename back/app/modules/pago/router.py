@@ -105,7 +105,12 @@ def confirm_payment(
 
 
 @router.get("/redirect/{pedido_id}/{status}")
-async def redirect_after_pago(pedido_id: int, status: str, request: Request):
+async def redirect_after_pago(
+    pedido_id: int,
+    status: str,
+    request: Request,
+    session: Session = Depends(get_session),
+):
     """
     Endpoint de redirección post-pago.
 
@@ -115,13 +120,23 @@ async def redirect_after_pago(pedido_id: int, status: str, request: Request):
       /redirect/{pedido_id}/failure  → pago rechazado
       /redirect/{pedido_id}/pending  → pago pendiente
 
-    Este endpoint redirige al frontend React a:
-      /orders/{pedido_id}/{status}
-    manteniendo cualquier query param que MP haya agregado (ej: collection_id).
+    Este endpoint redirige al catálogo del frontend del cliente y,
+    si el estado es 'success', marca el pedido realizado como pagado.
     """
-    frontend_url = settings.VITE_FRONTEND_URL or "http://localhost:5173"
+    if status == "success":
+        from app.modules.pedido.models import Pedido
+        from datetime import datetime
+
+        pedido = session.get(Pedido, pedido_id)
+        if pedido:
+            pedido.pagado = True
+            pedido.updated_at = datetime.utcnow()
+            session.add(pedido)
+            session.commit()
+
+    frontend_cliente_url = settings.FRONTEND_CLIENTE_URL
     qs = request.url.query
-    url = f"{frontend_url}/orders/{pedido_id}/{status}"
+    url = f"{frontend_cliente_url}/catalogo"
     if qs:
         url += f"?{qs}"
     return RedirectResponse(url=url)

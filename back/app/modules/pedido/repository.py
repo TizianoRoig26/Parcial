@@ -22,13 +22,11 @@ class PedidoRepository(BaseRepository[Pedido]):
 			).all()
 		)
 
-	def get_all(self, offset: int = 0, limit: int = 80) -> list[Pedido]:
+	def get_all(self) -> list[Pedido]:
 		return list(
 			self.session.exec(
 				select(Pedido)
 				.order_by(Pedido.created_at.asc(), Pedido.updated_at.asc())
-				.offset(offset)
-				.limit(limit)
 			).all()
 		)
 

@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     MP_PUBLIC_KEY:    Optional[str] = None
     MP_WEBHOOK_URL:   Optional[str] = None
     NGROK_URL:        Optional[str] = None
+    FRONTEND_CLIENTE_URL: str = "http://localhost:5174"
 
     model_config = {
         "env_file":          ".env",

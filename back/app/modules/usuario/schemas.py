@@ -15,12 +15,14 @@ class UserCreate(SQLModel):
     username:  str
     full_name: str
     email:     EmailStr
+    celular:   str
     password:  str = Field(min_length=8)
     
 class UserCreateTrabajador(UserCreate):
     username:  str
     full_name: str
     email:     EmailStr
+    celular:   str 
     password:  str = Field(min_length=8)
     roles:     list[str] = Field(default_factory=list) 
     
@@ -32,6 +34,7 @@ class UserPublic(SQLModel):
     username:  str
     full_name: str
     email:     str
+    celular:   str | None = None
     disabled:  bool
     roles:     list[RolPublic] = Field(default_factory=list)
 
