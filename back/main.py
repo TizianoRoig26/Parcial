@@ -1,4 +1,6 @@
 # back/main.py
+from app.core.middleware.rate_limit.rate_limit_middleware import RateLimitMiddleware
+from app.core.middleware.timing_middleware import TimingMiddleware
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
@@ -52,7 +54,9 @@ app = FastAPI(
 
 register_exception_handlers(app)
 
+app.add_middleware(RateLimitMiddleware) 
 app.add_middleware(LoggingMiddleware)
+app.add_middleware(TimingMiddleware)
 
 # Configuración de CORS
 app.add_middleware(
