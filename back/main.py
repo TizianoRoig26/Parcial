@@ -54,7 +54,7 @@ app.add_middleware(LoggingMiddleware)
 # Configuración de CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # En producción, usa una lista de dominios específicos
+    allow_origins=["http://localhost:5173","http://localhost:5174"],  # En producción, usa una lista de dominios específicos
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
