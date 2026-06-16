@@ -2,8 +2,9 @@ import asyncio
 import cloudinary
 import cloudinary.uploader
 import logging
-from fastapi import HTTPException, UploadFile, status
+from fastapi import UploadFile
 from sqlmodel import Session
+from app.core.exceptions.custom_exceptions import BusinessRuleError
 
 from app.core.config import settings
 from app.modules.imagen.models import Imagen
@@ -30,17 +31,15 @@ class ImagenService:
 
     async def upload_image(self, file: UploadFile) -> ImagenPublic:
         if file.content_type not in ALLOWED_TYPES:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Tipo de archivo inválido: {file.content_type}. Se requiere image/jpeg, image/png o image/webp.",
+            raise BusinessRuleError(
+                message=f"Tipo de archivo inválido: {file.content_type}. Se requiere image/jpeg, image/png o image/webp.",
             )
             
         content = await file.read()
         
         if len(content) > MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="El archivo excede el tamaño máximo permitido de 5 MB.",
+            raise BusinessRuleError(
+                message="El archivo excede el tamaño máximo permitido de 5 MB.",
             )
             
         upload_result = await asyncio.to_thread(

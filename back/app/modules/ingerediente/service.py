@@ -1,6 +1,6 @@
 
-from fastapi import HTTPException, status
 from sqlmodel import Session
+from app.core.exceptions.custom_exceptions import ResourceNotFoundError, DuplicateResourceError
 
 from app.modules.ingerediente.unit_of_work import IngredienteUnitOfWork
 from app.modules.ingerediente.models import Ingrediente
@@ -14,18 +14,16 @@ class IngredienteService:
     def _get_or_404(self, uow: IngredienteUnitOfWork, id: int) -> Ingrediente:
         ingrediente = uow.Ingrediente.get_by_id(id)
         if not ingrediente:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Ingrediente con id={id} no encontrado",
-            )
+            raise ResourceNotFoundError(resource="ingrediente", identifier=id)
         return ingrediente
 
     def create(self, data: IngredienteCreate) -> IngredientePublic:
         with IngredienteUnitOfWork(self._session) as uow:
             if uow.Ingrediente.get_by_nombre(data.nombre):
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=f"Ya existe un ingrediente con el nombre '{data.nombre}'"
+                raise DuplicateResourceError(
+                    resource="ingrediente",
+                    field="nombre",
+                    value=data.nombre,
                 )
             ingrediente = Ingrediente.model_validate(data)
             uow.Ingrediente.add(ingrediente)
@@ -63,9 +61,10 @@ class IngredienteService:
 
             if data.nombre and data.nombre != ingrediente.nombre:
                 if uow.Ingrediente.get_by_nombre(data.nombre):
-                    raise HTTPException(
-                        status_code=status.HTTP_409_CONFLICT,
-                        detail=f"Ya existe otro ingrediente con el nombre '{data.nombre}'"
+                    raise DuplicateResourceError(
+                        resource="ingrediente",
+                        field="nombre",
+                        value=data.nombre,
                     )
 
             patch = data.model_dump(exclude_unset=True)

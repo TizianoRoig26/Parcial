@@ -1,6 +1,6 @@
 
-from fastapi import HTTPException, status
 from sqlmodel import Session
+from app.core.exceptions.custom_exceptions import ResourceNotFoundError
 
 from app.modules.unidadMedida.unit_of_work import UnidadMedidaUnitOfWork
 from app.modules.unidadMedida.models import UnidadMedida
@@ -14,10 +14,7 @@ class UnidadMedidaService:
     def _get_or_404(self, uow: UnidadMedidaUnitOfWork, id: int) -> UnidadMedida:
         unidadMedida = uow.unidadMedida.get_by_id(id)
         if not unidadMedida:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Unidad de Medida con id={id} no encontrado",
-            )
+            raise ResourceNotFoundError(resource="unidad de medida", identifier=id)
         return unidadMedida
 
     def get_all(self, offset: int = 0, limit: int = 20) -> UnidadMedidaList:

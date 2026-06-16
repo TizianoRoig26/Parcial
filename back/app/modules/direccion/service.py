@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
-from fastapi import HTTPException, status
 from sqlmodel import Session
+from app.core.exceptions.custom_exceptions import ResourceNotFoundError
 
 from app.modules.direccion.model import DireccionEntrega
 from app.modules.direccion.schemas import (
@@ -27,10 +27,7 @@ class DireccionService:
     ) -> DireccionEntrega:
         direccion = uow.Direccion.get_by_id_and_usuario(direccion_id, usuario_id)
         if not direccion:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Direccion con id={direccion_id} no encontrada",
-            )
+            raise ResourceNotFoundError(resource="direccion", identifier=direccion_id)
         return direccion
 
     def create(self, usuario_id: int, data: DireccionCreate) -> DireccionPublic:

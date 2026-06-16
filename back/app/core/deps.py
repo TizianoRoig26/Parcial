@@ -42,6 +42,7 @@ from app.modules.usuario.model import Usuario     # Modelo de dominio Usuario
 from app.modules.usuario.schemas import UserPublic     # Schema de usuario público
 
 from fastapi import Request
+from app.core.exceptions.custom_exceptions import AuthenticationError, AuthorizationError, BusinessRuleError
 
 class OAuth2PasswordBearerWithCookie(OAuth2PasswordBearer):
     async def __call__(self, request: Request) -> str | None:
@@ -61,11 +62,7 @@ class OAuth2PasswordBearerWithCookie(OAuth2PasswordBearer):
                 
         if not token:
             if self.auto_error:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="No autenticado",
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
+                raise AuthenticationError(message="No autenticado")
             else:
                 return None
         return token
@@ -89,10 +86,8 @@ async def get_current_user(
     """
 
     # Excepción estándar para errores de autenticación (401)
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Credenciales inválidas o token expirado",
-        headers={"WWW-Authenticate": "Bearer"},  # Obligatorio en OAuth2 por protocolo
+    credentials_exception = AuthenticationError(
+        message="Credenciales inválidas o token expirado"
     )
 
     # Decodifica el JWT → devuelve payload o None si es inválido
@@ -129,9 +124,8 @@ async def get_current_active_user(
 
     if current_user.disabled:
         # Error semántico: el usuario existe pero no puede operar
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cuenta de usuario desactivada",
+        raise BusinessRuleError(
+            message="Cuenta de usuario desactivada",
         )
 
     return current_user # Usuario válido y activo
@@ -164,9 +158,8 @@ def require_role(allowed_roles: list[str]):
         current_roles = [role.upper() for role in current_user.role_codes]
 
         if not any(role in normalized_roles for role in current_roles):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=(
+            raise AuthorizationError(
+                message=(
                     f"Permisos insuficientes. Tus roles son '{current_roles}'. "
                     f"Se requiere uno de: {normalized_roles}"
                 ),

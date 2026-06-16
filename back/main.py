@@ -41,6 +41,7 @@ async def lifespan(app: FastAPI):
 
 
 from fastapi.middleware.cors import CORSMiddleware
+from app.core.exceptions.exceptions_handlers import register_exception_handlers
 
 app = FastAPI(
     title="API de Gestión de Productos",
@@ -48,6 +49,8 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+register_exception_handlers(app)
 
 app.add_middleware(LoggingMiddleware)
 

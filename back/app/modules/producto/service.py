@@ -1,6 +1,5 @@
-
-from fastapi import HTTPException, status
 from sqlmodel import Session
+from app.core.exceptions.custom_exceptions import ResourceNotFoundError, DuplicateResourceError
 
 from app.modules.producto.unit_of_work import ProductoUnitOfWork
 from app.modules.producto.models import Producto
@@ -17,20 +16,14 @@ class ProductoService:
     def _get_or_404(self, uow: ProductoUnitOfWork, id: int) -> Producto:
         producto = uow.Producto.get_by_id(id)
         if not producto:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Producto con id={id} no encontrado",
-            )
+            raise ResourceNotFoundError(f"Producto con id={id} no encontrado")
         return producto
 
     def create(self, data: ProductoCreate) -> ProductoPublic:
         with ProductoUnitOfWork(self._session) as uow:
             # Check duplicado
             if uow.Producto.get_by_nombre(data.nombre):
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=f"Ya existe un producto con el nombre '{data.nombre}'"
-                )
+                raise DuplicateResourceError(f"Ya existe un producto con el nombre '{data.nombre}'")
             producto = Producto.model_validate(data)
             uow.Producto.add(producto)
             result = ProductoPublic.model_validate(producto)

@@ -10,6 +10,7 @@ from app.core.websocket import manager
 from app.core.deps import get_current_active_user, require_role
 from app.core.database import engine, get_session
 from app.core.security import decode_access_token
+from app.core.exceptions.custom_exceptions import BusinessRuleError
 from app.modules.pedido.schemas import DetallePedidoPublic, PedidoCreate, PedidoEstadoUpdate, PedidoList, PedidoPublic
 from app.modules.pedido.service import PedidoService
 from app.modules.pedido.unit_of_work import PedidosUnitOfWork, get_uow
@@ -131,7 +132,7 @@ async def cancelar_pedido_usuario(
  	svc: PedidoService = Depends(get_pedido_service),
 ) -> PedidoPublic:
 	if data.estado_hacia != "CANCELADO":
-		raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El estado objetivo debe ser 'CANCELADO'")
+		raise BusinessRuleError(message="El estado objetivo debe ser 'CANCELADO'")
 	return await svc.cancelar_por_usuario(pedido_id=id, motivo=data.motivo, usuario_id=current_user.id)
 
 
@@ -148,7 +149,7 @@ async def cancelar_pedido_admin(
  	svc: PedidoService = Depends(get_pedido_service),
 ) -> PedidoPublic:
 	if data.estado_hacia != "CANCELADO":
-		raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El estado objetivo debe ser 'CANCELADO'")
+		raise BusinessRuleError(message="El estado objetivo debe ser 'CANCELADO'")
 	return await svc.cancelar_por_admin(pedido_id=id, motivo=data.motivo, usuario_id=current_user.id)
 
 

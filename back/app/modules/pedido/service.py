@@ -3,7 +3,7 @@ from collections.abc import Iterable
 from decimal import Decimal, ROUND_HALF_UP
 
 import logging
-from fastapi import HTTPException, status
+from app.core.exceptions.custom_exceptions import ResourceNotFoundError, BusinessRuleError, AuthorizationError
 from sqlmodel import Session
 
 from app.core.websocket import manager
@@ -66,42 +66,36 @@ class PedidoService:
 		motivo: str | None = None,
 	) -> None:
 		if estado_desde not in cls.TRANSICIONES:
-			raise HTTPException(
-				status_code=status.HTTP_400_BAD_REQUEST,
-				detail=f"Estado origen '{estado_desde}' no reconocido",
+			raise BusinessRuleError(
+				message=f"Estado origen '{estado_desde}' no reconocido",
 			)
 
 		if estado_hacia not in cls.TRANSICIONES:
-			raise HTTPException(
-				status_code=status.HTTP_400_BAD_REQUEST,
-				detail=f"Estado destino '{estado_hacia}' no reconocido",
+			raise BusinessRuleError(
+				message=f"Estado destino '{estado_hacia}' no reconocido",
 			)
 
 		if estado_hacia not in cls.TRANSICIONES[estado_desde]:
-			raise HTTPException(
-				status_code=status.HTTP_400_BAD_REQUEST,
-				detail=f"Transición no permitida: {estado_desde} -> {estado_hacia}",
+			raise BusinessRuleError(
+				message=f"Transición no permitida: {estado_desde} -> {estado_hacia}",
 			)
 
 		if estado_desde in cls.ESTADOS_TERMINALES:
-			raise HTTPException(
-				status_code=status.HTTP_400_BAD_REQUEST,
-				detail=f"El estado '{estado_desde}' es terminal y no admite transiciones",
+			raise BusinessRuleError(
+				message=f"El estado '{estado_desde}' es terminal y no admite transiciones",
 			)
 
 		if estado_hacia == "CANCELADO":
 			if not motivo or not motivo.strip():
-				raise HTTPException(
-					status_code=status.HTTP_400_BAD_REQUEST,
-					detail="El motivo es obligatorio cuando el estado destino es CANCELADO",
+				raise BusinessRuleError(
+					message="El motivo es obligatorio cuando el estado destino es CANCELADO",
 				)
 
 			if estado_desde == "EN_PREP":
 				roles = set(roles_usuario or [])
 				if roles.isdisjoint(cls.ROLES_PARA_CANCELAR_DESDE_EN_PREP):
-					raise HTTPException(
-						status_code=status.HTTP_403_FORBIDDEN,
-						detail="Solo ADMIN o PEDIDOS pueden cancelar un pedido en EN_PREP",
+					raise AuthorizationError(
+						message="Solo ADMIN o PEDIDOS pueden cancelar un pedido en EN_PREP",
 					)
 
 	@classmethod
@@ -119,9 +113,9 @@ class PedidoService:
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)
 			if not pedido:
-				raise HTTPException(
-					status_code=status.HTTP_404_NOT_FOUND,
-					detail=f"Pedido con id={pedido_id} no encontrado",
+				raise ResourceNotFoundError(
+					resource="pedido",
+					identifier=pedido_id,
 				)
 
 			estado_desde = pedido.estado_codigo
@@ -153,9 +147,9 @@ class PedidoService:
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)
 			if not pedido:
-				raise HTTPException(
-					status_code=status.HTTP_404_NOT_FOUND,
-					detail=f"Pedido con id={pedido_id} no encontrado",
+				raise ResourceNotFoundError(
+					resource="pedido",
+					identifier=pedido_id,
 				)
 
 			pedido.pagado = True
@@ -166,32 +160,29 @@ class PedidoService:
 	async def create(self, data: PedidoCreate, *, usuario_id: int) -> PedidoPublic:
 		with self.uow:
 			if not data.items:
-				raise HTTPException(
-					status_code=status.HTTP_400_BAD_REQUEST,
-					detail="El pedido debe incluir al menos un item",
+				raise BusinessRuleError(
+					message="El pedido debe incluir al menos un item",
 				)
     
 			estado_pendiente = self.uow.estados_pedido.get_by_codigo("PENDIENTE")
    
 			forma_pago = self.uow.formas_pago.get_by_codigo(data.forma_pago_codigo)
 			if not forma_pago or not forma_pago.habilitado:
-				raise HTTPException(
-					status_code=status.HTTP_400_BAD_REQUEST,
-					detail=f"Forma de pago '{data.forma_pago_codigo}' no disponible",
+				raise BusinessRuleError(
+					message=f"Forma de pago '{data.forma_pago_codigo}' no disponible",
 				)
 
 			direccion = None
 			if data.direccion_id is not None:
 				direccion = self.uow.direcciones.get_by_id_and_usuario(data.direccion_id, usuario_id)
 				if not direccion:
-					raise HTTPException(
-						status_code=status.HTTP_404_NOT_FOUND,
-						detail=f"Dirección con id={data.direccion_id} no encontrada para el usuario",
+					raise ResourceNotFoundError(
+						resource="direccion",
+						identifier=data.direccion_id,
 					)
 			elif forma_pago.codigo != "EFECTIVO":
-				raise HTTPException(
-					status_code=status.HTTP_400_BAD_REQUEST,
-					detail="La dirección es obligatoria para esta forma de pago",
+				raise BusinessRuleError(
+					message="La dirección es obligatoria para esta forma de pago",
 				)
 
 			items_normalizados: dict[int, dict[str, object]] = {}
@@ -213,9 +204,9 @@ class PedidoService:
 			for producto_id, payload in items_normalizados.items():
 				producto = self.uow.productos.get_active_by_id(producto_id)
 				if not producto:
-					raise HTTPException(
-						status_code=status.HTTP_404_NOT_FOUND,
-						detail=f"Producto con id={producto_id} no encontrado o inactivo",
+					raise ResourceNotFoundError(
+						resource="producto",
+						identifier=producto_id,
 					)
 
 				personalizacion = payload["personalizacion"]
@@ -228,9 +219,8 @@ class PedidoService:
 					if ingrediente.stock_cantidad is None:
 						ingrediente.stock_cantidad = 0
 					if ingrediente.stock_cantidad < cantidad:
-						raise HTTPException(
-							status_code=status.HTTP_400_BAD_REQUEST,
-							detail=(
+						raise BusinessRuleError(
+							message=(
 								f"Stock insuficiente para ingrediente id={ingrediente.id} "
 								f"({ingrediente.nombre}). Disponible={ingrediente.stock_cantidad}, "
 								f"pedido={cantidad}"
@@ -243,9 +233,8 @@ class PedidoService:
 					for ingrediente_id in personalizacion:
 						ingrediente = self.uow.ingredientes.get_by_id(ingrediente_id)
 						if ingrediente_id not in removibles:
-							raise HTTPException(
-								status_code=status.HTTP_400_BAD_REQUEST,
-								detail=(
+							raise BusinessRuleError(
+								message=(
 									f"El ingrediente id={ingrediente_id} no es removible para el producto "
 									f"id={producto_id}"
 								),
@@ -271,9 +260,8 @@ class PedidoService:
 			costo_envio = self.COSTO_ENVIO_RETIRO if data.direccion_id is None else self.COSTO_ENVIO_DOMICILIO
 			total = self._moneda(subtotal - descuento + costo_envio)
 			if total < Decimal("0.00"):
-				raise HTTPException(
-					status_code=status.HTTP_400_BAD_REQUEST,
-					detail="El total del pedido no puede ser negativo",
+				raise BusinessRuleError(
+					message="El total del pedido no puede ser negativo",
 				)
 
 			pedido = Pedido(
@@ -311,9 +299,9 @@ class PedidoService:
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)
 			if not pedido:
-				raise HTTPException(
-					status_code=status.HTTP_404_NOT_FOUND,
-					detail=f"Pedido con id={pedido_id} no encontrado",
+				raise ResourceNotFoundError(
+					resource="pedido",
+					identifier=pedido_id,
 				)
 			return PedidoPublic.model_validate(pedido)
 
@@ -338,9 +326,9 @@ class PedidoService:
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)
 			if not pedido:
-				raise HTTPException(
-					status_code=status.HTTP_404_NOT_FOUND,
-					detail=f"Pedido con id={pedido_id} no encontrado",
+				raise ResourceNotFoundError(
+					resource="pedido",
+					identifier=pedido_id,
 				)
 			return self.uow.detalles_pedido.get_by_pedido(pedido_id)
 
@@ -349,29 +337,26 @@ class PedidoService:
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)
 			if not pedido:
-				raise HTTPException(
-					status_code=status.HTTP_404_NOT_FOUND,
-					detail=f"Pedido con id={pedido_id} no encontrado",
+				raise ResourceNotFoundError(
+					resource="pedido",
+					identifier=pedido_id,
 				)
 
 			if pedido.usuario_id != usuario_id:
-				raise HTTPException(
-					status_code=status.HTTP_403_FORBIDDEN,
-					detail="No autorizado para cancelar este pedido",
+				raise AuthorizationError(
+					message="No autorizado para cancelar este pedido",
 				)
 
 			if pedido.estado_codigo not in {"PENDIENTE", "CONFIRMADO"}:
-				raise HTTPException(
-					status_code=status.HTTP_400_BAD_REQUEST,
-					detail=(
+				raise BusinessRuleError(
+					message=(
 						"Solo se puede cancelar un pedido desde los estados PENDIENTE o CONFIRMADO"
 					),
 				)
 
 			if not motivo or not motivo.strip():
-				raise HTTPException(
-					status_code=status.HTTP_400_BAD_REQUEST,
-					detail="El motivo es obligatorio al cancelar un pedido",
+				raise BusinessRuleError(
+					message="El motivo es obligatorio al cancelar un pedido",
 				)
 
 			estado_desde = pedido.estado_codigo
@@ -397,15 +382,14 @@ class PedidoService:
 		with self.uow:
 			pedido = self.uow.pedidos.get_by_id(pedido_id)
 			if not pedido:
-				raise HTTPException(
-					status_code=status.HTTP_404_NOT_FOUND,
-					detail=f"Pedido con id={pedido_id} no encontrado",
+				raise ResourceNotFoundError(
+					resource="pedido",
+					identifier=pedido_id,
 				)
 
 			if not motivo or not motivo.strip():
-				raise HTTPException(
-					status_code=status.HTTP_400_BAD_REQUEST,
-					detail="El motivo es obligatorio al cancelar un pedido",
+				raise BusinessRuleError(
+					message="El motivo es obligatorio al cancelar un pedido",
 				)
 
 			estado_desde = pedido.estado_codigo

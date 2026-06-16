@@ -60,6 +60,10 @@ def seed_roles_test(db_session):
 
 @pytest.fixture(scope="function")
 def client(db_session):
+    from app.core.middleware.logging_middleware import LoggingMiddleware
+    LoggingMiddleware._attempts_by_ip.clear()
+    LoggingMiddleware._blocked_until.clear()
+
     def get_session_override():
         yield db_session
 
