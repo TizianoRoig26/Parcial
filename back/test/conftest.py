@@ -21,9 +21,8 @@ from app.modules.pedido.models import Pedido, DetallePedido, EstadoPedido, Forma
 
 @pytest.fixture(scope="function", autouse=True)
 def reset_login_limits():
-    from app.core.middleware.logging_middleware import LoggingMiddleware
-    LoggingMiddleware._attempts_by_ip.clear()
-    LoggingMiddleware._blocked_until.clear()
+    from app.core.middleware.rate_limit.rate_limit_middleware import RateLimitMiddleware
+    RateLimitMiddleware.reset_all_limiters()
 
 @pytest.fixture(scope="session")
 def engine():
@@ -66,9 +65,8 @@ def seed_roles_test(db_session):
 
 @pytest.fixture(scope="function")
 def client(db_session):
-    from app.core.middleware.logging_middleware import LoggingMiddleware
-    LoggingMiddleware._attempts_by_ip.clear()
-    LoggingMiddleware._blocked_until.clear()
+    from app.core.middleware.rate_limit.rate_limit_middleware import RateLimitMiddleware
+    RateLimitMiddleware.reset_all_limiters()
 
     def get_session_override():
         yield db_session

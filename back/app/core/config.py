@@ -41,6 +41,12 @@ class Settings(BaseSettings):
     NGROK_URL:        Optional[str] = None
     FRONTEND_CLIENTE_URL: str = "http://localhost:5174"
 
+    # ───── Rate Limiting ─────
+    rate_limit_default_burst: int = 60
+    rate_limit_default_per_minute: int = 60
+    rate_limit_auth_burst: int = 5
+    rate_limit_auth_per_minute: int = 5
+
     model_config = {
         "env_file":          ".env",
         "env_file_encoding": "utf-8",

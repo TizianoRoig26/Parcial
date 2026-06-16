@@ -29,7 +29,7 @@ from starlette.types import ASGIApp
 
 from app.core.config import settings
 from app.core.logger import get_logger
-from app.core.rate_limit.rate_limiter import RateLimiter
+from app.core.middleware.rate_limit.rate_limiter import RateLimiter
 
 logger = get_logger("app.middleware.rate_limit")
 
@@ -58,9 +58,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     # Paths que matchean el auth_limiter (más estricto).
     AUTH_PATHS: tuple[str, ...] = (
-        "/usuarios/token",
-        "/usuarios/register",
-        "/usuarios/logout",
+        "/api/v1/auth/token",
+        "/api/v1/auth/register",
+        "/api/v1/auth/logout",
     )
 
     # Paths EXCLUIDOS del rate limiting (health checks, docs, etc.).

@@ -5,10 +5,14 @@ from fastapi import FastAPI, Request, Response
 from fastapi.testclient import TestClient
 from starlette.middleware.cors import CORSMiddleware
 from app.core.middleware.logging_middleware import LoggingMiddleware
+from app.core.middleware.rate_limit.rate_limit_middleware import RateLimitMiddleware
 
 @pytest.fixture(scope="function")
 def test_app():
     app = FastAPI()
+    
+    # Agregar RateLimitMiddleware
+    app.add_middleware(RateLimitMiddleware)
     
     # Agregar LoggingMiddleware primero
     app.add_middleware(LoggingMiddleware)
@@ -44,8 +48,7 @@ def test_app():
 @pytest.fixture(scope="function", autouse=True)
 def clean_rate_limit_state():
     # Asegurar que el estado del rate limit esté limpio antes de cada test
-    LoggingMiddleware._attempts_by_ip.clear()
-    LoggingMiddleware._blocked_until.clear()
+    RateLimitMiddleware.reset_all_limiters()
 
 
 def test_request_id_in_response_headers(test_app):
@@ -114,31 +117,6 @@ def test_login_rate_limiting_ip_isolation(test_app):
     assert res_ip2.status_code == 200
 
 
-def test_login_rate_limiting_reset_on_success(test_app):
-    client = TestClient(test_app)
-    
-    # 3 intentos fallidos
-    for _ in range(3):
-        client.post("/api/v1/auth/token?status_code=401")
-    
-    # 1 intento exitoso
-    res_success = client.post("/api/v1/auth/token?status_code=200")
-    assert res_success.status_code == 200
-
-    # 3 intentos fallidos más (no deberían bloquear, porque el contador se reseteó a 0)
-    for _ in range(3):
-        res = client.post("/api/v1/auth/token?status_code=401")
-        assert res.status_code == 401
-
-    # Un 4to intento fallido
-    res = client.post("/api/v1/auth/token?status_code=401")
-    assert res.status_code == 401
-
-    # Todavía no está bloqueado (van 4 fallidos consecutivos)
-    res_ok = client.post("/api/v1/auth/token?status_code=200")
-    assert res_ok.status_code == 200
-
-
 def test_login_rate_limiting_block_expiry(test_app):
     client = TestClient(test_app)
     
@@ -149,11 +127,11 @@ def test_login_rate_limiting_block_expiry(test_app):
     res_blocked = client.post("/api/v1/auth/token?status_code=200", headers={"X-Forwarded-For": "3.3.3.3"})
     assert res_blocked.status_code == 429
     
-    # Avanzar el tiempo simulado más allá de BLOCK_SECONDS (900 segundos)
-    now = time.monotonic()
-    future_time = now + 901
+    # Avanzar el tiempo simulado más allá de 60 segundos (para recuperar tokens)
+    now = time.perf_counter()
+    future_time = now + 61
     
-    with patch("time.monotonic", return_value=future_time):
-        # Intentar nuevamente, debería permitir la petición y limpiar el bloqueo
+    with patch("time.perf_counter", return_value=future_time):
+        # Intentar nuevamente, debería permitir la petición
         res_after_block = client.post("/api/v1/auth/token?status_code=200", headers={"X-Forwarded-For": "3.3.3.3"})
         assert res_after_block.status_code == 200
