@@ -10,7 +10,6 @@ import {
 import { useCallback, useState } from "react";
 import { getUsernameById } from "../../auth/services/auth.services";
 import { useAuthStore } from "../../../store/authStore";
-import { useWebSocket, type WsMessage } from "./useWebSocket";
 import type { IPedido } from "../IPedido";
 
 export const UsuarioNombre = ({ id }: { id: number }) => {
@@ -106,53 +105,6 @@ export const usePedidos = () => {
       }
     }
   }
-  const { hasRole } = useAuthStore();
-  const isPedidos = hasRole("pedidos") || hasRole("admin");
-  useWebSocket({
-    enabled: isPedidos,
-    onMessage: useCallback(
-      (msg: WsMessage) => {
-        console.log("[CAJERO WS]", msg.event, msg.data);
-        if (msg.event === "WS_CONNECTED") {
-          queryClient.invalidateQueries({ queryKey: ["pedidos", "cajero"] });
-          return;
-        }
-        if (msg.event === "NUEVO_PEDIDO") {
-          const nuevo = msg.data as IPedido;
-          queryClient.setQueryData<{ data: IPedido[]; total: number }>(
-            ["pedidos"],
-            (prev) => {
-              if (!prev) return { data: [nuevo], total: 1 };
-              if (prev.data.some((p) => p.id === nuevo.id)) return prev;
-              const newItems = [...prev.data, nuevo].sort((a, b) => {
-                return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-              });
-              return {
-                data: newItems,
-                total: prev.total + 1,
-              };
-            },
-          );
-        } else {
-          const updated = msg.data as IPedido;
-          if (updated?.id) {
-            queryClient.setQueryData<{ data: IPedido[]; total: number }>(
-              ["pedidos"],
-              (prev) => {
-                if (!prev) return { data: [], total: 0 };
-                return {
-                  data: prev.data.map((p) => (p.id === updated.id ? updated : p)),
-                  total: prev.total,
-                };
-              },
-            );
-          }
-        }
-      },
-      [queryClient],
-    ),
-  });
-
   return {
     pedidos,
     isLoading,

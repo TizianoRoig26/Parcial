@@ -1,6 +1,6 @@
 export interface ResumenKPIsPublic{
     ventas_hoy: number;
-    ticket_promedio: number;
+    ticket_promedio: number ;
     pedidos_activos: number;
     mes_actual: string;
     total_mes_actual: number;

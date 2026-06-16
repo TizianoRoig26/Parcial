@@ -3,7 +3,8 @@ import type { ICategoria } from "../ICategoria";
 import { createCategory, getCategorias, updateCategory, deleteCategory } from "../services/categoria.services";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { uploadImage } from "../../productos/services/producto.services";
+import { uploadImage, deleteImagen } from "../../productos/services/producto.services";
+import { obtenerId } from "../../../shared/utils/cloudinary";
 
 export type ModalState =
   | { type: "none" }
@@ -28,6 +29,16 @@ export const useCategorias = () => {
       let finalImageUrl = categoria.imagen_url;
 
       if (file) {
+        if (modal.type === "edit" && modal.categoria.imagen_url) {
+          const publicId = obtenerId(modal.categoria.imagen_url);
+          if (publicId) {
+            try {
+              await deleteImagen(publicId);
+            } catch (err) {
+              console.log("No se pudo borrar la imagen anterior", err);
+            }
+          }
+        }
         finalImageUrl = await uploadImageMutation.mutateAsync(file);
       }
 

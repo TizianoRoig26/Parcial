@@ -9,10 +9,12 @@ import {
   assignCategorias,
   assignIngredientes,
   uploadImage,
+  deleteImagen,
 } from "../services/producto.services";
 import { getCategorias } from "../../categoria/services/categoria.services";
 import { getIngredientes } from "../../ingredientes/services/ingrediente.services";
 import { getUnidadesMedida } from "../../unidadMedida/services/unidadMedida.services";
+import { obtenerId } from "../../../shared/utils/cloudinary";
 
 
 
@@ -90,15 +92,6 @@ export const useProductos = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["productos"] }),
   });
 
-  const ordenarProductos = (productosList: IProducto[]) => {
-    return productosList
-      .filter((p) => (categoriaFiltrada ? p.categorias?.some((c) => c.id === categoriaFiltrada) : true))
-      .filter((p) => (nombreFilter ? p.nombre.toLowerCase().includes(nombreFilter.toLowerCase()) : true))
-      .sort((a, b) => {
-        return a.nombre.localeCompare(b.nombre);
-      });
-  };
-
   const paginatedProductos = productos?.data || [];
   const filteredCount = productos?.total ?? 0;
 
@@ -126,6 +119,16 @@ export const useProductos = () => {
       let finalImageUrl = data.imagen_url;
 
       if (file) {
+        if (modal.type === "edit" && modal.producto.imagen_url) {
+          const publicId = obtenerId(modal.producto.imagen_url);
+          if (publicId) {
+            try {
+              await deleteImagen(publicId);
+            } catch (err) {
+              console.log("No se pudo borrar la imagen anterior", err);
+            }
+          }
+        }
         finalImageUrl = await uploadImageMutation.mutateAsync(file);
       }
 
@@ -190,7 +193,6 @@ export const useProductos = () => {
     categoriaFiltrada,
     nombreFilter,
     setNombreFilter,
-    ordenarProductos,
     paginatedProductos,
     filteredCount,
     handleFilterProductos,

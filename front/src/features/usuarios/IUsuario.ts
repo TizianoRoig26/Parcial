@@ -5,6 +5,7 @@ export interface UserPublic {
   id: number;
   username: string;
   full_name: string;
+  celular: string;
   email: string;
   role: UserRole;
   disabled: boolean;

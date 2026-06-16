@@ -47,6 +47,7 @@ export const UsuariosPage = () => {
               <th className="p-3 ">Username</th>
               <th className="p-3">Nombre Completo</th>
               <th className="p-3">Email</th>
+              <th className="p-3">Celular</th>
               <th className="p-3">Roles</th>
               <th className="p-3" >Acciones</th>
             </tr>
@@ -64,6 +65,9 @@ export const UsuariosPage = () => {
                 </td>
                 <td className="px-6 py-4">
                   <span className="font-semibold text-black text-sm">{user.email}</span>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="font-semibold text-black text-sm">{user.celular}</span>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-1 justify-center">

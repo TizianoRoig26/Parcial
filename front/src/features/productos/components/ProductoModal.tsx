@@ -183,8 +183,8 @@ export const ProductoModal = ({
                       className="w-4 h-4 rounded accent-[#40A360] cursor-pointer"
                     />
                     <span className="text-sm text-gray-800">
-                      {ing.es_alergeno}
                       {ing.nombre}
+                      {ing.es_alergeno && <span className="text-red-500 font-bold text-xs mr-1"> Alérgeno</span>}
                     </span>
                   </label>
                 ))}

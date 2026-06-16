@@ -94,3 +94,7 @@ export const uploadImage = async (file: File): Promise<string> => {
   );
   return response.data.url;
 };
+
+export const deleteImagen = async (publicId: string): Promise<void> => {
+  await apiClient.delete(`/imagenes/api/v1/uploads/imagen/${encodeURIComponent(publicId)}`);
+};
