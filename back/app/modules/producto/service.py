@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from sqlmodel import Session
 from app.core.exceptions.custom_exceptions import ResourceNotFoundError, DuplicateResourceError
 
@@ -88,6 +89,7 @@ class ProductoService:
         with ProductoUnitOfWork(self._session) as uow:
             producto = self._get_or_404(uow, id)
             producto.is_active = not producto.is_active
+            producto.deleted_at = datetime.now(timezone.utc) if not producto.is_active else None
             uow.Producto.add(producto)
             result = ProductoPublic.model_validate(producto)
         return result
@@ -97,6 +99,7 @@ class ProductoService:
         with ProductoUnitOfWork(self._session) as uow:
             producto = self._get_or_404(uow, id)
             producto.is_active = False
+            producto.deleted_at = datetime.now(timezone.utc)
             uow.Producto.add(producto)
 
 
@@ -112,8 +115,6 @@ class ProductoService:
             
             producto.categorias = nuevas_categorias
             uow.Producto.add(producto)
-            self._session.commit()
-            self._session.refresh(producto)
             return ProductoPublic.model_validate(producto)
 
     def get_ingredientes(self, id: int) -> list[IngredientePublic]:
@@ -133,8 +134,6 @@ class ProductoService:
             
             producto.ingredientes = nuevos_ingredientes
             uow.Producto.add(producto)
-            self._session.commit()
-            self._session.refresh(producto)
             return ProductoPublic.model_validate(producto)
     
     def search_by_nombre(self, alias: str) -> list[ProductoPublic]:

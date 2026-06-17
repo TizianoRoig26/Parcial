@@ -238,9 +238,8 @@ def list_cliente_pedidos(
     svc: PedidoService = Depends(get_pedido_service),
 ) -> list[PedidoPublic]:
     """GET /api/v1/cliente/mis-pedidos — Lista pedidos del usuario autenticado."""
-    from app.modules.pedido.unit_of_work import PedidoUnitOfWork
-    with PedidoUnitOfWork(svc._session) as uow:
-        pedidos = uow.pedidos.get_all()
+    with svc.uow:
+        pedidos = svc.uow.pedidos.get_all()
         mis = [p for p in pedidos if p.usuario_id == current_user.id]
         mis.sort(key=lambda p: p.id or 0, reverse=True)
         return [PedidoPublic.model_validate(p) for p in mis]
@@ -404,19 +403,19 @@ async def websocket_endpoint(
                 if not set(user_roles_upper) & {"ADMIN", "PEDIDOS", "COCINA"}:
                     with Session(engine) as db_session:
                         with UsuariosUnitOfWork(db_session) as uow:
-                            from app.modules.pedido.unit_of_work import PedidoUnitOfWork
-                            pedido_uow = PedidoUnitOfWork(db_session)
-                            pedido = pedido_uow.pedido.get_by_id(order_id)
+                            from app.modules.pedido.unit_of_work import PedidosUnitOfWork
+                            with PedidosUnitOfWork(db_session) as pedido_uow:
+                                pedido = pedido_uow.pedidos.get_by_id(order_id)
 
-                            # Validar que:
-                            #   a. El pedido exista
-                            #   b. El pedido pertenezca al usuario autenticado
-                            if not pedido or pedido.usuario_id != user_id:
-                                await websocket.send_json({
-                                    "event": "ERROR",
-                                    "data": {"detail": "No autorizado para este pedido"}
-                                })
-                                continue
+                                # Validar que:
+                                #   a. El pedido exista
+                                #   b. El pedido pertenezca al usuario autenticado
+                                if not pedido or pedido.usuario_id != user_id:
+                                    await websocket.send_json({
+                                        "event": "ERROR",
+                                        "data": {"detail": "No autorizado para este pedido"}
+                                    })
+                                    continue
 
                 # Todo válido → unir el socket a la room del pedido
                 manager.join_order_room(websocket, order_id)

@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
 from decimal import Decimal
-from sqlalchemy import Numeric
+from sqlalchemy import Numeric, Column, DateTime, func
 
 from app.modules.producto.links import ProductoCategoria, ProductoIngrediente
 
@@ -36,4 +37,22 @@ class Producto(SQLModel, table=True):
         back_populates="productos",
         link_model=ProductoIngrediente,
         sa_relationship_kwargs={"overlaps": "producto,ingrediente"},
+    )
+
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=False, server_default=func.now()),
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default=func.now(),
+            onupdate=func.now(),
+        ),
+    )
+    deleted_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=True),
     )

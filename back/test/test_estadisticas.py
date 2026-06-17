@@ -31,7 +31,7 @@ def setup_pedidos_estadisticas(db_session, pedido_factory, admin_client): # <-- 
 
 def test_estadisticas_resumen_ok(admin_client):
 
-    response = admin_client.get("/estadisticas/resumen")
+    response = admin_client.get("/api/v1/estadisticas/resumen")
 
     assert response.status_code == 200
     data = response.json()
@@ -50,7 +50,7 @@ def test_estadisticas_ventas_por_periodo(admin_client):
     desde = hoy - timedelta(days=5)
     hasta = hoy + timedelta(days=5)
     
-    response = admin_client.get(f"/estadisticas/ventas?desde={desde}&hasta={hasta}&agrupacion=day")
+    response = admin_client.get(f"/api/v1/estadisticas/ventas?desde={desde}&hasta={hasta}&agrupacion=day")
     
     assert response.status_code == 200
     data = response.json()
@@ -61,7 +61,7 @@ def test_estadisticas_ventas_por_periodo(admin_client):
 
 def test_estadisticas_productos_top(admin_client):
 
-    response = admin_client.get("/estadisticas/productos-top?limit=5")
+    response = admin_client.get("/api/v1/estadisticas/productos-top?limit=5")
     
     assert response.status_code == 200
     data = response.json()
@@ -73,7 +73,7 @@ def test_estadisticas_productos_top(admin_client):
 
 def test_estadisticas_pedidos_por_estado(admin_client):
 
-    response = admin_client.get("/estadisticas/pedidos-por-estado")
+    response = admin_client.get("/api/v1/estadisticas/pedidos-por-estado")
     
     assert response.status_code == 200
     data = response.json()
@@ -91,7 +91,7 @@ def test_estadisticas_ingresos_forma_pago(admin_client):
     desde = hoy - timedelta(days=5)
     hasta = hoy + timedelta(days=5)
     
-    response = admin_client.get(f"/estadisticas/ingresos?desde={desde}&hasta={hasta}")
+    response = admin_client.get(f"/api/v1/estadisticas/ingresos?desde={desde}&hasta={hasta}")
     
     assert response.status_code == 200
     data = response.json()

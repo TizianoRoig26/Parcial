@@ -1,7 +1,7 @@
 from typing import Optional
 from datetime import datetime
 from sqlmodel import SQLModel, Field
-from sqlalchemy import BigInteger
+from sqlalchemy import BigInteger, Column, DateTime, func
 
 
 class Pago(SQLModel, table=True):
@@ -56,5 +56,20 @@ class Pago(SQLModel, table=True):
     idempotency_key: str = Field(max_length=36, unique=True)
 
     # ── Timestamps ───────────────────────────────────────────────────────────
-    created_at: datetime                  = Field(default_factory=datetime.utcnow)
-    updated_at: Optional[datetime]        = Field(default=None)
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=False, server_default=func.now()),
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default=func.now(),
+            onupdate=func.now(),
+        ),
+    )
+    deleted_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=True),
+    )

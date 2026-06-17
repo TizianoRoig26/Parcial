@@ -72,6 +72,7 @@ class ImagenService:
             cloudinary.uploader.destroy(public_id, resource_type="image")
         except Exception as e:
             logger.error(f"Error al eliminar imagen de Cloudinary: {e}")
+            raise BusinessRuleError(message="Error al eliminar imagen de Cloudinary")
 
         with ImagenUnitOfWork(self._session) as uow:
             imagen = uow.imagenes.get_by_public_id(public_id)

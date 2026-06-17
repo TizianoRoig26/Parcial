@@ -1,4 +1,5 @@
 
+from datetime import datetime, timezone
 from sqlmodel import Session
 from app.core.exceptions.custom_exceptions import ResourceNotFoundError, DuplicateResourceError
 
@@ -78,6 +79,7 @@ class CategoriaService:
         with CategoriaUnitOfWork(self._session) as uow:
             categoria = self._get_or_404(uow, id)
             categoria.is_active = False
+            categoria.deleted_at = datetime.now(timezone.utc)
             uow.Categoria.add(categoria)
     
     def search_by_nombre(self, alias: str) -> list[CategoriaPublic]:

@@ -124,15 +124,15 @@ async def redirect_after_pago(
     si el estado es 'success', marca el pedido realizado como pagado.
     """
     if status == "success":
-        from app.modules.pedido.models import Pedido
+        from app.modules.pedido.unit_of_work import PedidosUnitOfWork
         from datetime import datetime
 
-        pedido = session.get(Pedido, pedido_id)
-        if pedido:
-            pedido.pagado = True
-            pedido.updated_at = datetime.utcnow()
-            session.add(pedido)
-            session.commit()
+        with PedidosUnitOfWork(session) as uow:
+            pedido = uow.pedidos.get_by_id(pedido_id)
+            if pedido:
+                pedido.pagado = True
+                pedido.updated_at = datetime.utcnow()
+                uow.pedidos.update(pedido)
 
     frontend_cliente_url = settings.FRONTEND_CLIENTE_URL
     qs = request.url.query

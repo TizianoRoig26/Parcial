@@ -6,7 +6,7 @@ from app.modules.imagen.schemas import ImagenPublic
 from app.modules.imagen.service import ImagenService
 
 
-router = APIRouter(prefix="/api/v1/uploads", tags=["uploads"])
+router = APIRouter(tags=["uploads"])
 
 def get_imagen_service(session: Session = Depends(get_session)) -> ImagenService:
     return ImagenService(session)

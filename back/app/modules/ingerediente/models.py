@@ -1,5 +1,7 @@
+from datetime import datetime
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import Column, DateTime, func
 
 from app.modules.producto.links import ProductoIngrediente
 
@@ -20,6 +22,24 @@ class Ingrediente(SQLModel, table=True):
     productos: list["Producto"] = Relationship(
         back_populates="ingredientes",
         link_model=ProductoIngrediente
+    )
+
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=False, server_default=func.now()),
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default=func.now(),
+            onupdate=func.now(),
+        ),
+    )
+    deleted_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=True),
     )
 
 

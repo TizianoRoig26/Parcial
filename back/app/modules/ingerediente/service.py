@@ -1,4 +1,5 @@
 
+from datetime import datetime, timezone
 from sqlmodel import Session
 from app.core.exceptions.custom_exceptions import ResourceNotFoundError, DuplicateResourceError
 
@@ -79,4 +80,5 @@ class IngredienteService:
         with IngredienteUnitOfWork(self._session) as uow:
             ingrediente = self._get_or_404(uow, id)
             ingrediente.is_active = False
+            ingrediente.deleted_at = datetime.now(timezone.utc)
             uow.Ingrediente.add(ingrediente)

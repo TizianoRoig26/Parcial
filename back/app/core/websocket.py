@@ -9,8 +9,6 @@ class ConnectionManager:
     # Gestor de conexiones WebSocket
 
     def __init__(self) -> None:
-        # Set de conexiones activas. Se usa set para evitar duplicados.
-        self.active_connections: set[WebSocket] = set()
         self.socket_rooms: dict[WebSocket, set[str]] = {}
         self.rooms: dict[str, set[WebSocket]] = {}
 
@@ -19,7 +17,6 @@ class ConnectionManager:
     ) -> None:
         # Acepta el handshake y registra la conexión
         await websocket.accept()
-        self.active_connections.add(websocket)
 
         if role:
             role_key = f"role:{role.lower()}"

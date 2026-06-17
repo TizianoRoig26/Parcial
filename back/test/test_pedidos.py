@@ -38,7 +38,7 @@ def test_crear_pedido_ok(cliente_client, db_session, producto_factory):
         ]
     }
     
-    response = cliente_client.post("/pedidos", json=payload)
+    response = cliente_client.post("/api/v1/pedidos", json=payload)
     
     assert response.status_code == 201
     data = response.json()
@@ -77,7 +77,7 @@ def test_stock_insuficiente(cliente_client, db_session, producto_factory):
         ]
     }
     
-    response = cliente_client.post("/pedidos", json=payload)
+    response = cliente_client.post("/api/v1/pedidos", json=payload)
     
     assert response.status_code == 400
     assert "stock insuficiente" in response.json()["detail"].lower()
@@ -92,7 +92,7 @@ def test_avanzar_estado_valido_fsm(pedidos_client, db_session, pedido_factory):
         "motivo": "Confirmación de prueba"
     }
     
-    response = pedidos_client.patch(f"/pedidos/{pedido.id}/estado", json=payload)
+    response = pedidos_client.patch(f"/api/v1/pedidos/{pedido.id}/estado", json=payload)
     
     assert response.status_code == 200
     assert response.json()["estado_codigo"] == "CONFIRMADO"
@@ -113,7 +113,7 @@ def test_avanzar_estado_invalido_fsm(pedidos_client, db_session, pedido_factory)
         "estado_hacia": "EN_PREP"
     }
     
-    response = pedidos_client.patch(f"/pedidos/{pedido.id}/estado", json=payload)
+    response = pedidos_client.patch(f"/api/v1/pedidos/{pedido.id}/estado", json=payload)
     
     assert response.status_code == 400 
     assert "transición no permitida" in response.json()["detail"].lower()
@@ -128,7 +128,7 @@ def test_cancelar_propio(cliente_client, db_session, pedido_factory):
         "motivo": "Me arrepentí de la compra"
     }
     
-    response = cliente_client.post(f"/pedidos/{pedido.id}/cancel", json=payload)
+    response = cliente_client.post(f"/api/v1/pedidos/{pedido.id}/cancel", json=payload)
     
     assert response.status_code == 200
     assert response.json()["estado_codigo"] == "CANCELADO"
@@ -143,6 +143,6 @@ def test_cancelar_ajeno_prohibido(admin_client, cliente_client, db_session, pedi
         "motivo": "Intento de cancelación maliciosa"
     }
 
-    response = cliente_client.post(f"/pedidos/{pedido.id}/cancel", json=payload)
+    response = cliente_client.post(f"/api/v1/pedidos/{pedido.id}/cancel", json=payload)
 
     assert response.status_code == 403
