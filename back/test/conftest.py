@@ -169,3 +169,25 @@ def pedido_factory(db_session, producto_factory):
 
         return pedido
     return _crear_pedido
+
+@pytest.fixture(scope="function", autouse=True)
+def seed_catalogos_pedidos(db_session):
+    if not db_session.get(FormaPago, "EFECTIVO"):
+        db_session.add(FormaPago(codigo="EFECTIVO", descripcion="EFECTIVO", habilitado=True))
+    if not db_session.get(FormaPago, "MERCADOPAGO"):
+        db_session.add(FormaPago(codigo="MERCADOPAGO", descripcion="MERCADOPAGO", habilitado=True))
+    if not db_session.get(FormaPago, "TRANSFERENCIA"):
+        db_session.add(FormaPago(codigo="TRANSFERENCIA", descripcion="TRANSFERENCIA", habilitado=True))
+
+    estados = [
+        ("PENDIENTE", False),
+        ("CONFIRMADO", False),
+        ("EN_PREP", False),
+        ("ENTREGADO", True),
+        ("CANCELADO", True)
+    ]
+    for cod, terminal in estados:
+        if not db_session.get(EstadoPedido, cod):
+            db_session.add(EstadoPedido(codigo=cod, descripcion=cod, orden=1, es_terminal=terminal))
+
+    db_session.commit()

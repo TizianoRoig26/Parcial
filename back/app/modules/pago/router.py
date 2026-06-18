@@ -80,14 +80,14 @@ async def webhook(
             data = await request.json()
         else:
             data = dict(await request.form())
-        return svc.procesar_webhook(data, query_params=query_params)
+        return await svc.procesar_webhook(data, query_params=query_params)
     except Exception as e:
         logger.exception("Error en webhook MP")
         return {"status": "error", "reason": str(e)}
 
 
 @router.post("/confirm", response_model=PagoEstadoResponse)
-def confirm_payment(
+async def confirm_payment(
     data: ConfirmarPagoRequest,
     svc: PaymentService = Depends(get_payment_service),
 ):
@@ -101,7 +101,7 @@ def confirm_payment(
       - El usuario volvió a la página después de pagar en MP
       - Se necesita refrescar el estado manualmente
     """
-    return svc.confirmar_pago(data.pedido_id, data.payment_id)
+    return await svc.confirmar_pago(data.pedido_id, data.payment_id)
 
 
 @router.get("/redirect/{pedido_id}/{status}")
@@ -125,6 +125,8 @@ async def redirect_after_pago(
     """
     if status == "success":
         from app.modules.pedido.unit_of_work import PedidosUnitOfWork
+        from app.modules.pedido.service import PedidoService
+        from app.modules.pedido.schemas import PedidoEstadoUpdate
         from datetime import datetime
 
         with PedidosUnitOfWork(session) as uow:
@@ -133,6 +135,23 @@ async def redirect_after_pago(
                 pedido.pagado = True
                 pedido.updated_at = datetime.utcnow()
                 uow.pedidos.update(pedido)
+
+        try:
+            pedido_uow = PedidosUnitOfWork(session)
+            pedido_svc = PedidoService(pedido_uow)
+            pedido_obj = pedido_uow.pedidos.get_by_id(pedido_id)
+            if pedido_obj and pedido_obj.estado_codigo == "PENDIENTE":
+                await pedido_svc.avanzar_estado(
+                    pedido_id=pedido_id,
+                    data=PedidoEstadoUpdate(
+                        estado_hacia="CONFIRMADO",
+                        motivo="Pago aprobado vía redirección de checkout"
+                    ),
+                    usuario_id=None,
+                    roles_usuario=["admin"]
+                )
+        except Exception as e:
+            logger.error(f"Error al avanzar estado de pedido {pedido_id} post-redireccion: {e}")
 
     frontend_cliente_url = settings.FRONTEND_CLIENTE_URL
     qs = request.url.query

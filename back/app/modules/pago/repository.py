@@ -1,6 +1,6 @@
 from typing import Optional, List
 from sqlmodel import Session, select
-from app.core.base_repository import BaseRepository
+from app.core.repository import BaseRepository
 from app.modules.pago.models import Pago
 
 
@@ -8,7 +8,7 @@ class PagoRepository(BaseRepository[Pago]):
     """Repositorio de pagos con métodos de búsqueda específicos de MP."""
 
     def __init__(self, session: Session):
-        super().__init__(Pago, session)
+        super().__init__(session, Pago)
 
     def get_by_pedido(self, pedido_id: int) -> List[Pago]:
         """

@@ -1,7 +1,8 @@
 from typing import Optional
 from datetime import datetime
+from decimal import Decimal
 from sqlmodel import SQLModel, Field
-from sqlalchemy import BigInteger, Column, DateTime, func
+from sqlalchemy import BigInteger, Column, DateTime, func, Numeric
 
 
 class Pago(SQLModel, table=True):
@@ -12,6 +13,10 @@ class Pago(SQLModel, table=True):
     id:         Optional[int] = Field(default=None, primary_key=True)
     pedido_id:  int           = Field(foreign_key="pedidos.id", index=True)
     monto:      float         = Field(ge=0)
+    transaction_amount: Decimal = Field(
+        default=Decimal("0.00"),
+        sa_column=Column(Numeric(10, 2), nullable=False, server_default="0.00")
+    )
 
     # Estado local: mapeo simplificado de lo que devuelve MP.
     #   "pendiente" → arranca así; MP aún no confirmó
@@ -48,6 +53,10 @@ class Pago(SQLModel, table=True):
     # Detalle adicional del estado en MP: "accredited", "pending_waiting_payment",
     # "pending_review_manual", etc. Nos sirve para debugging.
     mp_status_detail:     Optional[str] = Field(default=None, max_length=100)
+
+    payment_method_id:    Optional[str] = Field(default=None, max_length=50)
+
+    external_reference:   Optional[str] = Field(default=None, max_length=255)
 
     # ── Control de idempotencia ──────────────────────────────────────────────
     # UUID único por intento de pago. La constraint UNIQUE en la BD evita

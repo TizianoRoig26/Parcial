@@ -72,6 +72,7 @@ pip install -r requirements.txt
 
 ### Paso 5: Iniciar el Servidor de Desarrollo
 Ejecute el servidor de desarrollo mediante Uvicorn:
+(revisar para que active las seed antes de iniciar estan el main comentadas para evitar repeticiones pero si es la primera vez hay que descomentarlas para que inicien.)
 ```bash
 uvicorn main:app --reload
 ```

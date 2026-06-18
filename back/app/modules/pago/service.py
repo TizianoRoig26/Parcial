@@ -36,6 +36,7 @@ import uuid
 import logging
 from datetime import datetime
 from typing import Optional
+from decimal import Decimal
 
 from app.core.exceptions.custom_exceptions import (
     ResourceNotFoundError,
@@ -232,6 +233,9 @@ class PaymentService:
                 # merchant_order_id: permite agrupar pagos relacionados.
                 # Si el usuario paga, se rechaza y vuelve a pagar,
                 # todos los intentos comparten el mismo merchant_order_id.
+                "transaction_amount": response.get("transaction_amount"),
+                "payment_method_id": response.get("payment_method_id"),
+                "external_reference": response.get("external_reference"),
             }
 
         except ImportError:
@@ -295,15 +299,16 @@ class PaymentService:
                 message=str(e),
             )
 
-        # ── Persistencia local del intento de pago ──────────────────────
         with PagoUnitOfWork(self._session) as uow:
             pago = Pago(
                 pedido_id=pedido_id,
-                monto=pedido.total,
+                monto=float(pedido.total),
+                transaction_amount=pedido.total,
                 estado="pendiente",  # arranca pendiente
                 mp_preference_id=mp_data["preference_id"],
                 mp_init_point=mp_data.get("init_point"),
                 idempotency_key=str(uuid.uuid4()),  # UUID único para idempotencia
+                external_reference=str(pedido_id),
             )
             uow.pagos.add(pago)
 
@@ -315,7 +320,30 @@ class PaymentService:
                 public_key=self._get_mp_public_key(),  # Public Key para el SDK frontend
             )
 
-    def procesar_webhook(self, data: dict, query_params: Optional[dict] = None) -> dict:
+    async def _avanzar_pedido_y_notificar(self, pedido_id: int) -> None:
+        """Avanza de forma segura el estado del pedido y emite el WS (fuera de la transacción de pago)."""
+        from app.modules.pedido.service import PedidoService
+        from app.modules.pedido.unit_of_work import PedidosUnitOfWork
+        from app.modules.pedido.schemas import PedidoEstadoUpdate
+
+        try:
+            pedido_uow = PedidosUnitOfWork(self._session)
+            pedido_svc = PedidoService(pedido_uow)
+            pedido = pedido_uow.pedidos.get_by_id(pedido_id)
+            if pedido and pedido.estado_codigo == "PENDIENTE":
+                await pedido_svc.avanzar_estado(
+                    pedido_id=pedido_id,
+                    data=PedidoEstadoUpdate(
+                        estado_hacia="CONFIRMADO",
+                        motivo="Pago aprobado vía MercadoPago (Webhook/Confirmación)"
+                    ),
+                    usuario_id=None,
+                    roles_usuario=["admin"]
+                )
+        except Exception as e:
+            logger.error(f"Error al avanzar estado de pedido {pedido_id} post-pago: {e}")
+
+    async def procesar_webhook(self, data: dict, query_params: Optional[dict] = None) -> dict:
         """
         PASO 5 DEL FLUJO: Procesar notificaciones webhook de MercadoPago.
 
@@ -444,6 +472,15 @@ class PaymentService:
                 pago.mp_status = estado_mp
                 pago.mp_status_detail = mp_info.get("mp_status_detail")
                 pago.mp_merchant_order_id = mp_info.get("mp_merchant_order_id")
+                
+                if mp_info.get("transaction_amount") is not None:
+                    pago.transaction_amount = Decimal(str(mp_info["transaction_amount"]))
+                    pago.monto = float(mp_info["transaction_amount"])
+                if mp_info.get("payment_method_id") is not None:
+                    pago.payment_method_id = mp_info["payment_method_id"]
+                if mp_info.get("external_reference") is not None:
+                    pago.external_reference = mp_info["external_reference"]
+
                 pago.estado = nuevo_estado
                 pago.updated_at = datetime.utcnow()
                 uow.pagos.update(pago)
@@ -460,6 +497,9 @@ class PaymentService:
                         pedido.updated_at = datetime.utcnow()
                         self._session.add(pedido)
 
+            if nuevo_estado == "aprobado":
+                await self._avanzar_pedido_y_notificar(pago.pedido_id)
+
             return {
                 "status": "processed",
                 "pago_id": pago.id,
@@ -474,7 +514,7 @@ class PaymentService:
             logger.exception("Error procesando webhook MP")
             return {"status": "error", "reason": str(e)}
 
-    def confirmar_pago(
+    async def confirmar_pago(
         self, pedido_id: int, payment_id: Optional[int] = None
     ) -> PagoEstadoResponse:
         """
@@ -542,6 +582,15 @@ class PaymentService:
                     pago.mp_status = estado_mp
                     pago.mp_status_detail = mp_info.get("mp_status_detail")
                     pago.mp_merchant_order_id = mp_info.get("mp_merchant_order_id")
+
+                    if mp_info.get("transaction_amount") is not None:
+                        pago.transaction_amount = Decimal(str(mp_info["transaction_amount"]))
+                        pago.monto = float(mp_info["transaction_amount"])
+                    if mp_info.get("payment_method_id") is not None:
+                        pago.payment_method_id = mp_info["payment_method_id"]
+                    if mp_info.get("external_reference") is not None:
+                        pago.external_reference = mp_info["external_reference"]
+
                     pago.estado = nuevo_estado
                     pago.updated_at = datetime.utcnow()
                     uow.pagos.update(pago)
@@ -551,6 +600,9 @@ class PaymentService:
                         pedido.pagado = True
                         pedido.updated_at = datetime.utcnow()
                         self._session.add(pedido)
+
+            if nuevo_estado == "aprobado":
+                await self._avanzar_pedido_y_notificar(pedido_id)
 
             return PagoEstadoResponse(estado=nuevo_estado, pedido_id=pedido_id)
 

@@ -1,12 +1,12 @@
 from sqlmodel import Session, select
-from app.core.base_repository import BaseRepository
+from app.core.repository import BaseRepository
 from app.modules.imagen.models import Imagen
 
 
 class ImagenRepository(BaseRepository[Imagen]):
 
     def __init__(self, session: Session):
-        super().__init__(Imagen, session)
+        super().__init__(session, Imagen)
 
     def get_all_ordered(self) -> list[Imagen]:
         return list(
