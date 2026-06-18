@@ -13,7 +13,7 @@ class ProductoCreate(SQLModel):
     nombre: str = Field(min_length=2, max_length=100)
     descripcion: str = Field(min_length=2, max_length=500)
     precio_base: Decimal = Field(ge=0)
-    imagen_url: str = Field(max_length=255)
+    imagen_url: List[str] = Field(default_factory=list)
     unidad_venta_id: Optional[int] = Field(default=None)
 
 
@@ -21,7 +21,7 @@ class ProductoUpdate(SQLModel):
     nombre: Optional[str] = Field(default=None, min_length=2, max_length=100)
     descripcion: Optional[str] = Field(default=None, min_length=2, max_length=500)
     precio_base: Optional[Decimal] = Field(default=None, ge=0)
-    imagen_url: Optional[str] = Field(default=None, max_length=255)
+    imagen_url: Optional[List[str]] = Field(default=None)
     is_active: Optional[bool] = None
     unidad_venta_id: Optional[int] = Field(default=None)
 
@@ -45,7 +45,7 @@ class ProductoPublic(SQLModel):
     nombre: str
     descripcion: str
     precio_base: Decimal
-    imagen_url: str
+    imagen_url: List[str] = Field(default_factory=list)
     is_active: bool
     unidad_venta_id: Optional[int] = None
     unidad_medida: Optional[UnidadMedidaPublic] = None

@@ -284,7 +284,7 @@ def seed_productos() -> None:
 					nombre=prod["nombre"],
 					descripcion=prod["descripcion"],
 					precio_base=prod["precio_base"],
-					imagen_url=prod["imagen_url"],
+					imagen_url=[prod["imagen_url"]] if prod["imagen_url"] else [],
 					unidad_venta_id=um_id
 				)
 				if cat_obj:

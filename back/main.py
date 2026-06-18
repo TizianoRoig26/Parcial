@@ -35,10 +35,10 @@ from app.db.seed import seed_pedido_catalogos, seed_roles, seed_pedidos
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gestión del ciclo de vida de la aplicación."""
-    create_db_and_tables()
-    seed_roles()
-    seed_pedido_catalogos()
-    seed_pedidos()
+   # create_db_and_tables()
+   # seed_roles()
+   # seed_pedido_catalogos()
+   # seed_pedidos()
     yield
 
 

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
 from decimal import Decimal
-from sqlalchemy import Numeric, Column, DateTime, func
+from sqlalchemy import Numeric, Column, DateTime, func, JSON
 
 from app.modules.producto.links import ProductoCategoria, ProductoIngrediente
 
@@ -19,7 +19,10 @@ class Producto(SQLModel, table=True):
     nombre: str
     descripcion: str
     precio_base: Decimal = Field(sa_type=Numeric(10, 2))
-    imagen_url: Optional[str] = Field(default=None, nullable=True)
+    imagen_url: List[str] = Field(
+        default_factory=list,
+        sa_column=Column(JSON, nullable=False, server_default="[]")
+    )
     is_active: bool = Field(default=True)
     unidad_venta_id: Optional[int] = Field(
         default=None, foreign_key="unidad_medidas.id"
