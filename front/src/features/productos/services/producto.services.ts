@@ -1,7 +1,7 @@
 import type { IProducto } from "../IProducto";
 import apiClient from "../../auth/services/axiosInstance";
 
-const PATH = "/productos";
+const PATH = "/api/v1/productos";
 
 type PaginatedResponse = { data: IProducto[]; total: number };
 
@@ -19,7 +19,7 @@ export const getProductos = async (
     url += `&categoria_id=${categoriaId}`;
   }
   const response = await apiClient.get<PaginatedResponse>(url);
-
+  console.log(response.data);
   return response.data;
 };
 
@@ -71,10 +71,10 @@ export const assignCategorias = async (
 
 export const assignIngredientes = async (
   productoId: number,
-  ingrediente_ids: number[],
+  ingredientes: { id: number; es_removible: boolean }[],
 ): Promise<IProducto> => {
   const response = await apiClient.post<IProducto>(`${PATH}/${productoId}/ingredientes`, {
-    ingrediente_ids,
+    ingrediente_ids: ingredientes.map(i => i.id),
   });
   return response.data;
 };
@@ -84,7 +84,7 @@ export const uploadImage = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append("file", file);
   const response = await apiClient.post<{ url: string }>(
-    `/imagenes/api/v1/uploads/imagen`,
+    `/api/v1/imagenes/imagen`,
     formData,
     {
       headers: {
@@ -96,5 +96,5 @@ export const uploadImage = async (file: File): Promise<string> => {
 };
 
 export const deleteImagen = async (publicId: string): Promise<void> => {
-  await apiClient.delete(`/imagenes/api/v1/uploads/imagen/${encodeURIComponent(publicId)}`);
+  await apiClient.delete(`/api/v1/imagenes/imagen/${encodeURIComponent(publicId)}`);
 };

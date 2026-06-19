@@ -111,6 +111,7 @@ def seed_roles() -> None:
 					username=u["username"],
 					full_name=u["full_name"],
 					email=u["email"],
+					celular=u.get("celular"),
 					hashed_password=hash_password(u["password"]),
 				)
 				session.add(usuario)

@@ -1,7 +1,7 @@
 import type { IUnidadMedida } from "../IUnidadMedida";
 import apiClient from "../../auth/services/axiosInstance";
 
-const PATH = "/unidades-medida";
+const PATH = "/api/v1/unidades-medida";
 
 type PaginatedResponse = { data: IUnidadMedida[]; total: number };
 

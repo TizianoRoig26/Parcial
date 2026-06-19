@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useForm } from '@tanstack/react-form';
 import type { ICategoria } from '../ICategoria';
 
 interface Props {
@@ -9,93 +10,143 @@ interface Props {
   categoriaParaEditar?: ICategoria | null;
 }
 
+interface CategoriaFormValues {
+  nombre: string;
+  descripcion: string;
+  parentId: string;
+}
+
 export const CategoriaModal = ({ isOpen, onClose, onSubmit, categoriasDisponibles, categoriaParaEditar }: Props) => {
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
   const [imagenUrl, setImagenUrl] = useState('');
   const [files, setFiles] = useState<File[]>([]);
-  const [parentId, setParentId] = useState('');
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const addFiles = (fileList: FileList | null) => {
-      if (!fileList || fileList.length === 0) return;
-      setFiles([fileList[0]]);
-    };
-  
-    const handleDrop = (e: React.DragEvent) => {
-      e.preventDefault();
-      setDragging(false);
-      if (e.dataTransfer.files) {
-        addFiles(e.dataTransfer.files);
-      }
-    };
-  
-    const removeFile = (index: number) => {
-      setFiles((prev) => prev.filter((_, i) => i !== index));
-    };
+  const form = useForm<CategoriaFormValues>({
+    defaultValues: {
+      nombre: categoriaParaEditar?.nombre ?? '',
+      descripcion: categoriaParaEditar?.descripcion ?? '',
+      parentId: categoriaParaEditar?.parent_id === null || categoriaParaEditar?.parent_id === undefined ? '' : String(categoriaParaEditar.parent_id),
+    },
+    onSubmit: async ({ value }) => {
+      onSubmit({
+        parent_id: value.parentId === '' ? null : Number(value.parentId),
+        nombre: value.nombre,
+        descripcion: value.descripcion,
+        imagen_url: imagenUrl,
+      } as ICategoria, files[0]);
+    },
+  });
 
+  const addFiles = (fileList: FileList | null) => {
+    if (!fileList || fileList.length === 0) return;
+    setFiles([fileList[0]]);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    if (e.dataTransfer.files) {
+      addFiles(e.dataTransfer.files);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     if (categoriaParaEditar) {
-      setNombre(categoriaParaEditar.nombre);
-      setDescripcion(categoriaParaEditar.descripcion);
+      form.reset({
+        nombre: categoriaParaEditar.nombre,
+        descripcion: categoriaParaEditar.descripcion,
+        parentId: categoriaParaEditar.parent_id === null || categoriaParaEditar.parent_id === undefined ? '' : String(categoriaParaEditar.parent_id),
+      });
       setImagenUrl(categoriaParaEditar.imagen_url);
-      setParentId(categoriaParaEditar.parent_id === null ? '' : String(categoriaParaEditar.parent_id));
     } else {
-      setNombre('');
-      setDescripcion('');
+      form.reset({
+        nombre: '',
+        descripcion: '',
+        parentId: '',
+      });
       setImagenUrl('');
-      setParentId('');
     }
+    setFiles([]);
   }, [categoriaParaEditar, isOpen]);
-  
 
   if (!isOpen) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({
-      parent_id: parentId === '' ? null : Number(parentId),
-      nombre,
-      descripcion,
-      imagen_url: imagenUrl,
-    } as ICategoria, files[0]);
-  };
 
   const parentCandidates = categoriasDisponibles.filter((categoria) => categoria.id !== categoriaParaEditar?.id);
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-[#E5E4C1] border-1 border-[#0D4012] w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-        <form onSubmit={handleSubmit} className="px-8 space-y-4 overflow-y-auto flex-1">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
+          className="px-8 space-y-4 overflow-y-auto flex-1"
+        >
           <div className="grid grid-cols-1 gap-4 pt-5">
             <h2 className="text-black text-xl font-bold">
               {categoriaParaEditar ? 'Editar Categoría' : 'Nueva Categoría'}
             </h2>
             
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre de la categoría</label>
-              <input
-                title='nombreCategoria'
-                type="text"
-                required
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm"
-              />
-            </div>
+            {/* Nombre */}
+            <form.Field
+              name="nombre"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value || value.trim().length === 0) return "El nombre de la categoría es requerido";
+                  return undefined;
+                },
+              }}
+              children={(field) => (
+                <div>
+                  <label htmlFor={field.name} className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre de la categoría</label>
+                  <input
+                    id={field.name}
+                    title='nombreCategoria'
+                    type="text"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm"
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-red-600 text-xs mt-1 font-medium">{field.state.meta.errors.join(", ")}</p>
+                  )}
+                </div>
+              )}
+            />
             
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Descripción</label>
-              <textarea
-                required
-                minLength={2}
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm h-32 resize-none"
-              />
-            </div>
+            {/* Descripción */}
+            <form.Field
+              name="descripcion"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value || value.trim().length < 2) return "La descripción debe tener al menos 2 caracteres";
+                  return undefined;
+                },
+              }}
+              children={(field) => (
+                <div>
+                  <label htmlFor={field.name} className="block text-sm font-semibold text-gray-700 mb-1.5">Descripción</label>
+                  <textarea
+                    id={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm h-32 resize-none"
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-red-600 text-xs mt-1 font-medium">{field.state.meta.errors.join(", ")}</p>
+                  )}
+                </div>
+              )}
+            />
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">Imagen de la categoría</label>
@@ -199,21 +250,29 @@ export const CategoriaModal = ({ isOpen, onClose, onSubmit, categoriasDisponible
               </ul>
             )}
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Categoría padre</label>
-              <select
-                value={parentId}
-                onChange={(e) => setParentId(e.target.value)}
-                className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm"
-              >
-                <option value="">Sin padre</option>
-                {parentCandidates.map((categoria) => (
-                  <option key={categoria.id} value={categoria.id}>
-                    {categoria.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Categoría padre */}
+            <form.Field
+              name="parentId"
+              children={(field) => (
+                <div>
+                  <label htmlFor={field.name} className="block text-sm font-semibold text-gray-700 mb-1.5">Categoría padre</label>
+                  <select
+                    id={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm"
+                  >
+                    <option value="">Sin padre</option>
+                    {parentCandidates.map((categoria) => (
+                      <option key={categoria.id} value={categoria.id}>
+                        {categoria.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            />
           </div>
 
           <div className="flex justify-end gap-3 py-4">

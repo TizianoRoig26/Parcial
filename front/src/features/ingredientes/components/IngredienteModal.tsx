@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useForm } from "@tanstack/react-form";
 import type { IIngrediente } from "../IIngredientes";
 
 interface Props {
@@ -9,38 +10,63 @@ interface Props {
   errorMessage?: string | null;
 }
 
-export const IngredienteModal = ({ isOpen, onClose, onSubmit, ingredienteParaEditar, errorMessage }: Props) => {
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [esAlergeno, setEsAlergeno] = useState(false);
-  const [stock, setStock] = useState(0);
+interface IngredienteFormValues {
+  nombre: string;
+  descripcion: string;
+  stock: number;
+  esAlergeno: boolean;
+}
 
+export const IngredienteModal = ({ isOpen, onClose, onSubmit, ingredienteParaEditar, errorMessage }: Props) => {
+  
+  const form = useForm<IngredienteFormValues>({
+    defaultValues: {
+      nombre: ingredienteParaEditar?.nombre ?? "",
+      descripcion: ingredienteParaEditar?.descripcion ?? "",
+      stock: ingredienteParaEditar?.stock_cantidad ?? 0,
+      esAlergeno: ingredienteParaEditar?.es_alergeno ?? false,
+    },
+    onSubmit: async ({ value }) => {
+      onSubmit({
+        nombre: value.nombre,
+        descripcion: value.descripcion,
+        es_alergeno: value.esAlergeno,
+        stock_cantidad: value.stock,
+      });
+    },
+  });
 
   useEffect(() => {
     if (ingredienteParaEditar) {
-      setNombre(ingredienteParaEditar.nombre);
-      setDescripcion(ingredienteParaEditar.descripcion);
-      setEsAlergeno(ingredienteParaEditar.es_alergeno);
-      setStock(ingredienteParaEditar.stock_cantidad ?? 0);
+      form.reset({
+        nombre: ingredienteParaEditar.nombre,
+        descripcion: ingredienteParaEditar.descripcion,
+        stock: ingredienteParaEditar.stock_cantidad ?? 0,
+        esAlergeno: ingredienteParaEditar.es_alergeno,
+      });
     } else {
-      setNombre("");
-      setDescripcion("");
-      setEsAlergeno(false);
-      setStock(0);
+      form.reset({
+        nombre: "",
+        descripcion: "",
+        stock: 0,
+        esAlergeno: false,
+      });
     }
   }, [ingredienteParaEditar, isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({ nombre, descripcion, es_alergeno: esAlergeno, stock_cantidad: stock });
-  };
-
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-[#E5E4C1] border-1 border-[#0D4012] w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-        <form onSubmit={handleSubmit} className="px-8 space-y-4 overflow-y-auto flex-1">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
+          className="px-8 space-y-4 overflow-y-auto flex-1"
+        >
           <div className="grid grid-cols-1 gap-4 pt-5">
             <h2 className="text-black text-xl font-bold">
               {ingredienteParaEditar ? "Editar Ingrediente" : "Nuevo Ingrediente"}
@@ -50,59 +76,113 @@ export const IngredienteModal = ({ isOpen, onClose, onSubmit, ingredienteParaEdi
                 {errorMessage}
               </div>
             )}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre</label>
-              <input
-                type="text"
-                required
-                minLength={2}
-                maxLength={100}
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm"
-                placeholder="Nombre del ingrediente"
-              />
-            </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Descripción</label>
-              <textarea
-                required
-                minLength={2}
-                maxLength={500}
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm h-28 resize-none"
-                placeholder="Descripción del ingrediente"
-              />
-            </div>
+            {/* Nombre */}
+            <form.Field
+              name="nombre"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value || value.trim().length < 2) return "El nombre debe tener al menos 2 caracteres";
+                  if (value.length > 100) return "El nombre no puede superar los 100 caracteres";
+                  return undefined;
+                },
+              }}
+              children={(field) => (
+                <div>
+                  <label htmlFor={field.name} className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre</label>
+                  <input
+                    id={field.name}
+                    type="text"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm"
+                    placeholder="Nombre del ingrediente"
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-red-600 text-xs mt-1 font-medium">{field.state.meta.errors.join(", ")}</p>
+                  )}
+                </div>
+              )}
+            />
+
+            {/* Descripción */}
+            <form.Field
+              name="descripcion"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value || value.trim().length < 2) return "La descripción debe tener al menos 2 caracteres";
+                  if (value.length > 500) return "La descripción no puede superar los 500 caracteres";
+                  return undefined;
+                },
+              }}
+              children={(field) => (
+                <div>
+                  <label htmlFor={field.name} className="block text-sm font-semibold text-gray-700 mb-1.5">Descripción</label>
+                  <textarea
+                    id={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className="w-full border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm h-28 resize-none"
+                    placeholder="Descripción del ingrediente"
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-red-600 text-xs mt-1 font-medium">{field.state.meta.errors.join(", ")}</p>
+                  )}
+                </div>
+              )}
+            />
             
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Stock</label>
-              <input 
-                type="number" 
-                required 
-                min={0} 
-                value={stock}
-                onChange={e => setStock(Number(e.target.value))}
-                className="w-25 border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm" 
-                title="stock"
-              />
-            </div>
+            {/* Stock */}
+            <form.Field
+              name="stock"
+              validators={{
+                onChange: ({ value }) => {
+                  if (value < 0) return "El stock no puede ser negativo";
+                  return undefined;
+                },
+              }}
+              children={(field) => (
+                <div>
+                  <label htmlFor={field.name} className="block text-sm font-semibold text-gray-700 mb-1.5">Stock</label>
+                  <input 
+                    id={field.name}
+                    type="number" 
+                    min={0} 
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={e => field.handleChange(Number(e.target.value))}
+                    className="w-25 border border-1 border-[#0D4012] focus:bg-[#E5E4C1] bg-[#F4F3CF] rounded-xl px-4 py-2.5 text-sm" 
+                    title="stock"
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-red-600 text-xs mt-1 font-medium">{field.state.meta.errors.join(", ")}</p>
+                  )}
+                </div>
+              )}
+            />
 
-            <div className="border border-[#0D4012] bg-[#F4F3CF] rounded-xl divide-y divide-gray-100 overflow-hidden">
-              <label className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-[#E5E4C1] transition-colors">
-                <input
-                  type="checkbox"
-                  checked={esAlergeno}
-                  onChange={() => setEsAlergeno(!esAlergeno)}
-                  className="w-4 h-4 rounded accent-[#40A360] cursor-pointer"
-                />
-                <span className="text-sm text-gray-800">
-                  Es alérgeno
-                </span>
-              </label>
-            </div>
+            {/* Es alérgeno */}
+            <form.Field
+              name="esAlergeno"
+              children={(field) => (
+                <div className="border border-[#0D4012] bg-[#F4F3CF] rounded-xl divide-y divide-gray-100 overflow-hidden">
+                  <label className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-[#E5E4C1] transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={() => field.handleChange(!field.state.value)}
+                      className="w-4 h-4 rounded accent-[#40A360] cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-800">
+                      Es alérgeno
+                    </span>
+                  </label>
+                </div>
+              )}
+            />
           </div>
 
           <div className="flex justify-end gap-3 py-4">

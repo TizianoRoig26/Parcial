@@ -1,17 +1,29 @@
+/**
+ * Optimiza una URL de Cloudinary agregando transformaciones.
+ * Acepta un string, un array de strings, null o undefined.
+ * Si es un array, optimiza la primera URL.
+ */
 export function getOptimizedImageUrl(
-  url: string | null | undefined,
+  url: string | string[] | null | undefined,
   transformations: string = "c_fill,w_300,f_auto,q_auto"
 ): string {
-  if (!url) return "/placeholder-image.png";
-  if (!url.includes("res.cloudinary.com")) {
-    return url;
+  const resolved = Array.isArray(url) ? url[0] : url;
+  if (!resolved) return "/placeholder-image.png";
+  if (!resolved.includes("res.cloudinary.com")) {
+    return resolved;
   }
-  return url.replace("/upload/", `/upload/${transformations}/`);
+  return resolved.replace("/upload/", `/upload/${transformations}/`);
 }
 
-export function obtenerId(url: string | null | undefined): string | null {
-  if (!url || !url.includes("res.cloudinary.com")) return null;
-  const partes = url.split("/upload/");
+/**
+ * Obtiene el public_id de Cloudinary a partir de una URL.
+ * Acepta un string, un array de strings, null o undefined.
+ * Si es un array, extrae el ID de la primera URL.
+ */
+export function obtenerId(url: string | string[] | null | undefined): string | null {
+  const resolved = Array.isArray(url) ? url[0] : url;
+  if (!resolved || !resolved.includes("res.cloudinary.com")) return null;
+  const partes = resolved.split("/upload/");
   if (partes.length < 2) return null;
   const rutaPartes = partes[1].split("/");
   if (rutaPartes[0].match(/^v\d+$/)) {

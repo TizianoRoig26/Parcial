@@ -1,7 +1,7 @@
 import type { ResumenKPIsPublic, VentasPeriodoPublic, IngresosFormaPagoPublic, PedidosPorEstadoPublic, ProductosMasVendidosPublic } from "../IEstadisticas";
 import apiClient from "../../auth/services/axiosInstance";
 
-const PATH = "/estadisticas";  
+const PATH = "/api/v1/estadisticas";  
 
 export const EstadisticasService = {
 
