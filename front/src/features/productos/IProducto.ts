@@ -7,7 +7,7 @@ export interface IProducto {
   nombre: string;
   descripcion: string;
   precio_base: number;
-  imagen_url: string;
+  imagen_url: string[];
   is_active?: boolean;
   unidad_venta_id?: number;
   unidad_medida?: IUnidadMedida;
@@ -15,3 +15,10 @@ export interface IProducto {
   ingredientes?: IIngrediente[];
 }
 
+export interface IProductoIngrediente {
+  producto_id?: number;
+  ingrediente_id?: number;
+  cantidad?: number;
+  unidad_medida_id?: number;
+  es_removible?: boolean;
+}

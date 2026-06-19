@@ -26,7 +26,7 @@ class PedidoRepository(BaseRepository[Pedido]):
 		return list(
 			self.session.exec(
 				select(Pedido)
-				.order_by(Pedido.created_at.asc(), Pedido.updated_at.asc())
+				.order_by(Pedido.created_at.desc(), Pedido.updated_at.desc())
 			).all()
 		)
 

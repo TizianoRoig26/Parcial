@@ -2,7 +2,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, Numeric, Text, func, JSON
+from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, Numeric, Text, func
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlmodel import Boolean, Field, SQLModel
 
 
@@ -79,7 +80,7 @@ class FormaPago(SQLModel, table=True):
 	descripcion: str = Field(max_length=80, nullable=False)
 	habilitado: bool = Field(default=True, nullable=False)
 
-
+ 
 class EstadoPedido(SQLModel, table=True):
 	__tablename__ = "estados_pedido"
 
@@ -142,7 +143,7 @@ class DetallePedido(SQLModel, table=True):
 	nombre_snapshot: str = Field(sa_column=Column(Text, nullable=False))
 	precio_snapshot: Decimal = Field(sa_column=Column(Numeric(10, 2), nullable=False))
 	subtotal_snap: Decimal = Field(sa_column=Column(Numeric(10, 2), nullable=False))
-	personalizacion: Optional[list[int]] = Field(default=None, sa_column=Column(JSON, nullable=True))
+	personalizacion: Optional[list[int]] = Field(default=None, sa_column=Column(ARRAY(Integer), nullable=True))
 
 	created_at: Optional[datetime] = Field(
 		default=None,

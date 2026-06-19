@@ -1,7 +1,7 @@
 import type { ICategoria } from "../ICategoria";
 import apiClient from "../../auth/services/axiosInstance";
 
-const PATH = "/categorias";
+const PATH = "/api/v1/categorias";
 
 type PaginatedResponse = { data: ICategoria[]; total: number };
 

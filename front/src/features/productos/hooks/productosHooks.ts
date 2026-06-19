@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import type { IProducto } from "../IProducto";
+import type { IngredienteSeleccionado } from "../components/ProductoModal";
 import {
   changeStateProducto,
   getProductos,
@@ -9,12 +10,10 @@ import {
   assignCategorias,
   assignIngredientes,
   uploadImage,
-  deleteImagen,
 } from "../services/producto.services";
 import { getCategorias } from "../../categoria/services/categoria.services";
 import { getIngredientes } from "../../ingredientes/services/ingrediente.services";
 import { getUnidadesMedida } from "../../unidadMedida/services/unidadMedida.services";
-import { obtenerId } from "../../../shared/utils/cloudinary";
 
 
 
@@ -88,7 +87,8 @@ export const useProductos = () => {
   });
 
   const assignIngredientesMutation = useMutation({
-    mutationFn: ({ id, ids }: { id: number; ids: number[] }) => assignIngredientes(id, ids),
+    mutationFn: ({ id, ingredientes }: { id: number; ingredientes: IngredienteSeleccionado[] }) =>
+      assignIngredientes(id, ingredientes),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["productos"] }),
   });
 
@@ -111,30 +111,25 @@ export const useProductos = () => {
   const handleSubmit = async (
     data: Omit<IProducto, "id" | "categorias" | "ingredientes">,
     categoriaIds: number[],
-    ingredienteIds: number[],
-    file?: File,
+    ingredientes: IngredienteSeleccionado[],
+    files?: File[],
   ) => {
     setErrorMessage(null);
     try {
-      let finalImageUrl = data.imagen_url;
+      // data.imagen_url ya contiene las URLs existentes que el usuario quiso conservar
+      let finalImageUrls: string[] = [...(data.imagen_url ?? [])];
 
-      if (file) {
-        if (modal.type === "edit" && modal.producto.imagen_url) {
-          const publicId = obtenerId(modal.producto.imagen_url);
-          if (publicId) {
-            try {
-              await deleteImagen(publicId);
-            } catch (err) {
-              console.log("No se pudo borrar la imagen anterior", err);
-            }
-          }
+      // Subir los archivos nuevos uno a uno
+      if (files && files.length > 0) {
+        for (const file of files) {
+          const url = await uploadImageMutation.mutateAsync(file);
+          finalImageUrls.push(url);
         }
-        finalImageUrl = await uploadImageMutation.mutateAsync(file);
       }
 
       const updatedData = {
         ...data,
-        imagen_url: finalImageUrl,
+        imagen_url: finalImageUrls,
       };
 
       if (modal.type === "edit" && modal.producto.id) {
@@ -142,7 +137,7 @@ export const useProductos = () => {
         await editMutation.mutateAsync({ id: prodId, data: updatedData });
         await Promise.all([
           assignCategoriasMutation.mutateAsync({ id: prodId, ids: categoriaIds }),
-          assignIngredientesMutation.mutateAsync({ id: prodId, ids: ingredienteIds }),
+          assignIngredientesMutation.mutateAsync({ id: prodId, ingredientes }),
         ]);
         queryClient.invalidateQueries({ queryKey: ["productos"] });
         handleClose();
@@ -151,7 +146,7 @@ export const useProductos = () => {
         if (newProd.id) {
           await Promise.all([
             assignCategoriasMutation.mutateAsync({ id: newProd.id, ids: categoriaIds }),
-            assignIngredientesMutation.mutateAsync({ id: newProd.id, ids: ingredienteIds }),
+            assignIngredientesMutation.mutateAsync({ id: newProd.id, ingredientes }),
           ]);
         }
         queryClient.invalidateQueries({ queryKey: ["productos"] });
@@ -169,9 +164,9 @@ export const useProductos = () => {
     }
   };
 
-  const handleAssignIngredientes = (ids: number[]) => {
+  const handleAssignIngredientes = (ingredientes: IngredienteSeleccionado[]) => {
     if (modal.type === "edit" && modal.producto.id) {
-      assignIngredientesMutation.mutate({ id: modal.producto.id, ids });
+      assignIngredientesMutation.mutate({ id: modal.producto.id, ingredientes });
     }
   };
 

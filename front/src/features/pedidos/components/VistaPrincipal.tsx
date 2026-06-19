@@ -206,7 +206,7 @@ export const VistaPrincipal = () => {
                         </div>
                         <div className="flex justify-around text-[#006D35] font-semibold">
                           <button className="bg-[#F4F3CF] text-[#929373] border-1 border-[#929373] px-3 py-1 rounded-full" title="cambio estado">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                                 <path d="M18.364 5.636l-12.728 12.728" />

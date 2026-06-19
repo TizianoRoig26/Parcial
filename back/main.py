@@ -29,6 +29,8 @@ from app.modules.usuario.usuario_rol import UsuarioRol
 from app.modules.pedido.models import DetallePedido, EstadoPedido, FormaPago, HistorialEstadoPedido, Pedido
 from app.modules.imagen.models import Imagen
 from app.db.seed import seed_pedido_catalogos, seed_roles, seed_pedidos
+from app.modules.unidadMedida.models import UnidadMedida
+from app.modules.pago.models import Pago
 
 
 

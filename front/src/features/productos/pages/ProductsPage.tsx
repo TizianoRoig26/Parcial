@@ -109,8 +109,14 @@ export const ProductsPage = () => {
               <tr key={prod.id} className="transition-colors text-center hover:bg-[#C9C8A6] border-t-1 border-[#0D4012]">
                 <td className=" ">
                   <div className="flex align-center justify-center">
-                    {prod.imagen_url && (
-                      <img src={getOptimizedImageUrl(prod.imagen_url)} alt={prod.nombre} className="w-10 h-10 object-cover shadow-sm" />
+                    {prod.imagen_url && prod.imagen_url.length > 0 ? (
+                      <div className="relative">
+                        <img src={getOptimizedImageUrl(prod.imagen_url[0])} alt={prod.nombre} className="w-10 h-10 object-cover shadow-sm rounded" />
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
+                        <span className="text-gray-400 text-xs">Sin img</span>
+                      </div>
                     )}
                   </div>
                 </td>

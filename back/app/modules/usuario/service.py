@@ -59,6 +59,7 @@ class UsuarioService:
             username=user_in.username,
             full_name=user_in.full_name,
             email=user_in.email,
+            celular=user_in.celular,
             hashed_password=hash_password(user_in.password),
         )
         usuario.roles = [client_role]
@@ -102,6 +103,7 @@ class UsuarioService:
             username=user_in.username,
             full_name=user_in.full_name,
             email=user_in.email,
+            celular=user_in.celular,
             hashed_password=hash_password(user_in.password),
         )
 

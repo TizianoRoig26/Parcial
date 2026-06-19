@@ -1,9 +1,9 @@
 import type { IPedido } from "../IPedido";
 import apiClient from "../../auth/services/axiosInstance";
 
-const PATH = "/pedidos";  
+const PATH = "/api/v1/pedidos";
 const AUTH = "/api/v1/auth";
-const DIREC = "/direcciones";
+const DIREC = "/api/v1/direcciones";
 
 type PaginatedResponse = { data: IPedido[]; total: number };
 
