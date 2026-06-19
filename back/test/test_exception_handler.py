@@ -21,10 +21,9 @@ from app.core.middleware.logging_middleware import LoggingMiddleware
 def test_exc_app():
     app = FastAPI()
     
-    # Agregar LoggingMiddleware para que asigne request_id a request.state
     app.add_middleware(LoggingMiddleware)
     
-    # Registrar los exception handlers bajo prueba
+
     register_exception_handlers(app)
     
     @app.get("/resource-not-found")
@@ -65,7 +64,6 @@ def test_exc_app():
         
     @app.get("/integrity-error")
     def trigger_integrity_error():
-        # IntegrityError requiere statement, params y orig exception
         raise IntegrityError("INSERT INTO table ...", {}, Exception("Duplicate key"))
         
     @app.get("/sqlalchemy-error")
@@ -146,7 +144,6 @@ def test_rate_limit_error_handler(test_exc_app):
     response = client.get("/rate-limit-error")
     assert response.status_code == 429
     
-    # Verificar header Retry-After
     assert response.headers.get("Retry-After") == "120"
     
     data = response.json()
@@ -168,7 +165,7 @@ def test_http_exception_handler(test_exc_app):
 
 def test_validation_error_handler(test_exc_app):
     client = TestClient(test_exc_app)
-    # Enviar payload inválido para disparar RequestValidationError
+
     response = client.post("/validation-error", json={"name": 123, "age": -5})
     assert response.status_code == 422
     
@@ -177,10 +174,9 @@ def test_validation_error_handler(test_exc_app):
     assert err["code"] == "validation_error"
     assert err["message"] == "Los datos enviados no son válidos"
     
-    # Pydantic 2.x o 1.x estructurará los fields
     assert "fields" in err
     fields = err["fields"]
-    # Debe haber un error en body.age ya que es menor que 0
+
     age_error = next((f for f in fields if f["field"] == "body.age"), None)
     assert age_error is not None
     assert age_error["type"] == "greater_than"

@@ -5,7 +5,7 @@ from app.modules.usuario.model import Usuario
 from app.modules.pedido.models import Pedido
 
 @pytest.fixture(scope="function", autouse=True)
-def setup_pedidos_estadisticas(db_session, pedido_factory, admin_client): # <-- Agregamos admin_client acá
+def setup_pedidos_estadisticas(db_session, pedido_factory, admin_client): 
 
     usuario = db_session.exec(select(Usuario).where(Usuario.username == "admin_user")).first()
     

@@ -77,7 +77,6 @@ def client(db_session):
     app.dependency_overrides.clear()
 
 def _crear_y_loguear(client, db_session, username, password, rol_codigo):
-    # 1. Buscamos si el usuario ya existe; si no, lo creamos en el momento
     usuario = db_session.exec(select(Usuario).where(Usuario.username == username)).first()
     
     if not usuario:
@@ -91,11 +90,9 @@ def _crear_y_loguear(client, db_session, username, password, rol_codigo):
         db_session.commit()
         db_session.refresh(usuario)
         
-        # Le asignamos el rol que nos pasaron por parámetro
         db_session.add(UsuarioRol(usuario_id=usuario.id, rol_codigo=rol_codigo))
         db_session.commit()
 
-    # 2. Ahora sí, nos logueamos sabiendo que el usuario existe
     response = client.post(
         "/api/v1/auth/token",
         data={"username": username, "password": password}
@@ -109,7 +106,6 @@ def admin_client(client, db_session):
 
 @pytest.fixture(scope="function")
 def cliente_client(client, db_session):
-    # NOTA: Cambié "CLIENTE" por "CLIENT" para que coincida con tu BD
     return _crear_y_loguear(client, db_session, "comprador", "Client1234!", "CLIENT")
 
 @pytest.fixture(scope="function")
