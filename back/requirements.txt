@@ -11,4 +11,3 @@ python-multipart
 mercadopago
 cloudinary
 pytest
-alembic
