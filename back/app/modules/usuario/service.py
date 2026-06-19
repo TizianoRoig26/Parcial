@@ -20,7 +20,7 @@ from app.core.config import settings
 from app.core.security import hash_password, verify_password, create_access_token
 from app.modules.usuario.unit_of_work import UsuariosUnitOfWork
 from app.modules.usuario.model import Usuario
-from app.modules.usuario.schemas import UserCreate, UserCreateTrabajador, Token, UserPublic
+from app.modules.usuario.schemas import UserCreate, UserCreateTrabajador, Token, UserPublic, UserUpdate
 from app.modules.usuario.usuario_rol import UsuarioRol
 
 
@@ -170,7 +170,46 @@ class UsuarioService:
             )
         return user
 
+    def update_usuario(self, user_id: int, user_in: UserUpdate) -> Usuario:
+        user = self.uow.usuarios.get_by_id(user_id)
+        if not user:
+            raise ResourceNotFoundError(
+                resource="usuario",
+                identifier=user_id,
+            )
 
+        if user_in.username is not None and user_in.username != user.username:
+            existing_user = self.uow.usuarios.get_by_username(user_in.username)
+            if existing_user:
+                raise DuplicateResourceError(
+                    message="El nombre de usuario ya está en uso",
+                    resource="usuario",
+                    field="username",
+                    value=user_in.username,
+                )
+            user.username = user_in.username
+
+        if user_in.email is not None and user_in.email != user.email:
+            existing_user = self.uow.usuarios.get_by_email(user_in.email)
+            if existing_user:
+                raise DuplicateResourceError(
+                    message="El email ya está registrado",
+                    resource="usuario",
+                    field="email",
+                    value=user_in.email,
+                )
+            user.email = user_in.email
+
+        if user_in.full_name is not None:
+            user.full_name = user_in.full_name
+
+        if user_in.celular is not None:
+            user.celular = user_in.celular
+
+        if user_in.password is not None:
+            user.hashed_password = hash_password(user_in.password)
+
+        return self.uow.usuarios.update(user)
 
     def set_disabled(self, user_id: int, disabled: bool) -> Usuario:
         """Activa o desactiva la cuenta de un usuario."""

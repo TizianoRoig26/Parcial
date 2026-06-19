@@ -19,8 +19,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.modules.usuario.unit_of_work import UsuariosUnitOfWork, get_uow
 from app.core.deps import get_current_active_user, require_role
+from app.core.exceptions.custom_exceptions import AuthorizationError
 from app.modules.usuario.model import Usuario
-from app.modules.usuario.schemas import UserCreate, UserCreateTrabajador, UserPublic, Token
+from app.modules.usuario.schemas import UserCreate, UserCreateTrabajador, UserPublic, Token, UserUpdate
 from app.modules.usuario.service import UsuarioService
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
@@ -90,6 +91,21 @@ def read_me(
     current_user: Annotated[Usuario, Depends(get_current_active_user)],
 ):
     return current_user
+
+
+@router.patch("/usuarios/{user_id}", response_model=UserPublic)
+def patch_user(
+    user_id: int,
+    user_in: UserUpdate,
+    current_user: Annotated[Usuario, Depends(get_current_active_user)],
+    uow: Annotated[UsuariosUnitOfWork, Depends(get_uow)],
+):
+    if current_user.id != user_id:
+        raise AuthorizationError("No tienes permisos para modificar este usuario")
+
+    with uow:
+        service = UsuarioService(uow)
+        return service.update_usuario(user_id, user_in)
 
 
 @router.get("/privado")
