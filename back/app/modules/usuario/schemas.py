@@ -28,6 +28,15 @@ class UserCreateTrabajador(UserCreate):
     
 
 
+class UserUpdate(SQLModel):
+    """Datos permitidos para modificar un usuario."""
+    username:  str | None = None
+    full_name: str | None = None
+    email:     EmailStr | None = None
+    celular:   str | None = None
+    password:  str | None = Field(default=None, min_length=8)
+
+
 class UserPublic(SQLModel):
     """Vista pública del usuario — excluye hashed_password."""
     id:        int
