@@ -15,22 +15,24 @@ export const VistaSecundaria = () => {
               <div className="px-5 pb-5 flex justify-between items-center gap-2 border-b-2 border-[#C9C8A6] w-full">
                 <div className="flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#006D35"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M11.87 21.48a1.992 1.992 0 0 1 -1.283 -.58l-4.244 -4.243a8 8 0 1 1 13.355 -3.474" /><path d="M15 19l2 2l4 -4" /></svg>
-                    <span className="text-xl text-[#006D35] font-bold">Entregado</span>
+                    <span className="text-xl text-[#006D35] font-bold">Finalizados</span>
                   </div>
                 <span className="bg-[#50834D] text-white px-3 py-1 rounded-full">
-                  {pedidos?.data.filter(pedido => pedido.estado_codigo == "ENTREGADO").length}
+                  {pedidos?.data.filter(pedido => pedido.estado_codigo == "ENTREGADO" || pedido.estado_codigo == "CANCELADO").length}
                 </span>
               </div>
               <div className="p-4 overflow-y-auto flex-1 min-h-0">
                 <ul className="flex flex-col">
-                  {pedidos?.data.filter(pedido => pedido.estado_codigo == "ENTREGADO").map((pedido) => (
+                  {pedidos?.data.filter(pedido => pedido.estado_codigo == "ENTREGADO" || pedido.estado_codigo == "CANCELADO").map((pedido) => (
                     <li key={pedido.id} className="mb-4 ">
                       <article className="flex flex-col border-3 gap-2 border-[#929373] rounded-xl p-4">
                         <div className="flex justify-between ">
                           <span className="text-lg text-[#006D35] hover:underline font-bold">
-                            <Link to={`/pedidos/${pedido.id}`}>#{pedido.id}</Link>
+                            <Link to={`/pedidos/${pedido.id}`}>#{pedido.id}</Link> - <span className={pedido.estado_codigo == "ENTREGADO" ? "text-green-600" : "text-red-600"}>{pedido.estado_codigo}</span>
                           </span>
+                          
                           <span>
+                            
                             {pedido.pagado == true ? <span className="text-green-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                               <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
@@ -52,13 +54,10 @@ export const VistaSecundaria = () => {
                         </div>
                         <div className="flex flex-col justify-between items-start">
                           <span className="text-xl"><UsuarioNombre id={pedido.usuario_id} /></span>
-                          <span>Notas: {pedido.notas}</span>
+                          <span>Notas: {pedido.notas}</span> <span className="text-[#006D35] font-semibold">${pedido.total}</span>
                         </div>
                         <div className="bg-[#F4F3CF] rounded-xl p-2 w-full flex justify-center items-center font-medium text-sm">
-                          <PedidoDetalles pedidoId={pedido.id}/>
-                        </div>
-                        <div className="flex justify-around text-[#006D35] font-semibold">
-                          <span>${pedido.total}</span>
+                          <PedidoDetalles pedidoId={pedido.id}/> 
                         </div>
                       </article>
                     </li>
