@@ -15,6 +15,7 @@ from app.modules.unidadMedida.models import UnidadMedida
 from app.modules.usuario.model import Usuario
 from app.modules.usuario.rol import Rol
 from app.modules.usuario.usuario_rol import UsuarioRol
+from app.modules.pago.models import Pago
 
 
 def seed_roles() -> None:
@@ -349,6 +350,7 @@ def seed_pedidos() -> None:
 		if existing_pedidos:
 			print("  [~] Limpiando pedidos existentes para re-seed...")
 			
+			session.exec(delete(Pago))
 			session.exec(delete(HistorialEstadoPedido))
 			session.exec(delete(DetallePedido))
 			session.exec(delete(Pedido))
