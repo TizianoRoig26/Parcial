@@ -256,7 +256,7 @@ class PedidoService:
 					)
 				)
 
-			descuento = self._moneda(Decimal("0.00"))
+			descuento = self._moneda(data.descuento or Decimal("0.00"))
 			costo_envio = self.COSTO_ENVIO_RETIRO if data.direccion_id is None else self.COSTO_ENVIO_DOMICILIO
 			total = self._moneda(subtotal - descuento + costo_envio)
 			if total < Decimal("0.00"):

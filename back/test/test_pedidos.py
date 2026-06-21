@@ -146,3 +146,28 @@ def test_cancelar_ajeno_prohibido(admin_client, cliente_client, db_session, pedi
     response = cliente_client.post(f"/api/v1/pedidos/{pedido.id}/cancel", json=payload)
 
     assert response.status_code == 403
+
+
+def test_crear_pedido_con_descuento(cliente_client, db_session, producto_factory):
+    usuario = db_session.exec(select(Usuario).where(Usuario.username == "comprador")).first()
+    producto = producto_factory(precio_base=1000)
+    
+    payload = {
+        "forma_pago_codigo": "EFECTIVO",
+        "descuento": 150.00,
+        "items": [
+            {
+                "producto_id": producto.id,
+                "cantidad": 1
+            }
+        ]
+    }
+    
+    response = cliente_client.post("/api/v1/pedidos", json=payload)
+    
+    assert response.status_code == 201
+    data = response.json()
+    assert data["usuario_id"] == usuario.id
+    assert data["estado_codigo"] == "PENDIENTE"
+    assert float(data["descuento"]) == 150.00
+    assert float(data["total"]) == 850.00

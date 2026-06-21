@@ -19,6 +19,7 @@ class PedidoCreate(SQLModel):
 	direccion_id: Optional[int] = Field(default=None, ge=1)
 	forma_pago_codigo: str = Field(max_length=20)
 	notas: Optional[str] = None
+	descuento: Optional[Decimal] = Field(default=None, ge=0)
 	items: list[ItemPedidoCreate]
 
 
